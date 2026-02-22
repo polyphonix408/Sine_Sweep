@@ -1,0 +1,153 @@
+{% liquid
+  assign title = block.settings.title
+  assign gap = block.settings.gap
+%}
+
+{% capture gap_class %}
+  {% case block.settings.gap %}
+    {% when '0' %}
+      [--gap:0]
+    {%- when 'xs' -%}
+      [--gap:--grid-xs]
+    {%- when 'sm' -%}
+      [--gap:--grid-sm]
+    {%- when 'md' -%}
+      [--gap:--grid-md]
+    {%- when 'lg' -%}
+      [--gap:--grid-lg]
+    {%- when 'xl' -%}
+      [--gap:--grid-xl]
+  {% endcase %}
+  gap-y-[--gap]
+{% endcapture %}
+
+{% capture content %}
+  {% content_for 'blocks' %}
+{% endcapture %}
+
+<div
+  x-disclosure
+  x-slideshow:slide
+  {% comment %} Override the roledescription added by x-slideshow:slide since this isn't actually a slide {% endcomment %}
+  :aria-roledescription="null"
+  x-data="{
+    get ellapsedTimePercentage() {
+      return (this.$slideshow.currentSlideElapsedTime / this.$slideshow.slideDuration) * 100
+    }
+  }"
+
+  class="
+    {% comment %} Hide all panels except the first until Alpine loads {% endcomment %}
+    [&:not(:first-child)]:[--initial-display:none]
+  "
+
+  {% comment %} Once Alpine loads remove the initial display variable and let Alpine take over {% endcomment %}
+  x-init="$el.style.removeProperty('--initial-display')"
+
+  {% if request.design_mode %}
+    @shopify:block:select='$disclosure.expand()'
+  {% endif %}
+
+  :id="`{{section.id}}-${ensembleId}-element-${$disclosure.groupIndex}`"
+
+  {{ block.shopify_attributes }}
+>
+  <button
+    class="py-[--space-8] w-full text-left whitespace-normal transition-opacity duration-200"
+    style="text-transform: var(--font-transform)"
+    x-disclosure:button
+    :id="`{{section.id}}-${ensembleId}-element-${$disclosure.groupIndex}-label`"
+    :class="$disclosure.isExpanded ? 'opacity-100' : 'opacity-50'"
+  >
+    {{ title }}
+  </button>
+  <div
+    x-collapse.duration.400ms
+    class="!ease-out-fast"
+    style="display: var(--initial-display);"
+    x-disclosure:panel
+    :id="`{{section.id}}-${ensembleId}-element-${$disclosure.groupIndex}-panel`"
+  >
+    {% if content != blank %}
+      <div class="pb-[--space-8] text-left flex flex-col {{ gap_class }}">
+        {{ content }}
+      </div>
+    {% endif %}
+  </div>
+  <svg role="presentation" class="w-full h-[1px] rtl:-scale-x-100">
+    <rect width="100%" height="1" class="fill-[--hairline]"></rect>
+    <rect
+      width="0%" height="1"
+      class="w-[--ellapsed-time-percentage] fill-[--border]"
+
+      :style="{
+        '--ellapsed-time-percentage': $slideshow.currentSlideIndex == $disclosure.groupIndex ? `${ellapsedTimePercentage}%` : '0%'
+      }"
+    ></rect>
+  </svg>
+</div>
+
+{% schema %}
+{
+	"name": "Accordion Item",
+	"tag": null,
+	"settings": [
+		{
+			"type": "text",
+			"id": "title",
+			"label": "Title",
+			"default": "Your clickable title"
+		},
+		{
+			"type": "select",
+			"id": "gap",
+			"label": "Block gap",
+			"default": "sm",
+			"options": [
+				{
+					"value": "0",
+					"label": "0"
+				},
+				{
+					"value": "sm",
+					"label": "S"
+				},
+				{
+					"value": "md",
+					"label": "M"
+				},
+				{
+					"value": "lg",
+					"label": "L"
+				},
+				{
+					"value": "xl",
+					"label": "XL"
+				}
+			]
+		}
+	],
+	"blocks": [
+		{
+			"type": "@theme"
+		},
+		{
+			"type": "@app"
+		}
+	],
+	"presets": [
+		{
+			"name": "Accordion Item",
+			"blocks": [
+				{
+					"type": "theme-text",
+					"settings": {
+						"text": "Use this accordion to share simple text or unleash your creativity with buttons, images, and layout blocks. Experiment with custom designs to make your content stand out and engage your customers",
+						"text_size": 4
+					}
+				}
+			]
+		}
+	]
+}
+{% endschema %}

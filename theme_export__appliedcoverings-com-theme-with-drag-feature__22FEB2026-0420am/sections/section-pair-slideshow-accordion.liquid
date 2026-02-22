@@ -1,0 +1,320 @@
+
+{% liquid
+  assign border_class = ''
+  if section.settings.borders
+    assign border_class = 'brick--border'
+  endif
+
+  assign margin_class = ''
+  if section.settings.brick_gutter > 0
+    assign margin_class = 'brick--margin'
+  endif
+%}
+
+<section
+  data-section-id="{{ section.id }}"
+  {% comment %} Don't change this. Needs to be 'custom-content' instead of the actual name of this section to hook up various web component stuff which relies on this selector {% endcomment %}
+  data-section-type="custom-content"
+
+  style="
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+    --BRICK-GUTTER: {{ section.settings.brick_gutter }}px;
+    {% if section.settings.bg_color != blank %}background-color: {{ section.settings.bg_color }};{% endif %}
+  "
+
+  x-data
+  x-ensemble
+
+  {% if request.design_mode %}
+    @shopify:section:select.window='if ($isSelectedSection) { isPlaying = false }'
+    @shopify:section:deselect.window='if ($wasSelectedSection) { isPlaying = true }'
+  {% endif %}
+>
+  <div class="section-padding {{ section.settings.width }}" data-wrapper>
+    <div
+      class="
+        brick__section brick--2
+        {{ margin_class }} {{ border_class }} {{ section.settings.height }}
+
+        {% if section.settings.order == 'accordion-first' %}
+          brick__section--reverse
+        {% endif %}
+      "
+      data-overflow-wrapper
+    >
+      {% # theme-check-disable UniqueStaticBlockId %}
+      {% if section.settings.order == 'slideshow-first' %}
+        {% content_for 'block', type: '_pair-slideshow', id: 'slideshow' %}
+        {% content_for 'block', type: '_pair-accordion', id: 'accordion' %}
+      {% else %}
+        {% content_for 'block', type: '_pair-accordion', id: 'accordion' %}
+        {% content_for 'block', type: '_pair-slideshow', id: 'slideshow' %}
+      {% endif %}
+      {% # theme-check-enable UniqueStaticBlockId %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+	"name": "Pair: Slides & Text",
+	"tag": "div",
+	"settings": [
+		{
+			"type": "select",
+			"id": "order",
+			"label": "Order",
+			"default": "slideshow-first",
+			"options": [
+				{
+					"value": "slideshow-first",
+					"label": "Slides first"
+				},
+				{
+					"value": "accordion-first",
+					"label": "Text first"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "duration",
+			"min": 1,
+			"max": 15,
+			"step": 1,
+			"unit": "sec",
+			"label": "Change slides every",
+			"default": 5
+		},
+		{
+			"type": "header",
+			"content": "Section layout"
+		},
+		{
+			"type": "select",
+			"id": "height",
+			"label": "Section height",
+			"default": "use_screen_one_half",
+			"options": [
+				{
+					"value": "use_screen_full",
+					"label": "Full screen height"
+				},
+				{
+					"value": "use_screen_three_quarters",
+					"label": "Three quarters of screen height"
+				},
+				{
+					"value": "use_screen_two_thirds",
+					"label": "Two thirds of screen height"
+				},
+				{
+					"value": "use_screen_one_half",
+					"label": "One half of screen height"
+				},
+				{
+					"value": "use_screen_one_third",
+					"label": "One third of screen height"
+				},
+				{
+					"value": "use_screen_one_fifth",
+					"label": "One fifth of screen height"
+				},
+				{
+					"value": "use_pixels_800",
+					"label": "800px"
+				},
+				{
+					"value": "use_pixels_650",
+					"label": "650px"
+				},
+				{
+					"value": "use_pixels_500",
+					"label": "500px"
+				},
+				{
+					"value": "use_image",
+					"label": "Image height"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "brick_gutter",
+			"min": 0,
+			"max": 50,
+			"step": 2,
+			"unit": "px",
+			"label": "Block spacing",
+			"default": 0
+		},
+		{
+			"type": "checkbox",
+			"id": "borders",
+			"label": "Add borders",
+			"default": false
+		},
+		{
+			"type": "color",
+			"id": "bg_color",
+			"label": "Background"
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper",
+			"options": [
+				{
+					"value": "wrapper--none",
+					"label": "Full width"
+				},
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				},
+				{
+					"value": "wrapper--narrow",
+					"label": "Page width narrow"
+				},
+				{
+					"value": "wrapper--tiny",
+					"label": "Page width extra narrow"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 36
+		}
+	],
+	"blocks": [
+		{
+			"type": "_pair-slideshow"
+		},
+		{
+			"type": "_pair-accordion"
+		}
+	],
+	"presets": [
+		{
+			"name": "Pair: Slides & Text",
+			"blocks": [
+				{
+					"type": "_pair-slideshow",
+					"id": "slideshow",
+					"static": true,
+					"blocks": [
+						{
+							"type": "_pair-slideshow-slide"
+						},
+						{
+							"type": "_pair-slideshow-slide"
+						},
+						{
+							"type": "_pair-slideshow-slide"
+						}
+					]
+				},
+				{
+					"type": "_pair-accordion",
+					"id": "accordion",
+					"static": true,
+					"blocks": [
+						{
+							"type": "_pair-title",
+							"id": "title",
+							"static": true,
+							"blocks": [
+								{
+									"type": "theme-kicker",
+									"settings": {
+										"kicker": "The Details"
+									}
+								}
+							]
+						},
+						{
+							"type": "_pair-accordion-item",
+							"settings": {
+								"title": "Exceptional craftsmanship"
+							},
+							"blocks": [
+								{
+									"type": "theme-text",
+									"settings": {
+										"text": "Meticulously crafted to deliver unmatched quality, reflecting a dedication to excellence in every detail.",
+										"text_size": 4
+									}
+								}
+							]
+						},
+						{
+							"type": "_pair-accordion-item",
+							"settings": {
+								"title": "Made for your lifestyle"
+							},
+							"blocks": [
+								{
+									"type": "theme-text",
+									"settings": {
+										"text": "Designed with versatility and practicality in mind. Made for you, and for whatever your day demands.",
+										"text_size": 4
+									}
+								}
+							]
+						},
+						{
+							"type": "_pair-accordion-item",
+							"settings": {
+								"title": "Inspired by you"
+							},
+							"blocks": [
+								{
+									"type": "theme-text",
+									"settings": {
+										"text": "Carefully crafted to complement your unique way of being you, we strive to bring a touch of inspiration to your life.",
+										"text_size": 4
+									}
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"custom.overlays"
+		]
+	}
+}
+{% endschema %}
+

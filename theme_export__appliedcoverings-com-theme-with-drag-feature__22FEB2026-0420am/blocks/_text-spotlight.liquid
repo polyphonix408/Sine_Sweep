@@ -1,0 +1,114 @@
+{% liquid
+  assign text = block.settings.text
+
+  # Split the text into seperate words wrapped in span tags
+  capture split_text
+    render 'split-text', text: text, attributes: 'data-animate-stagger-item', class: 'inline'
+  endcapture
+
+  # Automatically highlight any text wrapped in <em><strong> tags
+  capture auto_highlighted_text
+    render 'core-text-autohighlight', text: split_text, _settings: block.settings
+  endcapture
+%}
+
+{% capture text_class %}
+  text-content text-r{{ block.settings.text_size }} type-{{ block.settings.font_family }}
+
+  *:stagger-each-transition-100
+
+  {% comment %} Ensure we're not trying to transition `transform` on this element or it's children since that property is being animated by x-animate-scroll-stagger {% endcomment %}
+  *:transition-[none]
+{% endcapture %}
+
+{% render 'core-text-spotlight', _settings: block.settings, content: auto_highlighted_text, class: text_class %}
+
+{% schema %}
+{
+	"name": "Text: Spotlight",
+	"settings": [
+		{
+			"type": "header",
+			"content": "Text"
+		},
+		{
+			"type": "inline_richtext",
+			"id": "text",
+			"label": "Text",
+			"default": "Use this text to <em><strong>share information</strong></em> about your brand with your customers"
+		},
+		{
+			"type": "range",
+			"id": "text_size",
+			"label": "Size",
+			"min": 1,
+			"max": 15,
+			"step": 1,
+			"default": 7
+		},
+		{
+			"type": "select",
+			"id": "font_family",
+			"label": "Font",
+			"default": "body",
+			"options": [
+				{
+					"value": "heading",
+					"label": "Title"
+				},
+				{
+					"value": "body",
+					"label": "Body"
+				},
+				{
+					"value": "accent",
+					"label": "Accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Highlight",
+			"info": "Use italic and bold together to create a highlight"
+		},
+		{
+			"type": "color",
+			"id": "highlight_color",
+			"label": "Color",
+			"default": "#eee"
+		},
+		{
+			"type": "select",
+			"id": "highlight_appearance",
+			"label": "Style",
+			"options": [
+				{
+					"value": "full",
+					"label": "Full"
+				},
+				{
+					"value": "partial",
+					"label": "Partial Background"
+				},
+				{
+					"value": "underline",
+					"label": "Underline"
+				}
+			]
+		},
+		{
+			"type": "checkbox",
+			"id": "enable_scroll_animation",
+			"label": "Enable scroll animation",
+			"default": true,
+			"info": "If enabled, text will be animated as it comes into view"
+		}
+	],
+	"blocks": [],
+	"presets": [
+		{
+			"name": "Text: Spotlight"
+		}
+	]
+}
+{% endschema %}

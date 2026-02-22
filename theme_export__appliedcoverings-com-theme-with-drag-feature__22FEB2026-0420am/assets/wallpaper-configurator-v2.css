@@ -1,0 +1,1260 @@
+/* Wallpaper Configurator V2 - Clean Styles */
+/* Based on Figma wireframe - 3/4 + 1/4 layout */
+
+.wallpaper-configurator {
+  margin: 40px auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Main Grid Layout */
+.configurator-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+  align-items: start;
+}
+
+/* Left Column - Canvas Area */
+.configurator-left {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  height: 100%;
+  max-height: calc(100vh - 170px);
+  position: sticky;
+  top: 30px;
+}
+
+/* REMOVED: Old horizontal controls-row styles - now using vertical card layout */
+
+.dimension-group {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+}
+
+.dimension-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dimension-inputs {
+  display: flex;
+  gap: 8px;
+}
+
+.dimension-input {
+  width: 70px;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: center;
+  background: white !important;
+  transition: border-color 0.2s;
+  margin-bottom: 0 !important;
+}
+
+.dimension-input:focus {
+  outline: none;
+  border-color: #1897aa;
+  box-shadow: 0 0 0 2px rgba(24, 151, 170, 0.1);
+}
+
+.dimension-input::placeholder {
+  color: #999;
+  font-size: 12px;
+}
+
+/* Material Controls */
+.material-controls {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+/* Mode Toggle Controls */
+.mode-toggle-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mode-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.mode-toggle-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.mode-toggle-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #666;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+}
+
+.mode-toggle-btn:hover {
+  border-color: #1897aa;
+  color: #1897aa;
+}
+
+.mode-toggle-btn.active {
+  background: #1897aa;
+  border-color: #1897aa;
+  color: white;
+}
+
+.mode-toggle-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.material-info-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  /* padding: 8px 12px; */
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.2s;
+  text-transform: uppercase;
+}
+#measure-modal-btn {
+  display: flex;
+  margin-bottom: 10px;
+}
+.material-info-btn:hover {
+  color: #1897aa;
+}
+
+.material-info-btn svg {
+  width: 12px;
+  height: 12px;
+}
+
+.material-select {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  margin-bottom: 0 !important;
+}
+
+.material-select:focus {
+  outline: none;
+  border-color: #1897aa;
+  box-shadow: 0 0 0 2px rgba(24, 151, 170, 0.1);
+}
+
+/* Configurator Wrapper - Full Page Mode */
+#configurator-wrapper {
+  width: 100%;
+}
+
+/* #configurator-wrapper.fullscreen-mode {
+  min-height: calc(100vh - 200px);
+} */
+
+/* Bottom Cards Container */
+.bottom-cards-container {
+  display: flex;
+  gap: 20px;
+}
+
+
+.bottom-cards-container .control-card {
+  flex: 1;
+}
+
+/* .bottom-card {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 15px;
+  border: 1px solid #e5e5e5;
+} */
+
+.bottom-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.bottom-card .quality-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bottom-card .quality-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.bottom-card .helper-text,
+.bottom-card .help-text {
+  font-size: 12px;
+  color: #666;
+  margin: 0px 0 10px;
+}
+
+.bottom-card a:hover {
+  text-decoration: underline;
+}
+
+/* Upload Canvas */
+#wallpaper-configurator,
+#configurator-wrapper{
+  background-color: #f9f9f9;
+}
+#wallpaper-configurator{
+  max-width: 100%;
+  margin: 0 auto;
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+
+#back-to-product{
+  width: 100%;
+  border-radius: 0px;
+  margin-bottom: 20px;
+}
+
+/* Old Alpine.js conflicting classes removed - see new .configurator-launch-* classes at end of file */
+.upload-canvas {
+  max-height: calc((100vh - 170px) * 0.66);
+  position: relative;
+  flex-grow: 1;
+  display: flex;
+  border-radius: 8px;
+  background-image:
+      linear-gradient(45deg, #f8f8f8 25%, transparent 25%),
+      linear-gradient(-45deg, #f8f8f8 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #f8f8f8 75%),
+      linear-gradient(-45deg, transparent 75%, #f8f8f8 75%) !important;
+  background-size: 20px 20px !important;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px !important;
+}
+
+/* Hide file input */
+.file-input,
+input[type="file"]#image-upload {
+  display: none !important;
+  visibility: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+}
+
+.upload-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  background: white;
+  transition: all 0.3s;
+  cursor: pointer;
+  position: relative;
+}
+
+.upload-dropzone:hover {
+  border-color: #1897aa;
+  background: #f0f9fa;
+}
+
+.upload-dropzone.drag-over {
+  border-color: #1897aa;
+  background: #e6f7f9;
+}
+
+.upload-dropzone.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #f8f8f8;
+}
+
+.upload-dropzone.disabled:hover {
+  border-color: #ccc;
+  background: #f8f8f8;
+}
+
+.upload-dropzone.disabled .upload-label {
+  cursor: not-allowed;
+}
+
+.upload-dropzone.disabled .upload-text {
+  color: #d9534f;
+  font-weight: 600;
+}
+
+.upload-label {
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 40px;
+  cursor: pointer;
+  text-align: center;
+  margin:auto;
+  height:auto;
+}
+
+.upload-icon {
+  width: 48px;
+  height: 48px;
+  color: #999;
+}
+
+.upload-text {
+  font-size: 18px;
+  font-weight: 500;
+  color: #333;
+}
+
+.upload-info {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Upload Disclaimer */
+.upload-disclaimer {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 500px;
+  padding: 12px 15px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #666;
+  text-align: center;
+}
+
+.upload-disclaimer p {
+  margin: 0 0 5px 0;
+}
+
+.upload-disclaimer p:last-child {
+  margin-bottom: 0;
+}
+
+.upload-disclaimer a {
+  color: #1897aa;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.upload-disclaimer a:hover {
+  color: #147a8a;
+}
+
+/* Image Preview */
+.image-preview {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  border:1px solid #ccc;
+  border-radius: 8px;
+  /* Checkered transparency background */
+  background-image:
+    linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
+    linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
+    linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  margin: auto;
+  display: block;
+}
+
+.image-preview canvas {
+  /* Let JavaScript control the sizing based on wall dimensions */
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+  margin: 0 auto;
+}
+
+.preview-actions {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  z-index: 10;
+}
+
+.clear-btn {
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 0, 0, 0.1);
+  color: #dc3545;
+  border: 1px solid #dc3545;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clear-btn:hover {
+  background: #dc3545;
+  color: white;
+}
+
+/* Cropping Interface */
+.cropping-interface {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: white;
+}
+
+/* Crop Helper Text */
+.crop-helper-text {
+  padding: 10px 15px;
+  background: #e8f4f8;
+  border-radius: 6px;
+  margin: 10px;
+  text-align: center;
+  position: absolute;
+  top: 0;
+  z-index: 99;
+}
+
+.crop-helper-text p {
+  margin: 0;
+  color: #1897aa;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.crop-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* overflow: hidden; */
+  position: relative;
+  height: 100%;
+}
+
+/* Center the crop box in the preview */
+/* Cropper.js Custom Styles */
+/* .cropper-container {
+  height: 100% !important;
+  width: 100% !important;
+} */
+
+.cropper-wrap-box,
+.cropper-canvas,
+.cropper-drag-box {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.cropper-crop-box {
+  /* Remove the dashed border, use solid */
+  /* border: 2px solid #FF6B35 !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3); */
+}
+
+/* Style the crop box face */
+.cropper-face {
+  background-color: transparent !important;
+}
+
+/* Style the crop box corners */
+.cropper-point {
+  background-color: #1897aa !important;
+  width: 10px !important;
+  height: 10px !important;
+  opacity: 1 !important;
+}
+
+/* Style the crop box lines */
+.cropper-line {
+  background-color: #1897aa !important;
+  opacity: 1 !important;
+}
+
+/* Modal overlay outside crop area */
+.cropper-modal {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Grid lines inside crop box */
+.cropper-dashed {
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  opacity: 0.7 !important;
+}
+
+/* Shade/overlay outside crop selection */
+.cropper-modal {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  opacity: 1 !important;
+}
+
+.crop-container {
+  /* Checkered transparency background */
+  background-image:
+    linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
+    linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
+    linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  background-color: #fff;  /* Fallback for solid background */
+}
+
+.crop-container img {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+/* Checkered transparency for cropper canvas */
+/* .cropper-canvas {
+  background-image:
+    linear-gradient(45deg, #f8f8f8 25%, transparent 25%),
+    linear-gradient(-45deg, #f8f8f8 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #f8f8f8 75%),
+    linear-gradient(-45deg, transparent 75%, #f8f8f8 75%) !important;
+  background-size: 20px 20px !important;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px !important;
+} */
+
+.crop-actions {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0px;
+}
+/* .cropper-container{
+  height: 100% !important;
+} */
+
+/* Pattern Settings */
+.pattern-settings {
+  margin-top: 15px;
+  padding: 20px;
+  background: #f0f9fb;
+  border: 1px solid #1897aa;
+  border-radius: 8px;
+  width: 100%;
+}
+
+.pattern-settings h4 {
+  margin: 0 0 15px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.size-label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.pattern-slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: #ddd;
+  outline: none;
+  transition: background 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.pattern-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #1897aa;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transition: all 0.2s;
+}
+
+.pattern-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 2px 8px rgba(24, 151, 170, 0.4);
+}
+
+.pattern-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #1897aa;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  border: none;
+}
+
+.size-hints {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+  font-size: 11px;
+  color: #999;
+}
+
+/* Utility Bar */
+.utility-bar {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  padding: 15px 20px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  position: relative;
+}
+.utility-top-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.utility-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.utility-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.utility-btn {
+  padding: 8px 16px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+
+.utility-btn:hover:not(:disabled) {
+  border-color: #1897aa;
+}
+
+.utility-btn:disabled,
+.utility-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  color: #999;
+}
+
+.utility-btn:disabled:hover,
+.utility-btn.disabled:hover {
+  border-color: #ddd;
+  color: #999;
+}
+
+.utility-btn.active {
+  background: #1897aa;
+  border-color: #1897aa;
+  color: white;
+}
+
+/* Right Column - Control Cards */
+.configurator-right {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: sticky;
+  top: 20px;
+}
+
+/* Control Cards Base Styles */
+.control-card {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+/* Step 1: Dimensions Card */
+.dimensions-card .dimensions-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.dimension-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 0px;
+  color: #666;
+  flex:.2;
+}
+
+.dimension-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex:1;
+}
+
+.dimension-input {
+  width: 60px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.dimension-unit {
+  font-size: 14px;
+  color: #666;
+  margin-right: 10px;
+}
+.disclaimer {
+  color: #666;
+  line-height: 1.2;
+  display: flex;
+  font-size: 12px;
+}
+
+/* Step 2: Materials Card */
+.material-dropdown {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-bottom: 15px;
+  background: white;
+}
+
+#compare-materials-btn {
+  width: 100%;
+}
+
+/* Step 3: Options Card */
+.option-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+/* .option-buttons .utility-btn:last-child {
+  grid-column: 1 / -1;
+} */
+
+/* Summary Card */
+/* .summary-card {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+} */
+
+.summary-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+  color: #333;
+}
+
+.summary-rows {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.summary-row.summary-total {
+  border-bottom: none;
+  /* padding-top: 12px; */
+  /* margin-top: 8px; */
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.summary-label {
+  color: #666;
+}
+
+.summary-value {
+  color: #333;
+  font-weight: 500;
+  text-align: right;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 200px;
+  overflow: hidden;
+}
+
+.summary-total .summary-value {
+  font-size: 20px;
+  color: #1897aa;
+}
+
+/* Quality Card */
+/* .quality-card {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+} */
+
+.quality-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+  color: #333;
+}
+
+.quality-rows {
+  display: flex;
+  flex-direction: column;
+  /* gap: 12px; */
+}
+
+.quality-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+  padding: 8px 0;
+}
+.quality-row:last-child {
+  border-bottom: none;
+}
+
+.quality-label {
+  color: #666;
+}
+
+.quality-value {
+  color: #333;
+  font-weight: 500;
+}
+
+.quality-value.excellent {
+  color: #27ae60;
+}
+
+.quality-value.good {
+  color: #2ecc71;
+}
+
+.quality-value.fair {
+  color: #f39c12;
+}
+
+.quality-value.poor {
+  color: #e74c3c;
+}
+
+/* Button Styles */
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn--primary {
+  background: #1897aa;
+  color: white;
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: #147a89;
+}
+
+.btn--secondary {
+  background: #666;
+  color: white;
+}
+
+.btn--secondary:hover {
+  background: #555;
+}
+
+.btn--full {
+  width: 100%;
+}
+
+.btn--add-to-cart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  /* margin-top: 20px; */
+  /* font-size: 16px; */
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cart-icon {
+  width: 20px;
+  height: 20px;
+}
+
+
+/* Loading States */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid #1897aa;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Loading Overlay for PDF processing */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  border-radius: inherit;
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.loading-spinner .spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e0e0e0;
+  border-top-color: #1897aa;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-spinner p {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Get Started Button Styles - Avoid Alpine.js conflicts */
+.configurator-launch-block {
+  padding-bottom: var(--PB);
+}
+
+.configurator-launch-wrapper {
+  /* Mimic product__submit styles */
+  margin-top: 1rem;
+}
+
+.configurator-launch-buttons {
+  /* Mimic product__submit__buttons styles */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+/* Modals */
+.wallpaper-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+}
+
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border-radius: 8px;
+  padding: 30px;
+  max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.modal-close:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.modal-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Measurement Modal Specific Styles */
+#measure-walls-modal .modal-content {
+  max-width: 600px;
+}
+
+.measure-instructions {
+  margin: 20px 0;
+}
+
+.instruction-step {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.instruction-step:last-child {
+  border-bottom: none;
+}
+
+.instruction-step h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.instruction-step p {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+}
+
+.instruction-step ul {
+  margin: 10px 0 0 20px;
+  font-size: 14px;
+  color: #666;
+}
+
+.instruction-step li {
+  margin-bottom: 5px;
+}
+
+.instruction-tip {
+  background: #FFF4F0;
+  border-left: 4px solid #1897aa;
+  padding: 15px;
+  margin-top: 20px;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #666;
+}
+
+.modal-done {
+  width: 100%;
+  margin-top: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 576px) {
+}
+
+@media (max-width: 768px) {
+  .controls-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  /* .dimension-controls {
+    flex-direction: column;
+  } */
+  
+  .material-controls {
+    flex-direction: column;
+    /* align-items: stretch; */
+  }
+  
+  .material-info-btn {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 999px) {
+  .configurator-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .configurator-left {
+    position: static;
+    max-height: none;
+  }
+
+  .configurator-right {
+    position: static;
+  }
+
+  .crop-actions {
+    position: static;
+  }
+  
+  .bottom-cards-container {
+    margin-top: 30px;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 1200px) {
+  .utility-bar{
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
+
+/* Pattern drag-to-reposition feature */
+.pattern-drag-hint {
+  text-align: center;
+  font-size: 12px;
+  color: #888;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+#pattern-canvas {
+  touch-action: none;   /* prevents browser gestures from interfering */
+}

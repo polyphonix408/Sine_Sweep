@@ -1,0 +1,61 @@
+<!-- /snippets/share.liquid -->
+
+{%- liquid
+  assign share_url = ''
+
+  if article
+    assign share_url = article.url | prepend: request.origin
+  endif
+
+  if product
+    assign current_variant = product.selected_or_first_available_variant
+    assign share_url = current_variant.url | prepend: request.origin
+  endif
+-%}
+
+{%- if share_url != '' -%}
+<share-button class="share-holder"  {% if block %}{{ block.shopify_attributes }}{% endif %}>
+  <button class="share__button is-hidden" data-share-button>
+    {%- render 'icon-core-share-ios' -%}
+
+    {{ label | escape }}
+  </button>
+
+  <details class="share__details" data-share-details>
+    <summary class="share__button" data-share-summary>
+      {%- render 'icon-core-share-ios' -%}
+
+      {{ label | escape }}
+    </summary>
+
+    <div class="share-button__fallback" data-share-holder>
+      <div class="field">
+        <span class="share-button__message is-hidden" role="status" data-success-message></span>
+
+        <input type="text"
+          class="field__input"
+          id="url"
+          value="{{ share_url }}"
+          placeholder="{{ 'general.share.share_url' | t }}"
+          readonly
+          data-share-url
+        >
+
+        <label class="field__label visually-hidden" for="url">{{ 'general.share.share_url' | t }}</label>
+      </div>
+
+      <button class="share-button__close is-hidden" type="button" data-close-button>
+        {%- render 'icon-core-x' -%}
+        <span class="visually-hidden">{{ 'general.accessibility.close' | t }}</span>
+      </button>
+
+      <button class="share-button__copy" type="button" data-share-copy>
+        {%- render 'icon-core-copy' -%}
+        <span class="visually-hidden">{{ 'general.share.copy_to_clipboard' | t }}</span>
+      </button>
+    </div>
+  </details>
+</share-button>
+{%- endif -%}
+
+{%- assign share_url = '' -%}

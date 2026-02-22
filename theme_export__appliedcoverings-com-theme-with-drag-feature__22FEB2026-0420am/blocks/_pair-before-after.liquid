@@ -1,0 +1,61 @@
+<div class="relative brick__block" data-overflow-frame {{ block.shopify_attributes }}>
+  {% render 'core-before-after', class: 'h-full', _settings: block.settings %}
+</div>
+
+{% schema %}
+{
+	"name": "Before/After",
+	"tag": null,
+	"settings": [
+		{
+			"type": "image_picker",
+			"id": "after_image",
+			"label": "Before Image"
+		},
+		{
+			"type": "image_picker",
+			"id": "before_image",
+			"label": "After Image"
+		},
+		{
+			"type": "select",
+			"id": "orientation",
+			"label": "Orientation",
+			"default": "horizontal",
+			"options": [
+				{
+					"value": "horizontal",
+					"label": "Horizontal"
+				},
+				{
+					"value": "vertical",
+					"label": "Vertical"
+				}
+			]
+		},
+		{
+			"type": "color",
+			"id": "handle_color",
+			"label": "Handle color",
+			"default": "#FFFFFF"
+		},
+		{
+			"type": "range",
+			"id": "start_position",
+			"min": 0,
+			"max": 100,
+			"step": 1,
+			"unit": "%",
+			"label": "Start position",
+			"default": 50
+		}
+	],
+	"blocks": [],
+	"presets": [
+		{
+			"name": "Before/After",
+			"blocks": []
+		}
+	]
+}
+{% endschema %}

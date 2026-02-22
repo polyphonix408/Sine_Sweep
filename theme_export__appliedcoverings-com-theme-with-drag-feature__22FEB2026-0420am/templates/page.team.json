@@ -1,0 +1,551 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+	"sections": {
+		"hero": {
+			"type": "section-hero",
+			"blocks": {
+				"kicker-team-block": {
+					"type": "kicker",
+					"disabled": true,
+					"settings": {
+						"kicker": "Introducing",
+						"text_size": 3
+					}
+				},
+				"heading-team-block": {
+					"type": "heading",
+					"settings": {
+						"title": "Our Team",
+						"text_size": 10
+					}
+				}
+			},
+			"block_order": [
+				"kicker-team-block",
+				"heading-team-block"
+			],
+			"settings": {
+				"preload_image": true,
+				"height": "use_screen_one_fifth",
+				"overlay_opacity": 50,
+				"overlay_color": "#000000",
+				"enable_overlay_text": false,
+				"content_width": 2000,
+				"text_align": "align--middle-center",
+				"text_color": "text--white",
+				"color_bg": "hero__content--transparent",
+				"width": "wrapper--none",
+				"padding_top": 0,
+				"padding_bottom": 0
+			}
+		},
+		"main": {
+			"type": "page",
+			"settings": {
+				"kicker": "Our Team",
+				"kicker_size": 3,
+				"show_title": false,
+				"title_size": 8,
+				"show_content": true,
+				"content_size": 5,
+				"align_text": "text-left",
+				"text_color": "text--neutral",
+				"bg": "palette--light bg--neutral",
+				"width": "wrapper",
+				"padding_top": 36,
+				"padding_bottom": 36
+			}
+		},
+		"team-0": {
+			"type": "section-columns",
+			"blocks": {
+				"person-0": {
+					"type": "text_block",
+					"settings": {
+						"enable_image": true,
+						"title": "Denise Luffin",
+						"text": "<p>Co-Founder<\/p>",
+						"button_label": "",
+						"button_link": "",
+						"button_color": "btn--neutral",
+						"button_style": "btn--soft",
+						"enable_video": false,
+						"video_link": "https:\/\/www.youtube.com\/watch?v=_9VUPq3SxOc"
+					}
+				},
+				"person-1": {
+					"type": "text_block",
+					"settings": {
+						"enable_image": true,
+						"title": "Phil Toff",
+						"text": "<p>Co-Founder<\/p>",
+						"button_label": "",
+						"button_link": "",
+						"button_color": "btn--neutral",
+						"button_style": "btn--soft",
+						"enable_video": false,
+						"video_link": "https:\/\/www.youtube.com\/watch?v=_9VUPq3SxOc"
+					}
+				},
+				"person-2": {
+					"type": "text_block",
+					"settings": {
+						"enable_image": true,
+						"title": "Elouise Dante",
+						"text": "<p>Co-Founder<\/p>",
+						"button_label": "",
+						"button_link": "",
+						"button_color": "btn--neutral",
+						"button_style": "btn--soft",
+						"enable_video": false,
+						"video_link": "https:\/\/www.youtube.com\/watch?v=_9VUPq3SxOc"
+					}
+				}
+			},
+			"block_order": [
+				"person-0",
+				"person-1",
+				"person-2"
+			],
+			"settings": {
+				"title": "",
+				"bg": "palette--light bg--neutral",
+				"align_text": "text-center",
+				"scale_image": true,
+				"wh_ratio": 1,
+				"grid_large": 3,
+				"grid_medium": 3,
+				"grid_mobile": 1.2,
+				"progress_bar_mobile": false,
+				"width": "wrapper",
+				"padding_top": 10,
+				"padding_bottom": 10
+			}
+		},
+		"team-1": {
+			"type": "section-columns",
+			"disabled": true,
+			"blocks": {
+				"person-0": {
+					"type": "text_block",
+					"settings": {
+						"enable_image": true,
+						"title": "Dave Orbani",
+						"text": "<p>Vice President<\/p>",
+						"button_label": "",
+						"button_link": "",
+						"button_color": "btn--neutral",
+						"button_style": "btn--soft",
+						"enable_video": false,
+						"video_link": "https:\/\/www.youtube.com\/watch?v=_9VUPq3SxOc"
+					}
+				},
+				"person-1": {
+					"type": "text_block",
+					"settings": {
+						"enable_image": true,
+						"title": "Ave Bizcaino",
+						"text": "<p>Vice President<\/p>",
+						"button_label": "",
+						"button_link": "",
+						"button_color": "btn--neutral",
+						"button_style": "btn--soft",
+						"enable_video": false,
+						"video_link": "https:\/\/www.youtube.com\/watch?v=_9VUPq3SxOc"
+					}
+				},
+				"person-2": {
+					"type": "text_block",
+					"settings": {
+						"enable_image": true,
+						"title": "Blas Rauser",
+						"text": "<p>Vice President<\/p>",
+						"button_label": "",
+						"button_link": "",
+						"button_color": "btn--neutral",
+						"button_style": "btn--soft",
+						"enable_video": false,
+						"video_link": "https:\/\/www.youtube.com\/watch?v=_9VUPq3SxOc"
+					}
+				}
+			},
+			"block_order": [
+				"person-0",
+				"person-1",
+				"person-2"
+			],
+			"settings": {
+				"title": "Vice Presidents",
+				"bg": "palette--light bg--neutral",
+				"align_text": "text-center",
+				"scale_image": true,
+				"wh_ratio": 1,
+				"grid_large": 3,
+				"grid_medium": 3,
+				"grid_mobile": 1.2,
+				"progress_bar_mobile": false,
+				"width": "wrapper",
+				"padding_top": 10,
+				"padding_bottom": 10
+			}
+		},
+		"team-2": {
+			"type": "section-columns",
+			"disabled": true,
+			"blocks": {
+				"person-0": {
+					"type": "text_block",
+					"settings": {
+						"enable_image": true,
+						"title": "Wally Balk",
+						"text": "<p>Vice President<\/p>",
+						"button_label": "",
+						"button_link": "",
+						"button_color": "btn--neutral",
+						"button_style": "btn--soft",
+						"enable_video": false,
+						"video_link": "https:\/\/www.youtube.com\/watch?v=_9VUPq3SxOc"
+					}
+				},
+				"person-1": {
+					"type": "text_block",
+					"settings": {
+						"enable_image": true,
+						"title": "Ricky Fall",
+						"text": "<p>Vice President<\/p>",
+						"button_label": "",
+						"button_link": "",
+						"button_color": "btn--neutral",
+						"button_style": "btn--soft",
+						"enable_video": false,
+						"video_link": "https:\/\/www.youtube.com\/watch?v=_9VUPq3SxOc"
+					}
+				},
+				"person-2": {
+					"type": "text_block",
+					"settings": {
+						"enable_image": true,
+						"title": "Joe Ryden",
+						"text": "<p>Vice President<\/p>",
+						"button_label": "",
+						"button_link": "",
+						"button_color": "btn--neutral",
+						"button_style": "btn--soft",
+						"enable_video": false,
+						"video_link": "https:\/\/www.youtube.com\/watch?v=_9VUPq3SxOc"
+					}
+				}
+			},
+			"block_order": [
+				"person-0",
+				"person-1",
+				"person-2"
+			],
+			"settings": {
+				"title": "Text columns with images",
+				"bg": "palette--light bg--neutral",
+				"align_text": "text-center",
+				"scale_image": true,
+				"wh_ratio": 1,
+				"grid_large": 3,
+				"grid_medium": 3,
+				"grid_mobile": 1.2,
+				"progress_bar_mobile": false,
+				"width": "wrapper",
+				"padding_top": 10,
+				"padding_bottom": 10
+			}
+		},
+		"team-3": {
+			"type": "section-richtext",
+			"settings": {
+				"align_text": "text-left",
+				"text_color": "text--neutral",
+				"bg": "palette--light bg--neutral",
+				"content_width": 2000,
+				"width": "wrapper",
+				"padding_top": 10,
+				"padding_bottom": 10
+			}
+		},
+		"team-4": {
+			"type": "section-gallery",
+			"blocks": {
+				"team-4-0": {
+					"type": "image",
+					"settings": {
+						"link": ""
+					}
+				},
+				"team-4-1": {
+					"type": "image",
+					"settings": {
+						"link": ""
+					}
+				},
+				"team-4-2": {
+					"type": "image",
+					"settings": {
+						"link": ""
+					}
+				}
+			},
+			"block_order": [
+				"team-4-0",
+				"team-4-1",
+				"team-4-2"
+			],
+			"settings": {
+				"scale_image": true,
+				"wh_ratio": 1,
+				"bg": "palette--light bg--neutral",
+				"add_gutters": true,
+				"progress_bar": "mobile",
+				"grid_large": 3,
+				"grid_medium": 2,
+				"grid_mobile": 1.2,
+				"width": "wrapper",
+				"padding_top": 10,
+				"padding_bottom": 10
+			}
+		},
+		"team-5": {
+			"type": "section-gallery-text",
+			"blocks": {
+				"team-5-0": {
+					"type": "text",
+					"settings": {
+						"title": "A peek inside the office",
+						"title_size": 3,
+						"text": "",
+						"body_size": 4,
+						"text_align": "text-left"
+					}
+				}
+			},
+			"block_order": [
+				"team-5-0"
+			],
+			"settings": {
+				"bg": "palette--light bg--neutral",
+				"grid_large": 1,
+				"grid_medium": 1,
+				"grid_mobile": 1,
+				"width": "wrapper",
+				"padding_top": 10,
+				"padding_bottom": 10
+			}
+		},
+		"team-6": {
+			"type": "section-gallery",
+			"blocks": {
+				"team-6-0": {
+					"type": "image",
+					"settings": {
+						"link": ""
+					}
+				},
+				"team-6-1": {
+					"type": "image",
+					"settings": {
+						"link": ""
+					}
+				},
+				"team-6-2": {
+					"type": "image",
+					"settings": {
+						"link": ""
+					}
+				},
+				"dea72dd3-8dd8-4694-97be-00910598c32d": {
+					"type": "image",
+					"settings": {
+						"link": ""
+					}
+				}
+			},
+			"block_order": [
+				"team-6-0",
+				"team-6-1",
+				"team-6-2",
+				"dea72dd3-8dd8-4694-97be-00910598c32d"
+			],
+			"settings": {
+				"scale_image": true,
+				"wh_ratio": 1,
+				"bg": "palette--light bg--neutral",
+				"add_gutters": true,
+				"progress_bar": "mobile",
+				"grid_large": 4,
+				"grid_medium": 2,
+				"grid_mobile": 1.2,
+				"width": "wrapper",
+				"padding_top": 10,
+				"padding_bottom": 10
+			}
+		},
+		"team-7": {
+			"type": "section-gallery-text",
+			"blocks": {
+				"team-7-0": {
+					"type": "text",
+					"settings": {
+						"title": "A day in the life",
+						"title_size": 3,
+						"text": "",
+						"body_size": 4,
+						"text_align": "text-left"
+					}
+				}
+			},
+			"block_order": [
+				"team-7-0"
+			],
+			"settings": {
+				"bg": "palette--light bg--neutral",
+				"grid_large": 1,
+				"grid_medium": 1,
+				"grid_mobile": 1,
+				"width": "wrapper",
+				"padding_top": 10,
+				"padding_bottom": 10
+			}
+		},
+		"team-8": {
+			"type": "section-mosaic",
+			"blocks": {
+				"block-mos-1": {
+					"type": "image",
+					"settings": {
+						"overlay_opacity": 20,
+						"title_text": "LA Popup",
+						"title_size": 8,
+						"text_align": "text-left tile--bottom",
+						"kicker_text": "",
+						"kicker_size": 3,
+						"link_text": "",
+						"link_url": "",
+						"link_size": 3
+					}
+				},
+				"block-mos-2": {
+					"type": "image",
+					"settings": {
+						"overlay_opacity": 20,
+						"title_text": "London Popup",
+						"title_size": 8,
+						"text_align": "text-left tile--bottom",
+						"kicker_text": "",
+						"kicker_size": 3,
+						"link_text": "",
+						"link_url": "",
+						"link_size": 3
+					}
+				},
+				"block-mos-3": {
+					"type": "image",
+					"settings": {
+						"overlay_opacity": 20,
+						"title_text": "NYC Flagship",
+						"title_size": 8,
+						"text_align": "text-left tile--bottom",
+						"kicker_text": "",
+						"kicker_size": 3,
+						"link_text": "",
+						"link_url": "",
+						"link_size": 3
+					}
+				}
+			},
+			"block_order": [
+				"block-mos-1",
+				"block-mos-2",
+				"block-mos-3"
+			],
+			"settings": {
+				"first_block_height": "short",
+				"wh_ratio": 0.8,
+				"split": "center",
+				"color_bg": "palette--light bg--neutral",
+				"width": "wrapper",
+				"padding_top": 64,
+				"padding_bottom": 64
+			}
+		},
+		"team-10": {
+			"type": "section-icons",
+			"blocks": {
+				"team-10-0": {
+					"type": "icon_block",
+					"settings": {
+						"icon_name": "icon-basket-return",
+						"icon_color": "#aaaaaa",
+						"title": "Free returns",
+						"text": "<p>Returns within 30 days receive a full refund.<\/p>",
+						"link_text": "",
+						"link_url": ""
+					}
+				},
+				"team-10-1": {
+					"type": "icon_block",
+					"settings": {
+						"icon_name": "icon-shipment-world",
+						"icon_color": "#aaaaaa",
+						"title": "Worldwide shipping",
+						"text": "<p>Ship anywhere, rates available at checkout.<\/p>",
+						"link_text": "",
+						"link_url": ""
+					}
+				},
+				"team-10-2": {
+					"type": "icon_block",
+					"settings": {
+						"icon_name": "icon-phone",
+						"icon_color": "#aaaaaa",
+						"title": "24\/7 support",
+						"text": "<p>Call us anytime at 1(800) 555-1234.<\/p>",
+						"link_text": "",
+						"link_url": ""
+					}
+				}
+			},
+			"block_order": [
+				"team-10-0",
+				"team-10-1",
+				"team-10-2"
+			],
+			"settings": {
+				"title": "",
+				"bg": "palette--light bg--accent",
+				"icon_alignment": "icon--top",
+				"layout": "grid--stacked",
+				"align_text": "text-left",
+				"width": "wrapper",
+				"padding_top": 36,
+				"padding_bottom": 36
+			}
+		}
+	},
+	"order": [
+		"hero",
+		"main",
+		"team-0",
+		"team-1",
+		"team-2",
+		"team-3",
+		"team-4",
+		"team-5",
+		"team-6",
+		"team-7",
+		"team-8",
+		"team-10"
+	]
+}

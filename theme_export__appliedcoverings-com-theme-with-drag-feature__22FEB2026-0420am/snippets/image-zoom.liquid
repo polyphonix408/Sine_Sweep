@@ -1,0 +1,48 @@
+<!-- /snippets/image-zoom.liquid -->
+
+{% comment %}
+  * An image zoom modal.  Requires JS hooks.
+
+  *  image {object}- The Image we will use
+
+  {% render 'image-zoom', image: image,  unique: block.id %}
+{% endcomment %}
+
+{% assign alt = image.alt | strip_html | escape %}
+{% liquid
+  assign page_gutter_width = settings.layout_outer
+  assign total_page_gutter_width = page_gutter_width | times: 2
+  assign image_width = image.width | minus: total_page_gutter_width
+%}
+
+<a class="zoom__trigger"
+  data-image-zoom
+  data-popup-{{ unique }}="zoom-{{ unique }}"
+  data-unique="{{ unique }}"
+  aria-label="{{ 'general.accessibility.zoom' | t }}">
+  {% render 'icon-core-magnify' %}
+  <span class="visually-hidden">{{ 'general.accessibility.zoom' | t }}</span>
+</a>
+
+<div class="modal micromodal-slide" id="zoom-{{ unique }}" data-modal aria-hidden="true">
+  <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+    <button data-micromodal-close class="modal__close" aria-label="{{ 'general.accessibility.close' | t }}"></button>
+    <div class="modal__container modal__container--zoom"
+      data-modal-content
+      role="dialog"
+      aria-modal="true">
+      <div class="zoom--images">
+        {% capture srcset %}
+          {% render 'image-default-srcset', image: image %}
+        {% endcapture %}
+
+        {{ image | image_url: width: image_width | image_tag:
+          class: 'zoom__img',
+          alt: alt,
+          sizes: '100vw',
+          srcset: srcset
+        }}
+      </div>
+    </div>
+  </div>
+</div>

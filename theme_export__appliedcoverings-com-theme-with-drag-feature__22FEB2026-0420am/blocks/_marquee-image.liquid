@@ -1,0 +1,55 @@
+{% liquid
+  assign image = block.settings.image
+  assign image_width = block.settings.image.width | default: block.settings.image_max_limit | at_most: block.settings.image_max_limit
+  assign wh_ratio = block.settings.image.aspect_ratio | default: 1
+%}
+
+{% capture image_style %}
+  --width: {{ image_width }}px;
+  --wh-ratio: {{ wh_ratio }};
+{% endcapture %}
+
+{% capture image_class %}
+  w-[--width] h-[--wh-ratio] shrink-0
+{% endcapture %}
+
+<div
+  class="h-fit w-fit"
+
+  {% if request.design_mode %}
+    @shopify:block:select="$marquee.pause(); $marquee.scrollTo($el)"
+    @shopify:block:deselect="$marquee.play()"
+  {% endif %}
+  {{ block.shopify_attributes }}
+>
+  {% render 'image-tag', img_object: image, class: image_class, style: image_style, placeholder: 'logo' %}
+</div>
+
+{% schema %}
+{
+	"name": "Image",
+	"tag": null,
+	"settings": [
+		{
+			"type": "image_picker",
+			"id": "image",
+			"label": "Image"
+		},
+		{
+			"type": "range",
+			"id": "image_max_limit",
+			"min": 10,
+			"max": 900,
+			"step": 10,
+			"unit": "px",
+			"label": "Image width",
+			"default": 50
+		},
+	],
+	"presets": [
+		{
+			"name": "Image"
+		}
+	]
+}
+{% endschema %}

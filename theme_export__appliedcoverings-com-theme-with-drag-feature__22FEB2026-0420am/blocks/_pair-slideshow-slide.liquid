@@ -1,0 +1,84 @@
+{% liquid
+  assign image = block.settings.image
+  assign image_mobile = block.settings.image_mobile
+%}
+
+<div
+  class="
+    w-full h-full
+    [--slide-transition-duration:800ms] transition-opacity duration-[--slide-transition-duration]
+
+    {% comment %} Hide all slides except the first until Alpine loads {% endcomment %}
+    [&:not(:first-child)]:opacity-[--initial-opacity]
+  "
+
+  style="--initial-opacity: 0"
+
+  {% comment %} Once Alpine loads remove the initial opacity variable and let Alpine take over {% endcomment %}
+  x-init="$el.style.removeProperty('--initial-opacity')"
+
+  x-slideshow:slide
+
+  :id="`{{section.id}}-${ensembleId}-element-${$disclosure.slideIndex}`"
+
+  {% if request.design_mode %}
+    @shopify:block:select='$slideshow.currentSlideIndex = $slide.slideIndex'
+  {% endif %}
+
+  :class="{
+    {% comment %} Delay hiding the previous slide until the next one has finished animating for a proper crossfade {% endcomment %}
+    'absolute top-0 z-0 !opacity-0 delay-[--slide-transition-duration]': !$slide.isCurrentSlide,
+
+    'relative z-20 !opacity-100 delay-0': $slide.isCurrentSlide
+  }"
+
+  {% comment %} Hide all but the current slide from screen readers since we're hiding them with opacity not display {% endcomment %}
+  :aria-hidden="!$slide.isCurrentSlide"
+
+  {{ block.shopify_attributes }}
+>
+  {%- capture srcset -%}
+    {%- render 'image-grid-srcset',
+      image: image,
+      columns_desktop: 2,
+      columns_tablet: 2,
+      columns_mobile: 1.0,
+      section_width: section.settings.width
+    %}
+  {%- endcapture -%}
+
+  {%- render 'image-parallax',
+    img_object: image,
+    img_object_mobile: image_mobile,
+    frame_height_class: section.settings.height,
+    frame_class: 'bare-placeholder-colors',
+    srcset: srcset,
+    sizes: '(max-width:768px) 100vw, 50vw',
+    parallax_enabled: false
+  -%}
+</div>
+
+{% schema %}
+{
+	"name": "Slide",
+	"tag": null,
+	"settings": [
+		{
+			"type": "image_picker",
+			"id": "image",
+			"label": "Image"
+		},
+		{
+			"type": "image_picker",
+			"id": "image_mobile",
+			"label": "Image Mobile"
+		}
+	],
+	"blocks": [],
+	"presets": [
+		{
+			"name": "Slide"
+		}
+	]
+}
+{% endschema %}

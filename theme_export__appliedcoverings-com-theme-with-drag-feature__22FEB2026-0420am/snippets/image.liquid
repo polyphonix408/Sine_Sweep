@@ -1,0 +1,221 @@
+<!-- /snippets/image.liquid -->
+
+{% comment %}
+  * A wrapper around Shopify's image_tag, but with the addition of handling for wh_ratio, placeholders for blank images, picture tags for mobile overrides, etc
+
+  *  img_object {object} - The Image we will use
+  *  img_object_mobile {object} - Image has a mobile override, use the picture tag (optional)
+  *  class {string} - CSS classes to add to <img> tag
+  *  wrapper_class {string} - CSS classes to add to the parent <div> tag
+  *  cover {boolean} - Whether image should be cropped to "cover" it's parent or maintain it's natural aspect ratio. Default: true
+  *  wh_ratio {float, boolean} - The aspect ratio of the image in the format {ratio}:1
+  *  alt {string} - Default alt text to use if no alt text is provided. Default: img_object.alt
+  *  srcset {string} - Source set for <img> tag. Default: image-default-srcset.liquid
+  *  sizes {string} - Sizes for <img> tag
+  *  placeholder {string, false} - Which placeholder to use if img is blank (see https://shopify.dev/api/liquid/filters/placeholder_svg_tag for options). Default: 'image'
+  *  loading {string} - Image loading attribute. Default: 'lazy'
+
+  {% render 'image', img_object: section.settings.image, wh_ratio: section.settings.wh_ratio %}
+{% endcomment %}
+
+{%- liquid
+  assign image = img_object
+  assign image_mobile = img_object_mobile
+
+  if cover != false
+    assign cover = true
+  endif
+
+  # removing a focal point does not reset the value to nil, so we need to check for the default value
+  assign focal = image.presentation.focal_point | default: '50.0% 50.0%'
+  if focal == '50.0% 50.0%'
+    assign focal = nil
+  endif
+  assign bg_position_setting = bg_position | replace: '-', ' ' | default: "center center"
+  assign focal_or_setting =  focal | default: bg_position_setting
+
+  if wh_ratio != false and wh_ratio != blank
+    assign wh_ratio = wh_ratio | default: image.aspect_ratio | default: 0.5
+  endif
+
+  # Allow for mobile/desktop images with separate wh_ratios and a placeholder
+  if placeholder and img_object == blank and wh_ratio == blank
+    assign wh_ratio = 1.5
+  endif
+
+  assign width = width | default: image.width
+  assign loading = loading | default: 'lazy'
+
+  # Define a default width for browsers that do not support srcset
+  # Set a ceiling to avoid massive images on old mobile browsers
+  assign width_default = width | at_most: 2000
+
+  # Use this sparingly, it's a fairly expensive animation
+  if loading_animation == blank
+    if loading == 'lazy'
+      assign loading_animation = true
+    else
+      assign loading_animation = false
+    endif
+  endif
+
+  assign fetchpriority = fetchpriority | default: 'auto'
+
+  if placeholder != false
+    assign placeholder = placeholder | default: 'image'
+  endif
+
+  assign alt = alt | default: image.alt | strip_html | escape
+
+  if srcset == blank
+    capture srcset
+      render 'image-default-srcset', image: image
+    endcapture
+  endif
+
+  assign wrapper_class = wrapper_class | default: ''
+  capture wrapper_classes
+    echo 'relative block w-full h-full overflow-hidden'
+    if wh_ratio != 0 and wh_ratio != blank
+      echo ' aspect-[--wh-ratio]'
+    endif
+
+    unless wrapper_class == ''
+      echo ' ' | append: wrapper_class
+    endunless
+  endcapture
+
+  capture wrapper_style
+    echo '--wh-ratio: ' | append: wh_ratio | append: '; '
+
+    unless wrapper_style == ''
+      echo ' ' | append: wrapper_style
+    endunless
+  endcapture
+
+  capture image_style
+    echo 'object-position: ' | append: focal_or_setting | append: '; '
+    unless style == ''
+      echo style
+    endunless
+  endcapture
+-%}
+
+{% if image != blank %}
+  {%- liquid
+    if loading_animation
+      assign wrapper_classes = wrapper_classes | append: ' loading-shimmer'
+    endif
+
+    capture image_classes
+      echo 'block overflow-hidden w-full h-full'
+      if cover == true
+        echo ' object-cover'
+      else
+        echo ' object-contain'
+      endif
+      if loading_animation
+        echo ' transition-opacity duration-300 ease-linear'
+      endif
+      unless class == ''
+        echo ' ' | append: class
+      endunless
+    endcapture
+  -%}
+
+  {%- if image_mobile -%}
+    {%- liquid
+      # Mobile image override forces use of a picture tag, and prevents use of preload
+      # Preload triggers before width is known and causes multi-image download
+
+      # We can use default srcset because our use cases for mobile overrides are 100% width or near 100% width
+      # If that changes we will need to use image-grid-srcset
+      capture srcset_mobile
+        render 'image-default-srcset', image: image_mobile
+      endcapture
+
+      # Without object-position set inline the theme editor will warn
+      # merchants that the theme doesn't support focal points
+      assign image_style = style | append: 'object-position: var(--focal-point, center);'
+      assign image_style = image_style | append: ' --OBJECT-POSITION-MOBILE: ' | append: image_mobile.presentation.focal_point | append: ';'
+      assign image_style = image_style | append: ' --OBJECT-POSITION-DESKTOP: ' | append: image.presentation.focal_point | append: ';'
+      assign image_classes = image_classes | append: ' reposition-background-mobile'
+
+      assign wh_ratio_mobile = wh_ratio | default: image_mobile.aspect_ratio | default: 0.5
+      assign wrapper_style = wrapper_style | append: ' --ASPECT-RATIO-MOBILE: ' | append: wh_ratio_mobile | append: ';'
+    -%}
+    <picture class="{{ wrapper_classes }}" style="{{ wrapper_style }}">
+      <source media="(min-width: 768px)" sizes="{{ sizes }}" srcset="{{ srcset }}" />
+      <source media="(max-width: 767px)" sizes="{{ sizes }}" srcset="{{ srcset_mobile }}" />
+      {{ image | image_url: width: width_default | image_tag:
+        class: image_classes,
+        alt: alt,
+        srcset: srcset,
+        sizes: sizes,
+        loading: loading,
+        fetchpriority: fetchpriority,
+        style: image_style,
+        id: image_id
+      }}
+    </picture>
+  {%- else -%}
+    <div class="{{ wrapper_classes }}" style="{{ wrapper_style }}">
+      {{ image | image_url: width: width_default | image_tag:
+        class: image_classes,
+        alt: alt,
+        preload: preload,
+        srcset: srcset,
+        sizes: sizes,
+        loading: loading,
+        fetchpriority: fetchpriority,
+        style: image_style,
+        id: image_id
+      }}
+    </div>
+  {%- endif -%}
+
+{% else %}
+  {%- liquid
+    capture svg_classes
+      echo 'block absolute top-0 right-0 bottom-0 left-0'
+      if cover == true
+        echo ' w-full h-full'
+      else
+        echo ' mx-auto max-h-full'
+      endif
+      echo ' bg-[--placeholder-bg] fill-[--placeholder-fill] placeholder-svg'
+    endcapture
+  -%}
+
+  <div class="{{ wrapper_classes }}" style="{{ wrapper_style }}" role='img' aria-label="{{ alt }}">
+    {% if placeholder %}
+      {%- liquid
+        capture svg_tag
+          echo placeholder | placeholder_svg_tag: svg_classes
+        endcapture
+
+        capture svg_aspect_ratio
+          if cover == true
+            echo 'xMidYMid slice'
+          else
+            echo 'meet'
+          endif
+        endcapture
+
+        capture svg_tag_open
+          echo '<svg preserveAspectRatio="' | append: svg_aspect_ratio | append: '"'
+        endcapture
+        comment
+          Manually splice in attributes neccesary for an SVG to mimic `object-fit: cover or contain`
+        endcomment
+        assign parts = svg_tag | split: '<svg'
+      -%}
+
+      {{ parts[0] | prepend: svg_tag_open }}
+      {{ parts[1] }}
+    {% else %}
+      <svg id="{{ image_id }}" preserveAspectRatio="xMidYMid slice" class="{{ svg_classes }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 525.5 525.5">
+      </svg>
+    {% endif %}
+  </div>
+{% endif %}

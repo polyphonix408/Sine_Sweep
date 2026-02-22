@@ -1,0 +1,147 @@
+{% liquid
+  assign break_newline = block.settings.break_newline
+  assign enable_custom_text_color = block.settings.enable_custom_text_color
+  assign text_color = block.settings.text_color
+  assign margin_top = block.settings.margin_top
+  assign margin_left = block.settings.margin_left
+  assign text_size_scaling = block.settings.text_size_scaling
+%}
+{% capture split_text %}
+  {% render 'split-text', text: block.settings.richtext, attributes: 'data-animate-stagger-item', class: 'inline' %}
+{% endcapture %}
+
+{% capture class %}
+  type-{{ block.settings.font_family }}
+{% endcapture %}
+
+{% capture style %}
+  {% if text_size_scaling != 100 %}
+    font-size: {{ text_size_scaling }}% !important;
+  {% endif %}
+  {% if enable_custom_text_color %}
+    color: {{ text_color }};
+  {% endif %}
+  {% if margin_left != 0 %}
+    margin-inline-start: {{ margin_left }}%;
+  {% endif %}
+{% endcapture %}
+
+{% if break_newline %}<br>{% endif %}
+{% render 'core-text-highlight',
+  _settings: block.settings,
+  text: split_text,
+  class: class,
+  style: style,
+  attributes: block.shopify_attributes
+%}
+
+{% schema %}
+{
+	"name": "Pro: Text",
+	"tag": null,
+	"settings": [
+		{
+			"type": "inline_richtext",
+			"id": "richtext",
+			"label": "Text",
+			"default": "This area is used to describe your store."
+		},
+		{
+			"type": "select",
+			"id": "font_family",
+			"label": "Font",
+			"default": "accent",
+			"options": [
+				{
+					"value": "heading",
+					"label": "Title"
+				},
+				{
+					"value": "body",
+					"label": "Body"
+				},
+				{
+					"value": "accent",
+					"label": "Accent"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "text_size_scaling",
+			"min": 50,
+			"max": 200,
+			"step": 10,
+			"label": "Size",
+			"default": 100,
+			"unit": "%",
+			"info": "Relative to the surrounding text"
+		},
+		{
+			"type": "checkbox",
+			"id": "break_newline",
+			"label": "Break to new line",
+			"default": false
+		},
+		{
+			"type": "range",
+			"id": "margin_left",
+			"label": "Margin left",
+			"min": -100,
+			"max": 100,
+			"step": 2,
+			"unit": "%",
+			"default": 0
+		},
+		{
+			"type": "header",
+			"content": "Custom text color"
+		},
+		{
+			"type": "checkbox",
+			"id": "enable_custom_text_color",
+			"label": "Enable",
+			"default": false
+		},
+		{
+			"type": "color",
+			"id": "text_color",
+			"label": "Text color"
+		},
+		{
+			"type": "header",
+			"content": "Highlight",
+			"info": "Pro text highlights affect all text in the block, so you can create bold italic text with a highlight"
+		},
+		{
+			"type": "color",
+			"id": "highlight_color",
+			"label": "Color"
+		},
+		{
+			"type": "select",
+			"id": "highlight_appearance",
+			"label": "Style",
+			"options": [
+				{
+					"value": "full",
+					"label": "Full"
+				},
+				{
+					"value": "partial",
+					"label": "Partial Background"
+				},
+				{
+					"value": "underline",
+					"label": "Underline"
+				}
+			]
+		}
+	],
+	"presets": [
+		{
+			"name": "Pro: Text"
+		}
+	]
+}
+{% endschema %}

@@ -1,0 +1,713 @@
+<!-- /sections/section-featured-article.liquid -->
+
+{%- assign featured_article = articles[section.settings.article] -%}
+{%- assign article_image = section.settings.image | default: featured_article.image | default: '' -%}
+{%- assign content_html = '' -%}
+{%- assign animation_anchor = "[data-section-id='" | append: section.id | append: "']" -%}
+{%- assign image_text_empty = false -%}
+{%- assign onboarding_array = '' -%}
+
+{%- capture content_html -%}
+  {%- assign elements_counter = 0 -%}
+
+  {%- if section.blocks.size > 0 -%}
+    {%- for block in section.blocks -%}
+      {%- case block.type -%}
+        {%- when 'kicker' -%}
+          {%- if featured_article != blank -%}
+            {%- if block.settings.show_author or block.settings.show_date -%}
+              {%- assign elements_counter = elements_counter | plus: 1 -%}
+              <div class="hero__kicker"
+                data-aos="hero"
+                data-aos-anchor="{{ animation_anchor }}"
+                data-aos-order="{{ elements_counter }}"
+                {{ block.shopify_attributes }}>
+                {%- if block.settings.show_author -%}
+                  <span class="hero__kicker__item">{{ featured_article.author }}</span>
+                {%- endif -%}
+
+                {%- if block.settings.show_date -%}
+                  <time class="hero__kicker__item" datetime="{{ featured_article.published_at | date: '%Y-%m-%d' }}">{{ featured_article.published_at | date: '%b %d, %Y' }}</time>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+          {%- endif -%}
+        {%- when 'heading' -%}
+          {%- assign onboarding_array = onboarding_array | append: 'heading' | append: '##-' | append: block.settings.text_size | append: '@@@@' -%}
+          {%- assign article_title = block.settings.title | default: featured_article.title | default: '' -%}
+          {%- if article_title != '' -%}
+            {%- assign elements_counter = elements_counter | plus: 1 -%}
+            {% assign heading_size_class = block.settings.text_size | prepend: 'heading-size-' %}
+            <h2 class="hero__title {{ heading_size_class }}"
+              data-aos="hero"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-order="{{ elements_counter }}"
+              {{ block.shopify_attributes }}>
+              {%- if featured_article != blank -%}
+                <div class="hero__title__link">
+                  {%- comment -%}
+                    Having the whole heading text as a link is the intended functionality,
+                    but we need to ensure that having a link "<a>" in the richtext field won't break the HTML
+                  {%- endcomment -%}
+                  {%- if article_title contains '<a href=' -%}
+                    {{ article_title }}
+                  {%- else -%}
+                    <a href="{{ featured_article.url }}">
+                      {{ article_title }}
+                    </a>
+                  {%- endif -%}
+                </div>
+              {%- else -%}
+                {{ article_title }}
+              {%- endif -%}
+            </h2>
+          {%- endif -%}
+        {%- when 'text' -%}
+          {%- assign onboarding_array = onboarding_array | append: 'text' | append: '##-' | append: block.settings.text_size | append: '@@@@' -%}
+          {%- assign article_text = '' -%}
+          {%- if block.settings.richtext != blank -%}
+            {%- assign article_text = block.settings.richtext -%}
+          {%- elsif featured_article.excerpt_or_content != blank -%}
+            {%- assign article_text = featured_article.excerpt_or_content | strip_html | truncatewords: 30 -%}
+            {%- assign article_text = '<p>' | append: article_text | append: '</p>' -%}
+          {%- endif -%}
+
+          {%- if article_text != '' -%}
+            {%- assign elements_counter = elements_counter | plus: 1 -%}
+            {% assign font_size_class = block.settings.text_size | prepend: 'body-size-' %}
+            <div class="hero__description rte {{ font_size_class }}"
+              data-aos="hero"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-order="{{ elements_counter }}"
+              {{ block.shopify_attributes }}>
+              {{ article_text }}
+            </div>
+          {%- endif -%}
+        {%- when 'button' -%}
+          {%- assign button_additional_class = '' -%}
+          {%- if block.settings.button_style != 'btn-text-thick-line' -%}
+            {%- assign button_additional_class = ' btn--long' -%}
+          {%- endif -%}
+          {%- assign button_classes = block.settings.button_style | append: ' ' | append: block.settings.button_color | append: button_additional_class -%}
+          {%- assign onboarding_array = onboarding_array | append: 'button' | append: '##-' | append: button_classes | append: '@@@@' -%}
+          {%- assign button_text_default = '' -%}
+          {%- if featured_article != blank -%}
+            {%- assign button_text_default = 'blogs.article.read_more' | t -%}
+          {%- endif -%}
+          {%- assign button_text = block.settings.link_text | default: button_text_default | default: '' -%}
+
+          {%- if button_text != '' -%}
+            {%- assign elements_counter = elements_counter | plus: 1 -%}
+
+            <div class="hero__cta__wrapper">
+              <a class="hero__btn {{ button_classes }}"
+                href="{% if block.settings.link != blank %}{{ block.settings.link }}{% else %}{{ featured_article.url }}{% endif %}"
+                data-aos="hero"
+                data-aos-anchor="{{ animation_anchor }}"
+                data-aos-order="{{ elements_counter }}"
+                {{ block.shopify_attributes }}>
+                {{ button_text }}
+              </a>
+            </div>
+          {%- endif -%}
+      {%- endcase -%}
+    {%- endfor -%}
+  {%- endif -%}
+{%- endcapture -%}
+{%- assign content_html = content_html | strip | replace: '<div class="hero__cta__wrapper"></div>', '' -%}
+{%- assign onboarding_array = onboarding_array | split: '@@@@' -%}
+
+<div class="section-featured-article fade-in-child {{ section.settings.color_bg }} {{ section.settings.height }}"
+  {% if section.settings.width == "wrapper--none" and section.settings.padding_top == 0 %} data-overlay-header {% endif %}
+  style="--PT: {{ section.settings.padding_top }}px; --PB: {{ section.settings.padding_bottom }}px;"
+  data-section-id="{{ section.id }}"
+  data-section-type="featured-article"
+>
+  <div class="section__wrapper {{ section.settings.width }}">
+    <div class="section__inner{% unless section.settings.image_full_width %} section__inner--columns{% endunless %}{% if section.settings.enable_overlay_text and section.settings.text_color_bg == 'hero__content--transparent' %} section__inner--cutted{% endif %}">
+      {%- if article_image != '' or content_html == '' -%}
+        <div class="hero__image">
+          {% unless section.settings.enable_overlay_text and section.settings.text_color_bg == 'hero__content--transparent' %}
+            <div class="image-overlay" style="--bg: {{ section.settings.overlay_color }}; opacity: {{ section.settings.overlay_opacity | times: 0.01 }};"></div>
+          {% endunless %}
+
+          {%- capture sizes -%}
+            {%- render 'image-grid-sizes',
+              columns_desktop: 1,
+              columns_tablet: 1,
+              columns_mobile: 1.0,
+              section_width: section.settings.width
+            %}
+          {%- endcapture -%}
+
+          {%- capture srcset -%}
+            {%- render 'image-grid-srcset',
+              image: article_image,
+              columns_desktop: 1,
+              columns_tablet: 1,
+              columns_mobile: 1.0,
+              section_width: section.settings.width
+            %}
+          {%- endcapture -%}
+
+          {%- assign alt = article_image.alt | default: 'Article Image' -%}
+          {% render 'image-parallax', img_object: article_image, srcset: srcset, sizes: sizes, alt: alt, frame_height_class: section.settings.height %}
+        </div>
+
+        {%- if article_image == '' -%}
+          {%- assign image_text_empty = true -%}
+        {%- endif -%}
+      {%- endif -%}
+
+      {%- if content_html != '' or featured_article == blank or image_text_empty -%}
+        <div class="hero__content__wrapper {{ section.settings.text_align }}">
+          <div
+            class="hero__content {{ section.settings.text_color_bg }} {{ section.settings.text_color }} {{ section.settings.text_alignment }}
+            {% if section.settings.enable_overlay_text and section.settings.text_color_bg == 'hero__content--transparent' %} backdrop--hero{% endif %}"
+            {% if section.settings.enable_overlay_text and section.settings.text_color_bg == 'hero__content--transparent' %} style="--bg: {{ section.settings.overlay_color }}; --opacity: {{ section.settings.overlay_opacity | times: 0.01 }};"{% endif %}>
+            {%- if content_html != '' -%}
+              {{ content_html }}
+            {%- elsif featured_article == blank or image_text_empty -%}
+              {%- capture onboarding_title -%}
+                <h2 class="hero__title heading-size-####size-placeholder####"
+                  data-aos="hero"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  data-aos-order="####aos-placeholder####">
+                  {{ 'home_page.onboarding.blog_title' | t }}
+                </h2>
+              {%- endcapture -%}
+
+              {%- capture onboarding_text -%}
+                <div class="hero__description rte body-size-####size-placeholder####"
+                  data-aos="hero"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  data-aos-order="####aos-placeholder####">
+                  <p>{{ 'home_page.onboarding.blog_excerpt' | t }}</p>
+                </div>
+              {%- endcapture -%}
+
+              {%- capture onboarding_button -%}
+                <a class="hero__btn ####classes-placeholder####"
+                  href="/"
+                  data-aos="hero"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  data-aos-order="####aos-placeholder####">
+                  {{ 'blogs.article.read_more' | t }}
+                </a>
+              {%- endcapture -%}
+
+              {%- if onboarding_array.size > 0 -%}
+                {%- assign onboarding_array_loop = onboarding_array.size | minus: 1 -%}
+                {%- for idx in (0..onboarding_array_loop) -%}
+                  {%- assign block_item = onboarding_array[idx] -%}
+                  {%- assign block_type = block_item | split: '##-' | first -%}
+                  {%- assign block_classes = block_item | split: '##-' | last -%}
+
+                  {%- if block_type == 'heading' -%}
+                    {{ onboarding_title | replace: '####aos-placeholder####', idx | replace: '####size-placeholder####', block_classes }}
+                  {%- elsif block_type == 'text' -%}
+                    {{ onboarding_text | replace: '####aos-placeholder####', idx | replace: '####size-placeholder####', block_classes }}
+                  {%- elsif block_type == 'button' -%}
+                    <div class="hero__cta__wrapper">
+                      {{ onboarding_button | replace: '####aos-placeholder####', idx | replace: '####classes-placeholder####', block_classes }}
+                    </div>
+                  {%- endif -%}
+                {%- endfor -%}
+              {%- else -%}
+                {{ onboarding_title | replace: '####aos-placeholder####', 1 | replace: '####size-placeholder####', 8 }}
+                {{ onboarding_text | replace: '####aos-placeholder####', 2 | replace: '####size-placeholder####', 5 }}
+                <div class="hero__cta__wrapper">
+                  {{ onboarding_button | replace: '####aos-placeholder####', 3 | replace: '####classes-placeholder####', 'btn-text-thick-line btn--neutral' }}
+                </div>
+              {%- endif -%}
+            {%- endif -%}
+          </div>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+	"name": "Featured article",
+	"settings": [
+		{
+			"type": "article",
+			"id": "article",
+			"label": "Article"
+		},
+		{
+			"type": "image_picker",
+			"id": "image",
+			"label": "Image"
+		},
+		{
+			"type": "checkbox",
+			"id": "image_full_width",
+			"label": "Image full width",
+			"default": true
+		},
+		{
+			"type": "select",
+			"id": "height",
+			"label": "Section height",
+			"default": "use_screen_one_half",
+			"options": [
+				{
+					"value": "use_screen_full",
+					"label": "Full screen height"
+				},
+				{
+					"value": "use_screen_three_quarters",
+					"label": "Three quarters of screen height"
+				},
+				{
+					"value": "use_screen_two_thirds",
+					"label": "Two thirds of screen height"
+				},
+				{
+					"value": "use_screen_one_half",
+					"label": "One half of screen height"
+				},
+				{
+					"value": "use_screen_one_third",
+					"label": "One third of screen height"
+				},
+				{
+					"value": "use_screen_one_fifth",
+					"label": "One fifth of screen height"
+				},
+				{
+					"value": "use_pixels_800",
+					"label": "800px"
+				},
+				{
+					"value": "use_pixels_650",
+					"label": "650px"
+				},
+				{
+					"value": "use_pixels_500",
+					"label": "500px"
+				},
+				{
+					"value": "use_image",
+					"label": "Image height"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "overlay_opacity",
+			"min": 0,
+			"max": 100,
+			"step": 5,
+			"label": "Image overlay opacity",
+			"info": "Increase contrast for legible text.",
+			"default": 15
+		},
+		{
+			"type": "color",
+			"id": "overlay_color",
+			"label": "Overlay color",
+			"default": "#000"
+		},
+		{
+			"type": "checkbox",
+			"id": "enable_overlay_text",
+			"label": "Overlay behind text only",
+			"default": false
+		},
+		{
+			"type": "select",
+			"id": "color_bg",
+			"label": "Background color",
+			"default": "",
+			"options": [
+				{
+					"value": "",
+					"label": "Transparent"
+				},
+				{
+					"value": "palette--light bg--neutral",
+					"label": "White"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Text"
+		},
+		{
+			"type": "select",
+			"id": "text_align",
+			"label": "Text placement",
+			"default": "align--bottom-center",
+			"options": [
+				{
+					"value": "align--top-left",
+					"label": "Top left"
+				},
+				{
+					"value": "align--top-center",
+					"label": "Top center"
+				},
+				{
+					"value": "align--top-right",
+					"label": "Top right"
+				},
+				{
+					"value": "align--middle-left",
+					"label": "Middle left"
+				},
+				{
+					"value": "align--middle-center",
+					"label": "Absolute center"
+				},
+				{
+					"value": "align--middle-right",
+					"label": "Middle right"
+				},
+				{
+					"value": "align--bottom-left",
+					"label": "Bottom left"
+				},
+				{
+					"value": "align--bottom-center",
+					"label": "Bottom center"
+				},
+				{
+					"value": "align--bottom-right",
+					"label": "Bottom right"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "text_alignment",
+			"label": "Text alignment",
+			"default": "text-center",
+			"options": [
+				{
+					"value": "text-left",
+					"label": "Left"
+				},
+				{
+					"value": "text-center",
+					"label": "Centered"
+				},
+				{
+					"value": "text-right",
+					"label": "Right"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "text_color",
+			"label": "Text color",
+			"default": "text--neutral",
+			"options": [
+				{
+					"value": "text--neutral",
+					"label": "Normal text"
+				},
+				{
+					"value": "text--white",
+					"label": "White"
+				},
+				{
+					"value": "text--primary",
+					"label": "Primary accent"
+				},
+				{
+					"value": "text--secondary",
+					"label": "Secondary accent"
+				},
+				{
+					"value": "text--black",
+					"label": "Black"
+				},
+				{
+					"value": "text--invert--primary",
+					"label": "Primary dark accent"
+				},
+				{
+					"value": "text--invert--secondary",
+					"label": "Secondary dark accent"
+				},
+				{
+					"value": "text--invert",
+					"label": "Inverted text color"
+				},
+				{
+					"value": "text--bright--primary",
+					"label": "Primary bright accent"
+				},
+				{
+					"value": "text--bright--secondary",
+					"label": "Secondary bright accent"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "text_color_bg",
+			"label": "Text background color",
+			"default": "palette--light bg--accent",
+			"options": [
+				{
+					"value": "hero__content--transparent",
+					"label": "Transparent"
+				},
+				{
+					"value": "palette--light bg--neutral",
+					"label": "White"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper",
+			"options": [
+				{
+					"value": "wrapper--none",
+					"label": "Full width"
+				},
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				},
+				{
+					"value": "wrapper--narrow",
+					"label": "Page width narrow"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 36
+		}
+	],
+	"blocks": [
+		{
+			"type": "kicker",
+			"name": "Kicker",
+			"settings": [
+				{
+					"type": "checkbox",
+					"id": "show_author",
+					"label": "Show author",
+					"default": true
+				},
+				{
+					"type": "checkbox",
+					"id": "show_date",
+					"label": "Show date",
+					"default": true
+				}
+			]
+		},
+		{
+			"type": "heading",
+			"name": "Heading",
+			"settings": [
+				{
+					"type": "text",
+					"id": "title",
+					"label": "Headline"
+				},
+				{
+					"type": "range",
+					"id": "text_size",
+					"label": "Text size",
+					"min": 1,
+					"max": 15,
+					"step": 1,
+					"default": 8
+				}
+			]
+		},
+		{
+			"type": "button",
+			"name": "Button",
+			"settings": [
+				{
+					"type": "text",
+					"id": "link_text",
+					"label": "Text"
+				},
+				{
+					"type": "url",
+					"id": "link",
+					"label": "Link"
+				},
+				{
+					"type": "select",
+					"id": "button_color",
+					"label": "Button color",
+					"default": "btn--neutral",
+					"options": [
+						{
+							"value": "btn--primary",
+							"label": "Bright accent"
+						},
+						{
+							"value": "btn--secondary",
+							"label": "Secondary accent"
+						},
+						{
+							"value": "btn--neutral",
+							"label": "Text color"
+						},
+						{
+							"value": "btn--black",
+							"label": "Black"
+						},
+						{
+							"value": "btn--white",
+							"label": "White"
+						}
+					]
+				},
+				{
+					"type": "select",
+					"id": "button_style",
+					"label": "Button style",
+					"default": "btn-text-thick-line",
+					"options": [
+						{
+							"value": "btn-text-thick-line",
+							"label": "Capitalized text"
+						},
+						{
+							"value": "btn",
+							"label": "Solid button"
+						},
+						{
+							"value": "btn--soft",
+							"label": "Soft button"
+						},
+						{
+							"value": "btn--outline",
+							"label": "Outlined button"
+						}
+					]
+				}
+			]
+		},
+		{
+			"type": "text",
+			"name": "Text",
+			"settings": [
+				{
+					"type": "richtext",
+					"id": "richtext",
+					"label": "Text"
+				},
+				{
+					"type": "range",
+					"id": "text_size",
+					"label": "Text size",
+					"min": 1,
+					"max": 15,
+					"step": 1,
+					"default": 5
+				}
+			]
+		}
+	],
+	"presets": [
+		{
+			"name": "Featured article",
+			"blocks": [
+				{
+					"type": "kicker"
+				},
+				{
+					"type": "heading"
+				},
+				{
+					"type": "text"
+				},
+				{
+					"type": "button"
+				}
+			]
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"footer",
+			"aside"
+		]
+	}
+}
+{% endschema %}

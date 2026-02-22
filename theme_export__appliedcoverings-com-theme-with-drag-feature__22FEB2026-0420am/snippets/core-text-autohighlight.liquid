@@ -1,0 +1,40 @@
+{% liquid
+  # Automatically highlight any text wrapped in <em><strong> tags
+  assign start_delimiter = '<em><strong>'
+  assign end_delimiter = '</strong></em>'
+
+  assign parts = text | split: start_delimiter
+  assign auto_highlighted_text = parts[0]
+
+  for part in parts offset: 1
+    assign inner_parts = part | split: end_delimiter
+    assign replaced_text = inner_parts.first
+
+    # Check for leading space and remove it
+    assign leading_space = ''
+    if replaced_text != blank and replaced_text[0] == ' '
+      assign leading_space = ' '
+      assign replaced_text = replaced_text | slice: 1, replaced_text.size
+    endif
+
+    # Check for trailing space and remove it
+    assign trailing_space = ''
+    assign last_char_index = replaced_text.size | minus: 1
+    if replaced_text != blank and replaced_text.size > 0 and replaced_text[last_char_index] == ' '
+      assign trailing_space = ' '
+      assign replaced_text = replaced_text | slice: 0, last_char_index
+    endif
+
+    capture replacement
+      render 'core-text-highlight', text: replaced_text, appearance: appearance, color: color, animate: animate, _settings: _settings
+    endcapture
+
+    # If the inner part has two parts (i.e. there is text after the closing tag), append the trailing space and the last part of the inner part
+    if inner_parts.size == 2
+      assign auto_highlighted_text = auto_highlighted_text | append: leading_space | append: replacement | append: trailing_space | append: inner_parts.last
+    else
+      assign auto_highlighted_text = auto_highlighted_text | append: leading_space | append: replacement | append: trailing_space
+    endif
+  endfor
+%}
+{{- auto_highlighted_text -}}

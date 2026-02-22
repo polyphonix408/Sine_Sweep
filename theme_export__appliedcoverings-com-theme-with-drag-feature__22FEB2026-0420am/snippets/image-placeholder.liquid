@@ -1,0 +1,33 @@
+{% capture style %}
+  {% if aspect_ratio != 0 and aspect_ratio != blank %}
+    aspect-ratio: {{ 1.0 | divided_by: aspect_ratio }};
+  {% endif %}
+  {{ style }}
+{% endcapture %}
+
+{% capture svg_tag %}
+  {{ placeholder | placeholder_svg_tag: 'w-full h-full bare-placeholder-colors bg-[--placeholder-bg] fill-[--placeholder-fill]' }}
+{% endcapture %}
+
+<div
+  class="
+    flex
+    items-center
+    justify-center bg-white
+    {{ class }}
+  "
+  style="{{ style }}"
+  role="img"
+  {% if alt %}
+    aria-label="{{ alt }}"
+  {% endif %}
+>
+  {% if cover == true %}
+    {% comment %} Manually splice in attributes neccesary for an SVG to mimic `object-fit: cover` {% endcomment %}
+    {% assign parts = svg_tag | split: '<svg' %}
+    {{ parts[0] | prepend: '<svg preserveAspectRatio="xMinYMin slice" ' }}
+    {{ parts[1] }}
+  {% else %}
+    {{ svg_tag }}
+  {% endif %}
+</div>

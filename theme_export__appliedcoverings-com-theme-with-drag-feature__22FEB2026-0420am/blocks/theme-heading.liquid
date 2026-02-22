@@ -1,0 +1,30 @@
+{% render 'core-heading', _settings: block.settings, attributes: block.shopify_attributes %}
+
+{% schema %}
+{
+	"name": "Heading",
+	"tag": null,
+	"settings": [
+		{
+			"type": "text",
+			"id": "title",
+			"label": "Title",
+			"default": "Image banner"
+		},
+		{
+			"type": "range",
+			"id": "text_size",
+			"label": "Text size",
+			"min": 1,
+			"max": 15,
+			"step": 1,
+			"default": 9
+		},
+	],
+	"presets": [
+		{
+			"name": "Heading"
+		}
+	]
+}
+{% endschema %}

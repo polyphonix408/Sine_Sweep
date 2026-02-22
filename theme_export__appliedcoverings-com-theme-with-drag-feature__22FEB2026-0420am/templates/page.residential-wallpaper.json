@@ -1,0 +1,877 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "hero": {
+      "type": "section-hero",
+      "blocks": {
+        "heading-about-block": {
+          "type": "heading",
+          "settings": {
+            "title": "Custom Residential Wallpaper & Wall Murals Made to Fit Your Home",
+            "text_size": 7
+          }
+        },
+        "spacer_jaLn7G": {
+          "type": "spacer",
+          "settings": {
+            "spacer_padding": 40,
+            "show_line": false
+          }
+        },
+        "text_HhRVKb": {
+          "type": "text",
+          "settings": {
+            "richtext": "<p><strong>- Preview & Edit Before You Order -</strong></p>",
+            "text_size": 6
+          }
+        },
+        "button_zfVi7d": {
+          "type": "button",
+          "settings": {
+            "link_text_1": "UPLOAD YOUR FILE",
+            "link_1": "shopify://products/custom-wallpaper",
+            "button_size_1": "btn--long",
+            "button_style_1": "btn",
+            "button_color_1": "btn--white",
+            "link_text_2": "Shop All Wallpaper",
+            "link_2": "https://appliedcoverings.com/collections/all-wallpaper",
+            "button_size_2": "btn--long",
+            "button_style_2": "btn",
+            "button_color_2": "btn--white",
+            "link_text_3": "",
+            "link_3": "",
+            "button_size_3": "btn--long",
+            "button_style_3": "btn-text-thick-line",
+            "button_color_3": "btn--white"
+          }
+        }
+      },
+      "block_order": [
+        "heading-about-block",
+        "spacer_jaLn7G",
+        "text_HhRVKb",
+        "button_zfVi7d"
+      ],
+      "settings": {
+        "image": "shopify://shop_images/Custom_Residential_Wallpaper_Wall_Murals_Made_to_Fit_Your_Home.png",
+        "height": "use_pixels_800",
+        "overlay_opacity": 20,
+        "overlay_color": "#000000",
+        "enable_overlay_text": false,
+        "preload_image": true,
+        "content_width": 2000,
+        "text_align": "align--middle-center",
+        "text_color": "text--white",
+        "color_bg": "hero__content--transparent",
+        "width": "wrapper--none",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "main": {
+      "type": "page",
+      "settings": {
+        "kicker": "",
+        "kicker_size": 3,
+        "show_title": false,
+        "title_size": 8,
+        "show_content": false,
+        "content_size": 5,
+        "align_text": "text-center",
+        "text_color": "text--neutral",
+        "bg": "palette--light bg--neutral",
+        "width": "wrapper--narrow",
+        "padding_top": 64,
+        "padding_bottom": 64
+      }
+    },
+    "section_richtext_nT8a8D": {
+      "type": "section-richtext",
+      "blocks": {
+        "text_z9ApWt": {
+          "type": "text",
+          "settings": {
+            "text": "<p></p>{{ page.content }}",
+            "text_size": 4,
+            "text_columns": 1
+          }
+        },
+        "button_4bcRNp": {
+          "type": "button",
+          "settings": {
+            "link_text_1": "SHOP WALLPAPER & MURALS",
+            "link_1": "shopify://collections/all",
+            "button_size_1": "btn--long",
+            "button_style_1": "btn",
+            "button_color_1": "btn--primary",
+            "link_text_2": "upload your file",
+            "link_2": "shopify://pages/upload-your-own-image-custom-wallpaper",
+            "button_size_2": "btn--long",
+            "button_style_2": "btn",
+            "button_color_2": "btn--primary",
+            "link_text_3": "",
+            "link_3": "",
+            "button_size_3": "btn--medium",
+            "button_style_3": "btn-text-thick-line",
+            "button_color_3": "btn--neutral"
+          }
+        }
+      },
+      "block_order": [
+        "text_z9ApWt",
+        "button_4bcRNp"
+      ],
+      "name": "Rich text",
+      "settings": {
+        "align_text": "text-left",
+        "text_color": "text--neutral",
+        "bg": "palette--light bg--neutral",
+        "content_width": 2000,
+        "width": "wrapper",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "section_richtext_mtntfH": {
+      "type": "section-richtext",
+      "blocks": {
+        "kicker_rLrHj6": {
+          "type": "kicker",
+          "settings": {
+            "kicker": "What We Do",
+            "enable_line": true,
+            "text_size": 4
+          }
+        },
+        "text_DRYTWN": {
+          "type": "text",
+          "settings": {
+            "text": "<h2>Residential  Wallpaper Capabilities</h2>",
+            "text_size": 4,
+            "text_columns": 1
+          }
+        },
+        "text_7PYkdc": {
+          "type": "text",
+          "settings": {
+            "text": "<p></p><ul><li>Made to measure wallpaper printed specifically for your home’s walls, ensuring a perfect fit in bedrooms, living rooms, nurseries, and home offices.</li><li>Statement wall murals and full room wallpaper designs created to transform residential interiors.</li><li>High quality, long lasting wallpaper materials designed to withstand everyday life in busy homes.</li><li>Low-VOC, eco friendly inks that are safe for families, children, and pets.</li><li>Support for custom artwork, personal photos, and designer-created patterns tailored to your style.</li><li>Reliable production timelines so your home renovation or decorating project stays on schedule.</li></ul>",
+            "text_size": 4,
+            "text_columns": 1
+          }
+        }
+      },
+      "block_order": [
+        "kicker_rLrHj6",
+        "text_DRYTWN",
+        "text_7PYkdc"
+      ],
+      "name": "Rich text",
+      "settings": {
+        "align_text": "text-center",
+        "text_color": "text--neutral",
+        "bg": "palette--light bg--neutral",
+        "content_width": 900,
+        "width": "wrapper",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "section_collection_tabs_A6bptp": {
+      "type": "section-collection-tabs",
+      "blocks": {
+        "collection_ntfRYU": {
+          "type": "collection",
+          "settings": {
+            "collection": "children-wallpaper",
+            "title": "Children's"
+          }
+        },
+        "collection_AJ73FK": {
+          "type": "collection",
+          "settings": {
+            "collection": "vintage-wallpaper",
+            "title": "Vintage"
+          }
+        },
+        "collection_7mgVmG": {
+          "type": "collection",
+          "settings": {
+            "collection": "tropical-exotic-wallpaper",
+            "title": "Tropical"
+          }
+        },
+        "collection_VGUNqG": {
+          "type": "collection",
+          "settings": {
+            "collection": "floral-botanical-wallpaper",
+            "title": "Floral"
+          }
+        },
+        "collection_6ranMb": {
+          "type": "collection",
+          "settings": {
+            "collection": "geometric-abstract-wallpaper",
+            "title": "Geometric & Abstract"
+          }
+        },
+        "collection_yDART4": {
+          "type": "collection",
+          "settings": {
+            "collection": "textured-faux-finishes-wallpaper",
+            "title": "TEXTURED"
+          }
+        },
+        "collection_kcVE4U": {
+          "type": "collection",
+          "settings": {
+            "collection": "all-wallpaper",
+            "title": "ALL WALLPAPER"
+          }
+        }
+      },
+      "block_order": [
+        "collection_ntfRYU",
+        "collection_AJ73FK",
+        "collection_7mgVmG",
+        "collection_VGUNqG",
+        "collection_6ranMb",
+        "collection_yDART4",
+        "collection_kcVE4U"
+      ],
+      "settings": {
+        "title": "Top Wallpaper Collections",
+        "progress_bar": "both",
+        "grid_large": 4,
+        "grid_medium": 4,
+        "grid_mobile": 2.1,
+        "limit": 10,
+        "bg": "palette--light bg--neutral",
+        "width": "wrapper",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "section_icons_cwnDpQ": {
+      "type": "section-icons",
+      "blocks": {
+        "icon_block_Ef7LUR": {
+          "type": "icon_block",
+          "settings": {
+            "icon_name": "icon-basket-return",
+            "icon_alt": "shopify://shop_images/MADE_IN_USA_ICON_671945e4-7c1e-4fb3-9e4c-af59352c364d.png",
+            "icon_color": "#aaaaaa",
+            "title": "Made In The USA",
+            "text": "<p>Every wallpaper and mural is printed in the USA by experienced artists and print specialists, ensuring consistent quality, careful craftsmanship, and reliable production from start to finish.</p>",
+            "link_text": "",
+            "link_url": ""
+          }
+        },
+        "icon_block_Ath4Cg": {
+          "type": "icon_block",
+          "settings": {
+            "icon_name": "icon-shipment-world",
+            "icon_alt": "shopify://shop_images/LEED_ICON_4cb08f1b-439c-495d-a759-341fac036804.png",
+            "icon_color": "#aaaaaa",
+            "title": "Eco-Certified Materials",
+            "text": "<p>Printed using LEED Platinum–compliant materials and inks, our wallpapers and murals support eco-certified interiors for commercial, hospitality, healthcare, and residential environments.</p>",
+            "link_text": "",
+            "link_url": ""
+          }
+        },
+        "icon_block_kKjULB": {
+          "type": "icon_block",
+          "settings": {
+            "icon_name": "icon-phone",
+            "icon_alt": "shopify://shop_images/PRECISION_ICON_4d1a006c-9113-4383-8329-8363ed5bba6a.png",
+            "icon_color": "#aaaaaa",
+            "title": "Perfect Fit Every Time",
+            "text": "<p>Each wallpaper and mural is printed to your exact wall dimensions, eliminating waste, trimming, and guesswork—just a precise, made-to-measure fit every time.</p>",
+            "link_text": "",
+            "link_url": ""
+          }
+        }
+      },
+      "block_order": [
+        "icon_block_Ef7LUR",
+        "icon_block_Ath4Cg",
+        "icon_block_kKjULB"
+      ],
+      "name": "Icon columns",
+      "settings": {
+        "title": "",
+        "bg": "palette--light bg--neutral",
+        "icons_size": 100,
+        "icon_alignment": "icon--top",
+        "layout": "grid--stacked",
+        "align_text": "text-center",
+        "width": "wrapper",
+        "padding_top": 80,
+        "padding_bottom": 80
+      }
+    },
+    "apps_NzW3pg": {
+      "type": "apps",
+      "blocks": {
+        "judge_me_reviews_featured_carousel_fP3U6E": {
+          "type": "shopify://apps/judge-me-reviews/blocks/featured_carousel/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+          "settings": {
+            "maxwidth": 2000
+          }
+        }
+      },
+      "block_order": [
+        "judge_me_reviews_featured_carousel_fP3U6E"
+      ],
+      "settings": {
+        "text_color": "text--neutral",
+        "bg": "palette--light bg--neutral",
+        "width": "wrapper--none",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "section_columns_gEYhkW": {
+      "type": "section-columns",
+      "blocks": {
+        "text_block_iNMTGn": {
+          "type": "text_block",
+          "settings": {
+            "enable_image": true,
+            "image": "shopify://shop_images/Screenshot_2025-09-08_at_10.16.24_PM.jpg",
+            "shape_class": "",
+            "title": "Accent Wallpaper",
+            "text": "<p>Create a bold focal point with custom accent wallpaper printed to fit your wall exactly. From floral and botanical designs to geometric and modern patterns, our residential accent wall wallpapers add depth, character, and personality to living rooms, dining spaces, hallways, and entryways.<br/><br/></p>",
+            "button_label": "",
+            "button_link": "",
+            "button_color": "btn--neutral",
+            "button_style": "btn--soft",
+            "enable_video": false,
+            "video_link": "https://www.youtube.com/watch?v=_9VUPq3SxOc",
+            "video_button_color": "text--white"
+          }
+        },
+        "text_block_FhCxiU": {
+          "type": "text_block",
+          "settings": {
+            "enable_image": true,
+            "image": "shopify://shop_images/Screenshot_2025-09-08_at_10.16.29_PM.jpg",
+            "shape_class": "",
+            "title": "Bathroom Wallpaper",
+            "text": "<p>Our custom bathroom wallpaper is designed to bring style and impact to powder rooms and bathrooms alike. Printed to exact wall dimensions, these made-to-measure wallcoverings transform small spaces with elegant patterns, textured designs, and statement murals that elevate everyday interiors.<br/><br/></p>",
+            "button_label": "",
+            "button_link": "",
+            "button_color": "btn--neutral",
+            "button_style": "btn--soft",
+            "enable_video": false,
+            "video_link": "https://www.youtube.com/watch?v=_9VUPq3SxOc",
+            "video_button_color": "text--white"
+          }
+        },
+        "text_block_rDEEtk": {
+          "type": "text_block",
+          "settings": {
+            "enable_image": true,
+            "image": "shopify://shop_images/Screenshot_2025-09-08_at_10.16.35_PM.jpg",
+            "shape_class": "",
+            "title": "Children & Nursery",
+            "text": "<p>Design a warm, imaginative space with custom nursery and children’s room wallpaper. From playful animal murals to soft, calming patterns, our eco-friendly residential wallpapers are printed to size and created to support safe, creative environments where kids can grow, learn, and thrive.<br/><br/></p>",
+            "button_label": "",
+            "button_link": "",
+            "button_color": "btn--neutral",
+            "button_style": "btn--soft",
+            "enable_video": false,
+            "video_link": "https://www.youtube.com/watch?v=_9VUPq3SxOc",
+            "video_button_color": "text--white"
+          }
+        },
+        "text_block_8389C7": {
+          "type": "text_block",
+          "settings": {
+            "enable_image": true,
+            "image": "shopify://shop_images/Bedroooms_Wallpaper.jpg",
+            "shape_class": "",
+            "title": "Bedrooms Wallpaper",
+            "text": "<p>Personalize your bedroom with custom wallpaper and wall murals made to fit your space perfectly. Whether you’re looking for a subtle textured wallcovering, a bold feature wall behind the bed, or a timeless repeating pattern, our residential bedroom wallpapers add comfort, depth, and refined style.</p>",
+            "button_label": "",
+            "button_link": "",
+            "button_color": "btn--neutral",
+            "button_style": "btn--soft",
+            "enable_video": false,
+            "video_link": "https://www.youtube.com/watch?v=_9VUPq3SxOc",
+            "video_button_color": "text--white"
+          }
+        }
+      },
+      "block_order": [
+        "text_block_iNMTGn",
+        "text_block_FhCxiU",
+        "text_block_rDEEtk",
+        "text_block_8389C7"
+      ],
+      "name": "Text columns with images",
+      "settings": {
+        "title": "",
+        "bg": "palette--light bg--neutral",
+        "align_text": "text-left",
+        "scale_image": true,
+        "wh_ratio": 1.5,
+        "grid_large": 4,
+        "grid_medium": 4,
+        "grid_mobile": 1.2,
+        "progress_bar_mobile": false,
+        "width": "wrapper",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "section_double_nUXgRi": {
+      "type": "section-double",
+      "blocks": {
+        "text_aL6LYy": {
+          "type": "text",
+          "settings": {
+            "kicker": "",
+            "title": "",
+            "text": "<h2>Custom Residential Wallpaper & Wall Murals<br/><br/></h2><p>Our custom residential wallpaper and wall murals are designed specifically for homes, making it easy to transform any space with confidence. Every wallpaper is <strong>printed to your exact wall measurements</strong>, eliminating excess material and ensuring a clean, professional, made-to-measure finish.</p><p>Choose from our curated wallpaper collections or create a custom wall mural using your own image or design. With <strong>live previews before printing</strong>, precise pattern resizing, and eco-certified materials, you can see exactly how your wallpaper will look and feel before it’s produced. The result is custom wallpaper that fits your wall perfectly and complements your home’s style—without guesswork or waste.</p>",
+            "font_size": 4,
+            "text_columns": 1,
+            "align_text": "text-left",
+            "button_text": "",
+            "button_url": "",
+            "button_color": "btn--neutral",
+            "button_style": "btn-text-thick-line",
+            "text_color": "text--neutral",
+            "bg_color": "#f7f5f4"
+          }
+        },
+        "image_XTi3KK": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/Custom_Residential_Wallpaper_Wall_Murals_by_Applied_Coverings.png",
+            "overlay_opacity": 0,
+            "overlay_color": "#000000",
+            "enable_overlay_text": false,
+            "kicker": "",
+            "title": "",
+            "richtext": "",
+            "text_align": "align--middle-center",
+            "text_color": "text--white",
+            "link_text": "",
+            "link": "",
+            "button_color": "btn--white",
+            "button_style": "btn"
+          }
+        }
+      },
+      "block_order": [
+        "text_aL6LYy",
+        "image_XTi3KK"
+      ],
+      "name": "Image with text",
+      "settings": {
+        "height": "use_image",
+        "brick_gutter": 0,
+        "borders": false,
+        "bg_color": "",
+        "preload_image": false,
+        "width": "wrapper",
+        "padding_top": 36,
+        "padding_bottom": 60
+      }
+    },
+    "section_richtext_fPRPxn": {
+      "type": "section-richtext",
+      "blocks": {
+        "text_YKX3tE": {
+          "type": "text",
+          "settings": {
+            "text": "<h2>Residential Wallpaper & Custom Wall Murals Printed to Size</h2>",
+            "text_size": 4,
+            "text_columns": 1
+          }
+        }
+      },
+      "block_order": [
+        "text_YKX3tE"
+      ],
+      "name": "Rich text",
+      "settings": {
+        "align_text": "text-center",
+        "text_color": "text--neutral",
+        "bg": "palette--light bg--neutral",
+        "content_width": 1000,
+        "width": "wrapper",
+        "padding_top": 46,
+        "padding_bottom": 24
+      }
+    },
+    "section_pair_slideshow_accordion_GTDX3L": {
+      "type": "section-pair-slideshow-accordion",
+      "blocks": {
+        "slideshow": {
+          "type": "_pair-slideshow",
+          "static": true,
+          "settings": {},
+          "blocks": {
+            "pair_slideshow_slide_wBjUp9": {
+              "type": "_pair-slideshow-slide",
+              "settings": {
+                "image": "shopify://shop_images/Residential_Wallpaper_Custom_Wall_Murals_Printed_to_Size.jpg"
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "pair_slideshow_slide_wBjUp9"
+          ]
+        },
+        "accordion": {
+          "type": "_pair-accordion",
+          "static": true,
+          "settings": {
+            "text_color": "text--neutral",
+            "bg_color": "",
+            "font_family": "accent",
+            "font_weight": "bold",
+            "text_size": 5
+          },
+          "blocks": {
+            "pair_accordion_item_xiWjPd": {
+              "type": "_pair-accordion-item",
+              "settings": {
+                "title": "Residential Wallpaper & Custom Murals",
+                "gap": "sm"
+              },
+              "blocks": {
+                "theme_text_q6qiCR": {
+                  "type": "theme-text",
+                  "settings": {
+                    "text": "Our custom residential wallpaper and wall murals are designed exclusively for homes. Every design is printed to your exact wall measurements, creating a seamless, made-to-measure finish that eliminates excess material and reduces installation guesswork. Whether you’re decorating a bedroom, living room, nursery, or accent wall, our custom wallcoverings are tailored to fit your space perfectly.",
+                    "font_family": "body",
+                    "text_size": 4,
+                    "max_width": 550
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "theme_text_q6qiCR"
+              ]
+            },
+            "pair_accordion_item_A7fhWT": {
+              "type": "_pair-accordion-item",
+              "settings": {
+                "title": "Eco-friendly materials for healthy homes",
+                "gap": "sm"
+              },
+              "blocks": {
+                "theme_text_AncA7J": {
+                  "type": "theme-text",
+                  "settings": {
+                    "text": "All of our residential wallpapers are printed using eco-certified materials and low-VOC inks, making them safe for everyday living spaces. Our wallcoverings are suitable for bedrooms, nurseries, and family homes, providing peace of mind without compromising on print quality, durability, or design detail.",
+                    "font_family": "body",
+                    "text_size": 4,
+                    "max_width": 550
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "theme_text_AncA7J"
+              ]
+            },
+            "pair_accordion_item_VpaWyC": {
+              "type": "_pair-accordion-item",
+              "settings": {
+                "title": "Personalized Wallpaper Design for Every Room",
+                "gap": "sm"
+              },
+              "blocks": {
+                "theme_text_AxRjVT": {
+                  "type": "theme-text",
+                  "settings": {
+                    "text": "Create wallpaper that reflects your personal style. Choose from our curated residential wallpaper collections or upload your own artwork or image to create a custom wall mural. Using our online editor, you can resize patterns, adjust layouts, and preview your wallpaper before printing—ensuring it looks exactly right on your wall before it’s produced.",
+                    "font_family": "body",
+                    "text_size": 4,
+                    "max_width": 550
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "theme_text_AxRjVT"
+              ]
+            },
+            "pair_accordion_item_gt4bwr": {
+              "type": "_pair-accordion-item",
+              "settings": {
+                "title": "Designed For Easy installation",
+                "gap": "sm"
+              },
+              "blocks": {
+                "theme_text_gGCEHL": {
+                  "type": "theme-text",
+                  "settings": {
+                    "text": "Because each wallpaper is printed to your exact wall size, installation is simpler and more precise. Our made-to-measure wall murals reduce trimming, waste, and alignment issues, helping you achieve a clean, professional result whether you install it yourself or work with a professional installer.",
+                    "font_family": "body",
+                    "text_size": 4,
+                    "max_width": 550
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "theme_text_gGCEHL"
+              ]
+            },
+            "pair_accordion_item_pbcf3a": {
+              "type": "_pair-accordion-item",
+              "settings": {
+                "title": "Why Choose Applied Coverings",
+                "gap": "sm"
+              },
+              "blocks": {
+                "theme_text_rnV6RK": {
+                  "type": "theme-text",
+                  "settings": {
+                    "text": "Applied Coverings specializes in custom residential wallpaper printed to size, combining detailed print quality with homeowner-friendly tools like live previews and design customization. With eco-certified materials, precise sizing, and careful production, we make it easy to create wallpaper and wall murals that feel thoughtfully designed for your home.",
+                    "font_family": "body",
+                    "text_size": 4,
+                    "max_width": 550
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "theme_text_rnV6RK"
+              ]
+            },
+            "title": {
+              "type": "_pair-title",
+              "static": true,
+              "settings": {
+                "alignment": "start",
+                "gap": "sm"
+              },
+              "blocks": {
+                "theme_text_mKqCX3": {
+                  "type": "theme-text",
+                  "name": "Text",
+                  "settings": {
+                    "text": "",
+                    "font_family": "heading",
+                    "text_size": 7,
+                    "max_width": 550
+                  },
+                  "blocks": {}
+                },
+                "theme_kicker_TWFQNi": {
+                  "type": "theme-kicker",
+                  "disabled": true,
+                  "settings": {
+                    "kicker": "TYPES OF MATERIAL WE OFFER",
+                    "enable_line": true,
+                    "text_size": 4
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "theme_text_mKqCX3",
+                "theme_kicker_TWFQNi"
+              ]
+            }
+          },
+          "block_order": [
+            "pair_accordion_item_xiWjPd",
+            "pair_accordion_item_A7fhWT",
+            "pair_accordion_item_VpaWyC",
+            "pair_accordion_item_gt4bwr",
+            "pair_accordion_item_pbcf3a"
+          ]
+        }
+      },
+      "name": "Pair: Slides & Text",
+      "settings": {
+        "order": "slideshow-first",
+        "duration": 5,
+        "height": "use_image",
+        "brick_gutter": 0,
+        "borders": false,
+        "bg_color": "#fdfdfd",
+        "width": "wrapper",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "section_icons_pxyLk7": {
+      "type": "section-icons",
+      "blocks": {
+        "icon_block_zWyMrP": {
+          "type": "icon_block",
+          "settings": {
+            "icon_name": "icon-basket-return",
+            "icon_color": "#aaaaaa",
+            "title": "Free returns",
+            "text": "<p>Returns within 30 days receive a full refund.</p>",
+            "link_text": "",
+            "link_url": ""
+          }
+        },
+        "icon_block_6Eih4B": {
+          "type": "icon_block",
+          "settings": {
+            "icon_name": "icon-shipment-world",
+            "icon_color": "#aaaaaa",
+            "title": "free shipping",
+            "text": "<p><strong>Ship anywhere in USA for free!</strong></p>",
+            "link_text": "",
+            "link_url": ""
+          }
+        },
+        "icon_block_NmAiQP": {
+          "type": "icon_block",
+          "settings": {
+            "icon_name": "icon-phone",
+            "icon_color": "#aaaaaa",
+            "title": "free support",
+            "text": "<p>Give us a ring 1(415) 992-6794</p>",
+            "link_text": "",
+            "link_url": ""
+          }
+        }
+      },
+      "block_order": [
+        "icon_block_zWyMrP",
+        "icon_block_6Eih4B",
+        "icon_block_NmAiQP"
+      ],
+      "name": "Icon columns",
+      "settings": {
+        "title": "",
+        "bg": "palette--light bg--neutral",
+        "icons_size": 30,
+        "icon_alignment": "icon--left",
+        "layout": "grid--stacked",
+        "align_text": "text-left",
+        "width": "wrapper",
+        "padding_top": 78,
+        "padding_bottom": 80
+      }
+    },
+    "section_text_spotlight_8B7cRd": {
+      "type": "section-text-spotlight",
+      "blocks": {
+        "spotlight_autohighlight_text_zAPW4t": {
+          "type": "_spotlight-autohighlight-text",
+          "settings": {
+            "text": "Frequently Asked Questions",
+            "break_newline": false,
+            "highlight_color": "#eeeeee",
+            "highlight_appearance": "full"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "spotlight_autohighlight_text_zAPW4t"
+      ],
+      "name": "Spotlight Text",
+      "settings": {
+        "align_text": "text-left",
+        "text_color": "text--neutral",
+        "bg": "palette--light bg--neutral",
+        "text_size": 8,
+        "font_family": "heading",
+        "enable_scroll_animation": false,
+        "width": "wrapper",
+        "padding_top": 38,
+        "padding_bottom": 0
+      }
+    },
+    "section_faq_qY6NpW": {
+      "type": "section-faq",
+      "blocks": {
+        "text_4bxz7Y": {
+          "type": "text",
+          "settings": {
+            "title": "What types of wallpaper materials do you offer?",
+            "content": "<p>We offer a range of materials to fit both residential and commercial needs, including Peel & Stick Linen, Peel & Stick Canvas, Pre-Pasted Wallpaper, Suede Type II 20oz, and Terralon Smooth Type II. Peel & Stick options are great for DIY projects, Pre-Pasted is ideal for easy installation, and our Type II materials are designed for long-lasting durability in high-traffic commercial spaces.<br/><br/><a href=\"/materials\" title=\"Our Materials\">Click here for more information about our materials.</a></p>"
+          }
+        },
+        "text_dhMf9q": {
+          "type": "text",
+          "settings": {
+            "title": "Can I order a custom wallpaper design or use my own artwork?",
+            "content": "<p>Yes. You can choose from our curated pattern library or upload your own design, photo, or artwork. We’ll ensure your file is print-ready and scaled to fit your wall perfectly, giving you complete creative freedom.</p>"
+          }
+        },
+        "text_YzitRa": {
+          "type": "text",
+          "settings": {
+            "title": "How do you ensure the wallpaper fits my wall perfectly?",
+            "content": "<p>Simply measure the full width and height of each wall, including doors and windows. Our ordering system allows you to input exact dimensions, and we provide installation guides to ensure a seamless fit with minimal waste.</p>"
+          }
+        },
+        "text_J97hME": {
+          "type": "text",
+          "settings": {
+            "title": "Are the wallpapers durable and easy to maintain?",
+            "content": "<p>Yes. Our commercial-grade materials are designed to withstand heavy use, while our residential wallpapers are washable and scuff-resistant. Most surfaces can be gently cleaned with a damp sponge or soft cloth, making maintenance simple.</p>"
+          }
+        },
+        "text_t9Y49p": {
+          "type": "text",
+          "settings": {
+            "title": "Can the wallpaper be removed without damaging the wall?",
+            "content": "<p>It depends on the material. Peel & Stick wallpapers can be removed cleanly without damage, making them perfect for renters or temporary spaces. Pre-Pasted and Type II wallpapers are more permanent solutions, designed for long-term installations.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "text_4bxz7Y",
+        "text_dhMf9q",
+        "text_YzitRa",
+        "text_J97hME",
+        "text_t9Y49p"
+      ],
+      "name": "Accordion group",
+      "settings": {
+        "title": "",
+        "title_align": "text-left",
+        "title_size": 4,
+        "heading_size": 5,
+        "text_size": 5,
+        "text_color": "text--neutral",
+        "bg": "palette--light bg--neutral",
+        "width": "wrapper",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    }
+  },
+  "order": [
+    "hero",
+    "main",
+    "section_richtext_nT8a8D",
+    "section_richtext_mtntfH",
+    "section_collection_tabs_A6bptp",
+    "section_icons_cwnDpQ",
+    "apps_NzW3pg",
+    "section_columns_gEYhkW",
+    "section_double_nUXgRi",
+    "section_richtext_fPRPxn",
+    "section_pair_slideshow_accordion_GTDX3L",
+    "section_icons_pxyLk7",
+    "section_text_spotlight_8B7cRd",
+    "section_faq_qY6NpW"
+  ]
+}

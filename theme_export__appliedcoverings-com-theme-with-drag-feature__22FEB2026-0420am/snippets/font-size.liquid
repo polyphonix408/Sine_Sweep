@@ -1,0 +1,187 @@
+
+/* ================ Typography ================ */
+/* ================ type-scale.com ============ */
+{% if settings.font_scaling_system == 'large' %}
+/* 1.16 base 12 */
+:root {
+--font-1: 10px;
+--font-2: 12px;
+--font-3: 14px;
+--font-4: 16px;
+--font-5: 19px;
+--font-6: 22px;
+--font-7: 25px;
+--font-8: 29px;
+--font-9: 34px;
+--font-10:39px;
+--font-11:46px;
+--font-12:53px;
+--font-13:61px;
+--font-14:71px;
+--font-15:83px;
+}
+
+/* 1.175 base 12 */
+@media only screen and (min-width: 480px) and (max-width: 1099px) {
+  :root {
+  --font-1: 10px;
+  --font-2: 12px;
+  --font-3: 14px;
+  --font-4: 16.5px;
+  --font-5: 19.5px;
+  --font-6: 23px;
+  --font-7: 27px;
+  --font-8: 32px;
+  --font-9: 37px;
+  --font-10:44px;
+  --font-11:51px;
+  --font-12:60px;
+  --font-13:71px;
+  --font-14:83px;
+  --font-15:98px;
+  }
+}
+
+
+/* 1.22 base 12 */
+@media only screen and (min-width: 1100px) {
+  :root {
+  --font-1: 10px;
+  --font-2: 12px;
+  --font-3: 15px;
+  --font-4: 18px;
+  --font-5: 22px;
+  --font-6: 27px;
+  --font-7: 32px;
+  --font-8: 40px;
+  --font-9: 48px;
+  --font-10:59px;
+  --font-11:72px;
+  --font-12:88px;
+  --font-13:107px;
+  --font-14:130px;
+  --font-15:159px;
+  }
+}
+{% elsif settings.font_scaling_system == 'medium' %}
+/* 1.16 base 11.5 */
+:root {
+  --font-1: 10px;
+  --font-2: 11px;
+  --font-3: 13px;
+  --font-4: 15px;
+  --font-5: 17px;
+  --font-6: 20px;
+  --font-7: 24px;
+  --font-8: 27px;
+  --font-9: 32px;
+  --font-10:37px;
+  --font-11:43px;
+  --font-12:49px;
+  --font-13:57px;
+  --font-14:67px;
+  --font-15:77px;
+}
+
+/* 1.175 base 11.5 */
+@media only screen and (min-width: 480px) and (max-width: 1099px) {
+  :root {
+  --font-1: 10px;
+  --font-2: 11.5px;
+  --font-3: 13.5px;
+  --font-4: 16px;
+  --font-5: 19px;
+  --font-6: 22px;
+  --font-7: 26px;
+  --font-8: 30px;
+  --font-9: 36px;
+  --font-10:42px;
+  --font-11:49px;
+  --font-12:58px;
+  --font-13:68px;
+  --font-14:80px;
+  --font-15:94px;
+  }
+}
+
+ /* 1.22 base 11.5 */
+ @media only screen and (min-width: 1100px) {
+  :root {
+  --font-1: 10px;
+  --font-2: 11.5px;
+  --font-3: 14px;
+  --font-4: 17px;
+  --font-5: 21px;
+  --font-6: 25px;
+  --font-7: 31px;
+  --font-8: 38px;
+  --font-9: 46px;
+  --font-10:56px;
+  --font-11:68px;
+  --font-12:83px;
+  --font-13:102px;
+  --font-14:124px;
+  --font-15:151px;
+  }
+}
+{% else %}
+/* 1.16 base 13 */
+:root {
+ --font-1: 10px;
+ --font-2: 11.3px;
+ --font-3: 12px;
+ --font-4: 13px;
+ --font-5: 15.5px;
+ --font-6: 17px;
+ --font-7: 20px;
+ --font-8: 23.5px;
+ --font-9: 27px;
+ --font-10:32px;
+ --font-11:37px;
+ --font-12:43px;
+ --font-13:49px;
+ --font-14:57px;
+ --font-15:67px;
+}
+
+/* 1.175 base 13.5 */
+@media only screen and (min-width: 480px) and (max-width: 1099px) {
+  :root {
+    --font-1: 10px;
+    --font-2: 11.5px;
+    --font-3: 12.5px;
+    --font-4: 13.5px;
+    --font-5: 16px;
+    --font-6: 18px;
+    --font-7: 21px;
+    --font-8: 25px;
+    --font-9: 29px;
+    --font-10:34px;
+    --font-11:40px;
+    --font-12:47px;
+    --font-13:56px;
+    --font-14:65px;
+   --font-15:77px;
+  }
+}
+/* 1.22 base 14.5 */
+@media only screen and (min-width: 1100px) {
+  :root {
+    --font-1: 10px;
+    --font-2: 11.5px;
+    --font-3: 13px;
+    --font-4: 14.5px;
+    --font-5: 17.5px;
+    --font-6: 22px;
+    --font-7: 26px;
+    --font-8: 32px;
+    --font-9: 39px;
+    --font-10:48px;
+    --font-11:58px;
+    --font-12:71px;
+    --font-13:87px;
+    --font-14:106px;
+    --font-15:129px;
+ }
+}
+{% endif %}

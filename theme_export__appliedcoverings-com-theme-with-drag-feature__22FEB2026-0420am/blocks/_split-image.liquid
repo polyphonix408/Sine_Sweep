@@ -1,0 +1,35 @@
+{%- capture show_mobile -%}
+  {%- if block.settings.show_mobile == false -%}
+    hidden md:block
+  {%- endif -%}
+{%- endcapture -%}
+
+<div class="block-split-image flex-1 h-full {{ show_mobile }}" data-background="image" {{ block.shopify_attributes }}>
+  {% render 'image-parallax', img_object: block.settings.image, frame_height_class: 'h-full' %}
+</div>
+
+{% schema %}
+{
+	"name": "Banner image",
+	"tag": null,
+	"settings": [
+		{
+			"type": "image_picker",
+			"id": "image",
+			"label": "Image"
+		},
+		{
+			"type": "checkbox",
+			"id": "show_mobile",
+			"label": "Show on mobile",
+			"default": true
+		}
+	],
+	"blocks": [],
+	"presets": [
+		{
+			"name": "Banner image"
+		}
+	]
+}
+{% endschema %}

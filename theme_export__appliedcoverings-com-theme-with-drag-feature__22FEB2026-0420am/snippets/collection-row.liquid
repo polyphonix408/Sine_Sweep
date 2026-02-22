@@ -1,0 +1,158 @@
+<!-- /snippets/collection-row.liquid -->
+
+{% comment %}
+  Required params:
+    product_limit {int} Upper limit for num of products
+    grid {int} The js grid strings
+
+  Example:
+    {% render 'collection-row',
+      collection: collection,
+      product_limit: product_limit,
+      grid: section.settings.grid,
+      enable_scroll_mobile: section.settings.enable_scroll_mobile,
+      grid_small: section.settings.grid_small,
+      collection_title_override: block.settings.title,
+      link_text: block.settings.link_text,
+      enable_item: block.settings.enable_item,
+      item_height: block.settings.item_height,
+      item_background: block.settings.item_background,
+      item_text: block.settings.item_link_text,
+      item_text_size: block.settings.item_link_size,
+      item_text_color: block.settings.item_link_color %}
+{% endcomment %}
+{%- assign enable_item = enable_item | default: false -%}
+{%- assign item_height = item_height | default: 'image' -%}
+{%- assign product_limit = product_limit | default: 3 -%}
+{%- assign grid = grid | default: 3 -%}
+{%- assign is_empty_collection = false -%}
+{%- assign collection_onboarding_title = 'collections.general.collection_grid_title' | t -%}
+
+{%- if collection_title == blank -%}
+  {%- assign collection_title = collection.title | default: collection_onboarding_title -%}
+{%- endif -%}
+
+{%- assign link_text = link_text | replace: '[name]', collection_title | default: '' -%}
+
+{%- if enable_item -%}
+  {%- assign product_limit = product_limit | minus: 1 -%}
+
+  {% if item_height == 'full' %}
+    {% assign grid_item_class = 'h-full *:h-full' %}
+  {% else %}
+    {% capture item_aspect_ratio_style %}
+      aspect-ratio: {{ settings.product_card_wh_ratio }};
+    {% endcapture %}
+  {% endif %}
+
+  {% comment %} Item Block HTML {% endcomment %}
+  {%- capture item_html -%}
+    {%- if item_text == blank -%}
+      {%- capture item_text -%}{{ 'collections.general.shop_all' | t: name: collection_title }}{%- endcapture -%}
+    {%- endif -%}
+
+    {%- if enable_scroll_mobile -%}
+      <div class="collection-list__product">
+    {%- endif -%}
+
+      <div class="product-grid-item section--image {{ item_text_color }} {{ grid_item_class }}">
+        <a
+          href="{{ collection.url }}"
+          class="product-grid-item__link"
+          aria-label="{{ collection_title | strip_html | escape }}"
+          style="
+            {{ item_aspect_ratio_style }}
+            background-color: {{ item_background | default: '#fcfaf7' }};"
+        >
+          <div
+            class="hero__content__wrapper align--bottom-center"
+            aria-label="{{ collection_title | escape }}">
+            {% assign link_size_class = item_link_size | prepend: 'accent-size-' %}
+            <div class="text-btn-arrow-right {{ link_size_class }}">
+              {{ item_text | replace: '[name]', collection_title }}
+            </div>
+          </div>
+        </a>
+      </div>
+
+    {%- if enable_scroll_mobile -%}
+      </div><!-- /.collection-list__product -->
+    {%- endif -%}
+  {%- endcapture -%}
+{%- endif -%}
+
+{%- if collection.all_products_count == 0 -%}
+  {%- assign is_empty_collection = true -%}
+{%- endif -%}
+
+{%- if collection != blank -%}
+  <div class="collection-list-item">
+    <div class="collection-list__heading__text">
+      <a href="{{ collection.url }}" class="hero__title heading-size-7" title="{{ 'collections.general.link_title' | t: title: collection_title }}">
+        {{ collection_title_override | replace: '[name]', collection_title | default: collection_title }}
+      </a>
+
+      {%- if link_text != '' and is_empty_collection == false -%}
+        {% assign link_size_class = item_link_size | prepend: 'accent-size-' %}
+        <a href="{{ collection.url }}" class="text-btn-arrow-right {{ link_size_class }}" title="{{ 'collections.general.link_title' | t: title: collection_title }}">
+          {{ link_text }}
+        </a>
+      {%- endif -%}
+    </div>
+
+    {%- unless is_empty_collection -%}
+      <div class="js-grid{% if enable_scroll_mobile %} collection-list__products{% endif %}" data-grid-large="{{ grid }}" data-grid-small="2" style="--product-width: calc({{ 100 | divided_by: grid_small | append: 'vw' }} - var(--gutter)*2);">
+        {% for product in collection.products limit: product_limit %}
+          {%- capture placeholder -%}
+            product-{%- cycle '1', '2', '3', '4', '5', '6' -%}
+          {%- endcapture -%}
+
+          {%- if enable_scroll_mobile -%}
+            <div class="collection-list__product">
+          {%- endif -%}
+
+          {%- render 'product-grid-item', product: product, placeholder: placeholder -%}
+
+          {%- if enable_scroll_mobile -%}
+            </div><!-- /.collection-list__product -->
+          {%- endif -%}
+        {% endfor %}
+
+        {%- if enable_item -%}
+          {{- item_html -}}
+        {%- endif -%}
+      </div>
+    {%- else -%}
+      <p>{{ 'collections.general.no_matches' | t }}</p>
+    {%- endunless -%}
+  </div>
+{%- else -%}
+  <div class="collection-list-item">
+    <div class="collection-list__heading__text">
+      <a href="{{ routes.collections_url }}" class="hero__title heading-size-7" title="{{- 'collections.general.collection_grid_cta' | t -}}">
+        {{ collection_title_override | replace: '[name]', collection_title | default: collection_title }}
+      </a>
+
+      {%- if link_text != '' -%}
+        {% assign link_size_class = item_link_size | prepend: 'accent-size-' %}
+        <a href="{{ routes.collections_url }}" class="text-btn-arrow-right {{ link_size_class }}" title="{{- 'collections.general.collection_grid_cta' | t -}}">
+          {{ link_text }}
+        </a>
+      {%- endif -%}
+    </div>
+
+    <div class="js-grid{% if enable_scroll_mobile %} collection-list__products{% endif %}" data-grid-large="{{ grid }}" data-grid-small="2" style="--product-width: calc({{ 100 | divided_by: grid_small | append: 'vw' }} - var(--gutter)*2);">
+      {%- assign wrap = 'collection-list__product-wrap' -%}
+
+      {%- if enable_scroll_mobile -%}
+        {%- assign wrap = 'collection-list__product' -%}
+      {%- endif -%}
+
+      {%- render 'onboarding-product-grid-item', limit: product_limit, wrap: wrap -%}
+
+      {%- if enable_item -%}
+        {{- item_html -}}
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}

@@ -1,0 +1,66 @@
+{
+  "sections": {
+    "main": {
+      "type": "product-wallpaper",
+      "blocks": {
+        "title": {
+          "type": "title",
+          "settings": {
+            "text_size": 9,
+            "padding_bottom": 20
+          }
+        },
+        "price": {
+          "type": "price",
+          "settings": {
+            "price_size": 6,
+            "padding_bottom": 30
+          }
+        },
+        "variants": {
+          "type": "variant-selectors",
+          "settings": {
+            "padding_bottom": 30
+          }
+        },
+        "add_buttons": {
+          "type": "add-buttons",
+          "settings": {
+            "padding_bottom": 20
+          }
+        },
+        "description": {
+          "type": "description",
+          "settings": {
+            "style": "accordions",
+            "padding_bottom": 20
+          }
+        }
+      },
+      "block_order": [
+        "title",
+        "price",
+        "variants",
+        "add_buttons",
+        "description"
+      ],
+      "settings": {
+        "layout": "thumbnails-below@slides",
+        "padding_top": 24,
+        "padding_bottom": 60
+      }
+    },
+    "configurator": {
+      "type": "wallpaper-configurator-section",
+      "settings": {
+        "force_pattern_mode": true,
+        "start_hidden": true,
+        "show_back_button": true
+      }
+    }
+  },
+  "order": [
+    "main",
+    "configurator"
+  ]
+}

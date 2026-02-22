@@ -1,0 +1,229 @@
+{% liquid
+  assign image = block.settings.image
+  assign image_width = block.settings.image.width | default: block.settings.image_max_limit | at_most: block.settings.image_max_limit
+  assign screen_display = block.settings.screen_display
+  assign wh_ratio = block.settings.image.aspect_ratio | default: 1
+
+  if block.settings.scale_image
+    assign wh_ratio = block.settings.wh_ratio
+  endif
+%}
+
+{% capture class %}
+  w-fit h-fit
+  {{ block.settings.shape }}
+
+  {% case screen_display %}
+    {% when 'mobile-only' %}
+      md:hidden
+    {% when 'desktop-only' %}
+      hidden md:block
+  {% endcase %}
+{% endcapture %}
+
+{% capture image_style %}
+  --width: {{ image_width }}px;
+  --wh-ratio: {{ wh_ratio }};
+{% endcapture %}
+
+{% capture image_class %}
+  w-[--width] aspect-[--wh-ratio] object-cover
+{% endcapture %}
+
+{% capture image %}
+  {% render 'image-tag', img_object: image, class: image_class, style: image_style, placeholder: 'image' %}
+{% endcapture %}
+
+{% render 'core-float',
+  content: image,
+  _settings: block.settings,
+  attributes: block.shopify_attributes,
+  class: class
+%}
+
+{% schema %}
+{
+	"name": "Collage image",
+	"tag": null,
+	"settings": [
+		{
+			"type": "image_picker",
+			"id": "image",
+			"label": "Image"
+		},
+		{
+			"type": "range",
+			"id": "image_max_limit",
+			"min": 10,
+			"max": 900,
+			"step": 10,
+			"unit": "px",
+			"label": "Image width",
+			"default": 300
+		},
+		{
+			"type": "select",
+			"id": "screen_display",
+			"label": "Show collage image",
+			"default": "both",
+			"options": [
+				{
+					"value": "both",
+					"label": "Mobile and desktop"
+				},
+				{
+					"value": "mobile-only",
+					"label": "Mobile only"
+				},
+				{
+					"value": "desktop-only",
+					"label": "Desktop only"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "shape",
+			"label": "Shape",
+			"default": "",
+			"options": [
+				{
+					"value": "",
+					"label": "None"
+				},
+				{
+					"value": "rounded-lg overflow-hidden",
+					"label": "Rounded"
+				},
+				{
+					"value": "radius-keyhole",
+					"label": "Keyhole"
+				},
+				{
+					"value": "rounded-full overflow-hidden",
+					"label": "Circle"
+				},
+				{
+					"value": "clip-sunburst",
+					"label": "Sunburst"
+				},
+				{
+					"value": "clip-hexagon",
+					"label": "Hexagon"
+				},
+				{
+					"value": "clip-octagon",
+					"label": "Octagon"
+				},
+				{
+					"value": "clip-parallelogram",
+					"label": "Parallelogram"
+				},
+				{
+					"value": "radius-blob-1",
+					"label": "Blob 1"
+				},
+				{
+					"value": "radius-blob-2",
+					"label": "Blob 2"
+				},
+				{
+					"value": "radius-blob-3",
+					"label": "Blob 3"
+				},
+				{
+					"value": "radius-blob-4",
+					"label": "Blob 4"
+				},
+				{
+					"value": "mask-stamp-sharp",
+					"label": "Stamp sharp"
+				},
+				{
+					"value": "mask-stamp-rounded",
+					"label": "Stamp rounded"
+				},
+				{
+					"value": "mask-ticket-stub",
+					"label": "Ticket"
+				}
+			]
+		},
+		{
+			"type": "checkbox",
+			"id": "scale_image",
+			"label": "Scale images",
+			"default": true
+		},
+		{
+			"type": "range",
+			"id": "wh_ratio",
+			"min": 0.5,
+			"max": 5,
+			"step": 0.1,
+			"unit": ":1",
+			"label": "Image scaling ratio",
+			"default": 1
+		},
+		{
+			"type": "header",
+			"content": "Image position"
+		},
+		{
+			"type": "range",
+			"id": "top",
+			"min": 0,
+			"max": 100,
+			"step": 1,
+			"label": "Top",
+			"default": 50,
+			"unit": "%"
+		},
+		{
+			"type": "range",
+			"id": "left",
+			"min": 0,
+			"max": 100,
+			"step": 1,
+			"label": "Left",
+			"default": 50,
+			"unit": "%"
+		},
+		{
+			"type": "range",
+			"id": "top_mobile",
+			"label": "Top (Mobile)",
+			"min": 0,
+			"max": 100,
+			"step": 1,
+			"default": 50,
+			"unit": "%"
+		},
+		{
+			"type": "range",
+			"id": "left_mobile",
+			"label": "Left (Mobile)",
+			"min": 0,
+			"max": 100,
+			"step": 1,
+			"default": 50,
+			"unit": "%"
+		},
+		{
+			"type": "range",
+			"id": "rotation",
+			"min": -90,
+			"max": 90,
+			"step": 2,
+			"label": "Rotation",
+			"default": 0,
+			"unit": "%"
+		},
+	],
+	"presets": [
+		{
+			"name": "Collage image"
+		}
+	]
+}
+{% endschema %}

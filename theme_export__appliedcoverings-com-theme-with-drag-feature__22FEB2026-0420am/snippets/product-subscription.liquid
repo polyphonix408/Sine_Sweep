@@ -1,0 +1,82 @@
+<!-- /snippets/product-subscription.liquid -->
+
+{%- if product.selling_plan_groups.size > 0 -%}
+  <div class="product__block__subscription" style="--PB: {{ block.settings.padding_bottom }}px;" {{ block.shopify_attributes }}>
+    <fieldset class="product__subs" data-subscription-selectors>
+      {% comment %} The input with name="selling_plan" submits to cart
+        <input type="hidden" name="selling_plan" value="{{ product.selected_selling_plan.id }}" />
+      {% endcomment %}
+      <legend class="visually-hidden">{{ 'products.product.subscription' | t }}</legend>
+
+      {% unless product.requires_selling_plan %}
+        <div class="product__subs__group">
+          <label class="product__subs__option">
+            <input
+              type="radio"
+              name="selling-plan-group"
+              form="{{ uniq_id }}"
+              value=""
+              data-toggles-group
+              {% unless product.selected_selling_plan %}
+                checked
+              {% endunless %}
+              />
+            <span>{{ 'products.product.one_time_purchase' | t }}</span>
+          </label>
+        </div>
+      {% endunless %}
+
+      {% comment %} Use the first selling plan of the first group if no selected selling plan{% endcomment %}
+      {%- unless product.selected_selling_plan -%}
+        {%- assign first_selling_group = product.selling_plan_groups[0] -%}
+        {%- assign first_selling_plan = first_selling_group.selling_plans[0] -%}
+      {%- endunless -%}
+
+      {% for selling_plan_group in product.selling_plan_groups %}
+        {%- assign preselected = false -%}
+        {% if selling_plan_group.selling_plan_selected %}
+          {%- assign preselected = true -%}
+        {%- elsif product.requires_selling_plan and first_selling_group.id == selling_plan_group.id -%}
+          {%- assign preselected = true -%}
+        {% endif %}
+        <div class="product__subs__group" data-subscription-group data-selling-plan-group="{{ selling_plan_group.id }}">
+          <label class="product__subs__option">
+            <input type="radio"
+              data-toggles-group
+              name="selling-plan-group"
+              form="{{ uniq_id }}"
+              value="{{ selling_plan_group.id }}"
+              {% if preselected %}
+                checked
+              {% endif %}/>
+            <span>{{ selling_plan_group.name }}</span>
+          </label>
+
+          <div class="product__subs__plans {% unless preselected %} hide{% endunless %}" data-group-toggle="{{ selling_plan_group.id }}">
+            {% for plan in selling_plan_group.selling_plans %}
+              <label class="product__subs__option">
+                <input type="radio"
+                  name="selling_plan"
+                  form="{{ uniq_id }}"
+                  value="{{ plan.id }}"
+                  {% if plan.selected %}
+                    checked
+                  {%- elsif product.requires_selling_plan and first_selling_plan.id == plan.id -%}
+                    checked
+                  {% endif %}/>
+                <span>{{ plan.name }}</span>
+              </label>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    </fieldset>
+    <p data-plan-description class="product__subs__description {% unless product.selected_selling_plan %} hide{% endunless %}">
+      {{ product.selected_selling_plan.description }}
+    </p>
+
+    {%- comment -%} Delete the following line to block the theme from updating subscription prices {%- endcomment -%}
+    <span data-subscription-watch-price></span>
+
+  </div>
+{%- endif -%}

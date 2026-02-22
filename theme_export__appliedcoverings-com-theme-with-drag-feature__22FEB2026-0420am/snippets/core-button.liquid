@@ -1,0 +1,15 @@
+{% liquid
+  assign text = text | default: _settings.text
+  assign link = link | default: _settings.link
+  assign size = size | default: _settings.sizing
+  assign style = style | default: _settings.style
+  assign color = color | default: _settings.color
+%}
+
+<a
+  class="block__btn {{ style }} {{ color }} {{ size }}"
+  href="{{ link | default: '#' }}"
+  {{ attributes }}
+>
+  {{ text | escape }}
+</a>

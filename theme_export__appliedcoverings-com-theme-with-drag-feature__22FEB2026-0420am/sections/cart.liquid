@@ -1,0 +1,318 @@
+<!-- /sections/cart.liquid -->
+{%- liquid
+  assign hide_quantity = 'quantity--hide'
+  if section.settings.cart_show_quantity
+    assign hide_quantity = ''
+  endif
+
+  assign ajax_disable = false
+  assign no_ajax_class = ''
+  if settings.cart_style == 'compatible'
+    assign ajax_disable = true
+    assign no_ajax_class = 'no--ajax'
+  endif
+
+  assign full_init = ''
+  assign empty_init = 'cart--hidden'
+  if cart.item_count == 0
+    assign empty_init = ''
+    assign full_init = 'cart--hidden'
+  endif
+-%}
+
+<div class="cart__template {{ no_ajax_class }} {{ hide_quantity }} {{ section.settings.bg }}"
+  data-cart-message-container
+  data-section-id="{{ section.id }}"
+  data-section-type="cart"
+  data-ajax-disable="{{ ajax_disable }}"
+  style="--PT: {{ section.settings.padding_top }}px; --PB: {{ section.settings.padding_bottom }}px;">
+  {% comment %} Cart is empty {% endcomment %}
+  <div class="cart__empty__page {{ empty_init }}" data-cart-empty>
+    {% render 'cart-empty' %}
+  </div>
+  {% comment %} Cart is full {% endcomment %}
+  <div class="{{ section.settings.width }} section-padding {{ full_init }}" data-cart-form data-cart-loading>
+    <form action="{{ routes.cart_url }}" method="post" novalidate class="cart">
+      <h3 class="cart__page__title body-size-8">{{ 'cart.general.title' | t }}</h3>
+      <div class="errors" data-form-errors style="display: none;"></div>
+      <div class="cart__items__grid cart__heading__wrapper">
+        <div class="cart__heading__back">
+          <a href="{{ settings.cart_continue_browsing | default: routes.all_products_collection_url }}" class="cart__heading cart__return">
+            {% render 'icon-core-chevron-left' %}
+            &nbsp;
+            {{ 'cart.general.continue_browsing' | t }}
+          </a>
+        </div>
+        <div class="cart__items__price">
+          <p class="cart__heading">{{ 'cart.label.price' | t }}</p>
+        </div>
+        <div class="cart__items__quantity">
+          <p class="cart__heading">{{ 'cart.label.quantity' | t }}</p>
+        </div>
+        <div class="cart__items__total">
+          <p class="cart__heading">{{ 'cart.label.total' | t }}</p>
+        </div>
+      </div>
+      <div class="template__cart__body">
+        <div class="errors" data-form-errors style="display: none;"></div>
+        <div data-cart-form>
+            {% comment %}
+              The following snippet is refreshed via ajax with
+              cart.items.liquid when the quantity is adjusted.
+            {% endcomment %}
+            <div data-line-items>
+            {% render 'cart-line-items' %}
+            </div>
+        </div>
+
+        <div class="template__cart__footer{% if additional_checkout_buttons and section.settings.cart_show_additional_buttons %} template__cart__footer--additional_buttons{% endif %}" data-cart-bottom>
+
+          <div class="cart__footer__notes">
+            {%- if section.settings.cart_notes_enable -%}
+              <label class="cart__notes__label" for="CartSpecialInstructions">{{ 'cart.general.note' | t }}</label>
+              <textarea name="note" class="input-full" id="CartSpecialInstructions" data-cart-note>{{ cart.note }}</textarea>
+            {%- endif -%}
+          </div>
+          <div class="cart__footer__shipping">
+            {%- if section.settings.cart_shipping_enable -%}
+              {% render 'cart-shipping-estimate' %}
+            {%- endif -%}
+          </div>
+          <div class="cart__footer__total">
+            {% if section.settings.cart_custom_message_enable and section.settings.cart_custom_message_text != blank %}
+              <div class="cart__message cart__message--custom">
+                {{ section.settings.cart_custom_message_text }}
+              </div>
+            {% endif %}
+
+            <div class="cart__page__shipping">
+              {%- if section.settings.show_free_shipping_message -%}
+                {% render 'cart-shipping-message', message: section.settings.message, show_wheel: true %}
+              {%- endif -%}
+            </div>
+
+            <div class="page__footer__subtotal" data-cart-subtotal>
+              {% render 'cart-subtotal' %}
+            </div>
+
+            <p>
+              <span class="cart__footer__label">{{ 'cart.general.subtotal' | t }}</span>
+              <span class="cart__footer__value" data-cart-final>
+                {{ cart.total_price | money_with_currency }}
+              </span>
+            </p>
+            <p class="cart__footer__small">{% render 'taxes-included-cart' %}</p>
+          </div>
+
+          <div class="cart__footer__checkout">
+            <button type="submit" name="checkout" class="btn btn--primary btn--large checkout__button">
+              {{ 'cart.general.checkout' | t }}
+            </button>
+          </div>
+
+          <div class="cart__footer__update">
+            <span class="cart__update" data-update-button>
+              <span class="cart__update__icon">{% render 'icon-core-sync' %}</span>
+              <button type="submit" name="update" class="text-link-bare">
+                {{ 'cart.general.update' | t }}
+              </button>
+            </span>
+          </div>
+
+          {% if additional_checkout_buttons and section.settings.cart_show_additional_buttons %}
+            <div class="cart__footer__additional">
+              <div class="additional-checkout-buttons">
+                {{ content_for_additional_checkout_buttons }}
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% schema %}
+{
+	"settings": [
+		{
+			"type": "checkbox",
+			"id": "cart_shipping_enable",
+			"label": "Enable shipping estimates",
+			"default": false
+		},
+		{
+			"type": "checkbox",
+			"id": "cart_show_quantity",
+			"label": "Show quantity selectors",
+			"default": true
+		},
+		{
+			"type": "checkbox",
+			"id": "cart_notes_enable",
+			"label": "Show cart notes",
+			"default": false
+		},
+		{
+			"type": "header",
+			"content": "Free shipping message"
+		},
+		{
+			"type": "checkbox",
+			"id": "show_free_shipping_message",
+			"label": "Show free shipping message",
+			"default": false
+		},
+		{
+			"type": "textarea",
+			"id": "message",
+			"label": "Message",
+			"info": "Use ||amount|| to display progress towards free shipping.",
+			"default": "Spend ||amount|| more for free shipping"
+		},
+		{
+			"type": "header",
+			"content": "Custom cart message"
+		},
+		{
+			"type": "checkbox",
+			"id": "cart_custom_message_enable",
+			"label": "Show custom message",
+			"default": false
+		},
+		{
+			"type": "richtext",
+			"id": "cart_custom_message_text",
+			"label": "Message text",
+			"default": "<p>Use code <strong>TENOFF</strong> at checkout for 10% off</p>"
+		},
+		{
+			"type": "header",
+			"content": "Colors"
+		},
+		{
+			"type": "select",
+			"id": "cart_color_bg",
+			"label": "Background color",
+			"default": "palette--light bg--neutral",
+			"options": [
+				{
+					"value": "palette--light bg--neutral",
+					"label": "Default"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Additional checkout buttons"
+		},
+		{
+			"type": "paragraph",
+			"content": "Not recommended for drawer style and popup style cart"
+		},
+		{
+			"type": "checkbox",
+			"id": "cart_show_additional_buttons",
+			"label": "Show additional checkout options on cart",
+			"info": "Move buttons for Apple Pay, Amazon Pay and PayPal express from the first step of the checkout to the cart.",
+			"default": false
+		},
+		{
+			"type": "select",
+			"id": "bg",
+			"label": "Background color",
+			"default": "palette--light bg--neutral",
+			"options": [
+				{
+					"value": "palette--light bg--neutral",
+					"label": "Default"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper",
+			"options": [
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				},
+				{
+					"value": "wrapper--narrow",
+					"label": "Page width narrow"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 36
+		}
+	]
+}
+{% endschema %}

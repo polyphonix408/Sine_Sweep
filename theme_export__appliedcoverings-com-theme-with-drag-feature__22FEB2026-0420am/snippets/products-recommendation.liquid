@@ -1,0 +1,41 @@
+<!-- /snippets/products-recommendation.liquid -->
+{%- if recommendations.performed -%}
+  {%- if recommendations.products_count > 0 -%}
+    <div
+      class="flickity-grid flickity-disabled-mobile"
+      data-carousel
+      data-grid
+      data-grid-large
+      data-grid-medium
+      data-grid-small
+      data-custom-scrollbar-items
+      data-related-products
+      style="
+        --grid-large-items: 3;
+        --grid-medium-items: 2;
+        --grid-small-items: 1.5;"
+      data-options='{"watchCSS": true}'>
+      <!-- /snippets/product-grid-item.liquid -->
+      {% for product in recommendations.products %}
+        {%- capture placeholder -%}
+          product-{%- cycle '1', '2', '3', '4', '5', '6' -%}
+        {%- endcapture -%}
+        <div
+          class="product-grid-slide"
+          data-carousel-slide
+          data-item>
+          {%
+            render 'product-grid-item',
+              product: product,
+              placeholder: placeholder,
+              columns_desktop: section.settings.grid_large,
+              columns_tablet: section.settings.grid_medium,
+              columns_mobile: section.settings.grid_mobile
+          %}
+        </div>
+      {% endfor %}
+    </div>
+  {%- endif -%}
+{%- else -%}
+  <div class="related__placeholder"></div>
+{%- endif -%}

@@ -1,0 +1,219 @@
+<!-- /sections/section-page.liquid -->
+
+{% if section.settings.home_page_content != blank or page.empty? %}
+  {% assign page = pages[section.settings.home_page_content] %}
+  <div class="section-page {{ section.settings.text_color }} {{ section.settings.bg }}"
+    style="--PT: {{ section.settings.padding_top }}px; --PB: {{ section.settings.padding_bottom }}px;">
+    <div class="{{ section.settings.width }} section-padding">
+      <div class="text__standard {{ section.settings.align_text }}">
+        {% if section.settings.home_page_show_title %}
+          {% assign heading_size_class = section.settings.text_size | prepend: 'heading-size-' %}
+          <h2 class="standard__kicker kicker__line {{ heading_size_class }}">{{ page.title | escape }}</h2>
+        {% endif %}
+        {% assign font_size_class = section.settings.text_size | prepend: 'body-size-' %}
+        <div class="rte {{ font_size_class }}">
+          {{ page.content }}
+        </div>
+      </div>
+    </div>
+  </div>
+{% else %}
+  <div class="{{ section.settings.width }} text-center section-padding"
+    style="--PT: {{ section.settings.padding_top }}px; --PB: {{ section.settings.padding_bottom }}px;">
+      {{ 'home_page.onboarding.no_content' | t }}
+    </div>
+{% endif %}
+
+
+
+
+{% schema %}
+{
+	"name": "Page",
+	"settings": [
+		{
+			"id": "home_page_content",
+			"type": "page",
+			"label": "Page"
+		},
+		{
+			"type": "checkbox",
+			"id": "home_page_show_title",
+			"label": "Show page title",
+			"default": true
+		},
+		{
+			"type": "range",
+			"id": "text_size",
+			"label": "Text size",
+			"min": 1,
+			"max": 15,
+			"step": 1,
+			"default": 5
+		},
+		{
+			"type": "select",
+			"id": "align_text",
+			"label": "Text alignment",
+			"default": "text-left",
+			"options": [
+				{
+					"value": "text-left",
+					"label": "Left"
+				},
+				{
+					"value": "text-center",
+					"label": "Centered"
+				},
+				{
+					"value": "text-right",
+					"label": "Right"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "text_color",
+			"label": "Text color",
+			"default": "text--neutral",
+			"options": [
+				{
+					"value": "text--neutral",
+					"label": "Normal text"
+				},
+				{
+					"value": "text--white",
+					"label": "White"
+				},
+				{
+					"value": "text--primary",
+					"label": "Primary accent"
+				},
+				{
+					"value": "text--secondary",
+					"label": "Secondary accent"
+				},
+				{
+					"value": "text--black",
+					"label": "Black"
+				},
+				{
+					"value": "text--invert--primary",
+					"label": "Primary dark accent"
+				},
+				{
+					"value": "text--invert--secondary",
+					"label": "Secondary dark accent"
+				},
+				{
+					"value": "text--invert",
+					"label": "Inverted text color"
+				},
+				{
+					"value": "text--bright--primary",
+					"label": "Primary bright accent"
+				},
+				{
+					"value": "text--bright--secondary",
+					"label": "Secondary bright accent"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "bg",
+			"label": "Background color",
+			"default": "palette--light bg--neutral",
+			"options": [
+				{
+					"value": "palette--light bg--neutral",
+					"label": "Default"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper",
+			"options": [
+				{
+					"value": "wrapper--none",
+					"label": "Full width"
+				},
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				},
+				{
+					"value": "wrapper--narrow",
+					"label": "Page width narrow"
+				},
+				{
+					"value": "wrapper--tiny",
+					"label": "Page width extra narrow"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 36
+		}
+	],
+	"presets": [
+		{
+			"name": "Page"
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"aside"
+		]
+	}
+}
+{% endschema %}

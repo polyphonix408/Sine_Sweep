@@ -1,0 +1,157 @@
+<div
+  class="relative brick__block" data-overflow-frame {{ block.shopify_attributes }}
+  x-data="{
+    ensembleId: 'showcase',
+    {% comment %} Return the id for the first peer of this ensemble member in order to use it as the aria-labelledby and aria-controls for the other members {% endcomment %}
+    get ensemblePeerId() {
+      const peerIds = $ensemble.getPeerIds(this.ensembleId)
+      if (peerIds.length === 0) return null
+      return peerIds[0]
+    }
+  }"
+  x-ensemble:slider
+  x-init="$ensemble.registerMember(ensembleId, $el)"
+>
+  <div class="brick__block__text brick__block__text--slider {{ block.settings.text_color }}" data-overflow-frame style="--bg: {{ block.settings.bg_color }}; --bg-accent: {{ block.settings.bg_accent }};">
+    <div class="brick__block__product__inner">
+      <div class="text__standard {{ block.settings.align_text }}" data-overflow-content>
+        {% content_for 'block', type: '_pair-title', id: 'title' %}
+
+        <div
+          class="brick__collection flickity-badge-dots flickity-disabled-mobile"
+          x-flickity:slider
+          data-slider
+          data-show-dots="true"
+          data-custom-scrollbar-items
+        >
+          {% for product in block.settings.products limit: 8 %}
+            <div
+              class="brick__product"
+              style="--bg-accent: {{ block.settings.bg_accent }};"
+              x-init="$sliderItems.register($el)"
+              :id="`{{section.id}}-${ensembleId}-element-${$sliderItems.indexOf($el)}`"
+            >
+              {% render 'product-grid-item', product: product, text_align: block.settings.align_text, badge_string: block.settings.badge_string %}
+            </div>
+          {% else %}
+            {% render 'onboarding-product-grid-item', limit: 3, wrap: 'brick__product' %}
+          {% endfor %}
+        </div>
+
+        <div class="custom-scrollbar small-down--show" data-custom-scrollbar>
+          <div class="custom-scrollbar__track" data-custom-scrollbar-track></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+	"name": "Showcase",
+	"tag": null,
+	"settings": [
+		{
+			"type": "product_list",
+			"id": "products",
+			"label": "Products"
+		},
+		{
+			"type": "header",
+			"content": "Style"
+		},
+		{
+			"type": "select",
+			"id": "align_text",
+			"label": "Text alignment",
+			"default": "text-center",
+			"options": [
+				{
+					"value": "text-left",
+					"label": "Left"
+				},
+				{
+					"value": "text-center",
+					"label": "Centered"
+				},
+				{
+					"value": "text-right",
+					"label": "Right"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "text_color",
+			"label": "Text color",
+			"default": "text--neutral",
+			"options": [
+				{
+					"value": "text--neutral",
+					"label": "Normal text"
+				},
+				{
+					"value": "text--white",
+					"label": "White"
+				},
+				{
+					"value": "text--primary",
+					"label": "Primary accent"
+				},
+				{
+					"value": "text--secondary",
+					"label": "Secondary accent"
+				},
+				{
+					"value": "text--black",
+					"label": "Black"
+				},
+				{
+					"value": "text--invert--primary",
+					"label": "Primary dark accent"
+				},
+				{
+					"value": "text--invert--secondary",
+					"label": "Secondary dark accent"
+				},
+				{
+					"value": "text--invert",
+					"label": "Inverted text color"
+				},
+				{
+					"value": "text--bright--primary",
+					"label": "Primary bright accent"
+				},
+				{
+					"value": "text--bright--secondary",
+					"label": "Secondary bright accent"
+				}
+			]
+		},
+		{
+			"type": "color",
+			"id": "bg_color",
+			"label": "Background",
+			"default": "#f7f7f7"
+		},
+		{
+			"type": "color",
+			"id": "bg_accent",
+			"label": "Background accent",
+			"default": "#ffffff"
+		}
+	],
+	"presets": [
+		{
+			"name": "Showcase",
+			"blocks": [
+				{
+					"type": "_pair-title",
+					"id": "title",
+					"static": true
+				}
+			]
+		}
+	]
+}
+{% endschema %}

@@ -1,0 +1,235 @@
+{% comment %}
+  Pattern Product Marketing Section
+  Shows marketing content with Get Started button
+{% endcomment %}
+
+<div id="pattern-marketing" class="page-width">
+  <div class="product-layout">
+    <!-- Left: Product Images -->
+    <div class="product-images">
+      {% if product.featured_image %}
+        <img src="{{ product.featured_image | image_url: width: 1200 }}"
+             alt="{{ product.title | escape }}"
+             class="product-main-image">
+      {% endif %}
+    </div>
+
+    <!-- Right: Product Details -->
+    <div class="product-details"> 
+      <h1 class="product-title">{{ product.title }}</h1>
+
+      <!-- Price Display -->
+      <div class="product-price">
+        <span class="price-label">Starting at</span>
+        <span class="price-amount">
+          {% if product.variants.first.price %}
+            {{ product.variants.first.price | money }} per sq ft
+          {% endif %}
+        </span>
+      </div>
+
+      <!-- Product Description -->
+      {% if product.description != blank %}
+        <div class="product-description">
+          {{ product.description }}
+        </div>
+      {% endif %}
+
+      <!-- Features -->
+      <div class="product-features">
+        <div class="feature-item">
+          ✓ Free Ground Shipping
+        </div>
+        <div class="feature-item">
+          ✓ Printed in the USA
+        </div>
+        <div class="feature-item">
+          ✓ Safe & Secure Payment
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- How to Order -->
+      <div class="howto-order">
+        <h3>How to Order</h3>
+        <ol>
+          <li>Enter your dimensions</li>
+          <li>Choose your material</li>
+          <li>Customize pattern size</li>
+          <li>We print & ship</li>
+        </ol>
+      </div>
+
+      <!-- Get Started Button -->
+      <button type="button"
+              id="launch-configurator"
+              class="btn btn--primary btn--full">
+        Get Started - Customize Your Wallpaper
+      </button>
+
+      <!-- Product Accordions -->
+      <div class="product-accordions">
+        <details>
+          <summary>Returns & Exchanges</summary>
+          <p>Custom-printed wallpaper cannot be returned once production begins. We will replace damaged or misprinted orders at no cost.</p>
+        </details>
+
+        <details>
+          <summary>Shipping Information</summary>
+          <p>Made to order with 5-7 business day production time. Expedited options available.</p>
+        </details>
+
+        <details>
+          <summary>Material Options</summary>
+          <ul>
+            <li><strong>Suede Type II</strong> - Commercial-grade</li>
+            <li><strong>Terralon Smooth</strong> - Eco-friendly</li>
+            <li><strong>Peel & Stick</strong> - DIY-friendly</li>
+            <li><strong>Pre-Pasted</strong> - Water-activated</li>
+          </ul>
+        </details>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  #pattern-marketing {
+    padding: 40px 0;
+  }
+
+  .product-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+  }
+
+  .product-main-image {
+    width: 100%;
+    height: auto;
+  }
+
+  .product-title {
+    font-size: 2rem;
+    margin-bottom: 20px;
+  }
+
+  .product-price {
+    margin: 20px 0;
+  }
+
+  .price-label {
+    display: block;
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  .price-amount {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .product-features {
+    margin: 30px 0;
+  }
+
+  .feature-item {
+    padding: 8px 0;
+  }
+
+  .divider {
+    margin: 30px 0;
+    border: 0;
+    border-top: 1px solid #ddd;
+  }
+
+  .howto-order {
+    background: #f8f8f8;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 30px 0;
+  }
+
+  .howto-order h3 {
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    font-size: 1rem;
+  }
+
+  .howto-order ol {
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  #launch-configurator {
+    font-size: 1.1rem;
+    padding: 18px;
+    margin: 30px 0;
+    cursor: pointer;
+  }
+
+  .product-accordions details {
+    border-bottom: 1px solid #ddd;
+    padding: 15px 0;
+  }
+
+  .product-accordions summary {
+    cursor: pointer;
+    font-weight: 600;
+    padding: 5px 0;
+  }
+
+  .product-accordions p,
+  .product-accordions ul {
+    margin-top: 10px;
+  }
+
+  @media (max-width: 768px) {
+    .product-layout {
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+  }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const launchBtn = document.getElementById('launch-configurator');
+  const marketing = document.getElementById('pattern-marketing');
+  const configurator = document.getElementById('wallpaper-configurator');
+
+  if (launchBtn && marketing && configurator) {
+    launchBtn.addEventListener('click', function() {
+      // Hide marketing section
+      marketing.style.display = 'none';
+
+      // Show configurator
+      configurator.style.display = 'block';
+
+      // Scroll to top
+      window.scrollTo(0, 0);
+
+      // If configurator already initialized, just show it
+      // Otherwise it will auto-initialize from the data attributes
+    });
+
+    // Add back button to configurator if not exists
+    if (!document.getElementById('back-to-product')) {
+      const backBtn = document.createElement('button');
+      backBtn.id = 'back-to-product';
+      backBtn.className = 'btn btn--secondary';
+      backBtn.innerHTML = '← Back to Product Details';
+      backBtn.style.marginBottom = '20px';
+
+      backBtn.addEventListener('click', function() {
+        configurator.style.display = 'none';
+        marketing.style.display = 'block';
+        window.scrollTo(0, 0);
+      });
+
+      configurator.parentElement.insertBefore(backBtn, configurator);
+    }
+  }
+});
+</script>

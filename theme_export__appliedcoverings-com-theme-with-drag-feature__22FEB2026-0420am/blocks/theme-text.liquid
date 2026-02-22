@@ -1,0 +1,77 @@
+{%- assign max_width = block.settings.max_width -%}
+<p
+  style="
+    {% if max_width < 2000 %}
+      --max-width: {{ max_width }}px;
+      max-width: var(--max-width);
+    {% endif %}
+  "
+  class="inline-rte text-r{{ block.settings.text_size }} type-{{ block.settings.font_family }}"
+  {{ block.shopify_attributes }}
+>
+  {{ block.settings.text }}
+</p>
+
+{% schema %}
+{
+	"name": "Text",
+	"tag": null,
+	"settings": [
+		{
+			"type": "inline_richtext",
+			"id": "text",
+			"label": "Text",
+			"default": "Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store."
+		},
+		{
+			"type": "select",
+			"id": "font_family",
+			"label": "Font",
+			"default": "body",
+			"options": [
+				{
+					"value": "heading",
+					"label": "Title"
+				},
+				{
+					"value": "body",
+					"label": "Body"
+				},
+				{
+					"value": "accent",
+					"label": "Accent"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "text_size",
+			"label": "Size",
+			"min": 1,
+			"max": 15,
+			"step": 1,
+			"default": 5
+		},
+		{
+			"type": "range",
+			"id": "max_width",
+			"label": "Width limit",
+			"unit": "px",
+			"min": 100,
+			"max": 2000,
+			"step": 25,
+			"default": 550
+		}
+	],
+	"presets": [
+		{
+			"name": "Text",
+			"settings": {
+				"text": "Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.",
+				"max_width": 550,
+			},
+			"blocks": []
+		}
+	]
+}
+{% endschema %}

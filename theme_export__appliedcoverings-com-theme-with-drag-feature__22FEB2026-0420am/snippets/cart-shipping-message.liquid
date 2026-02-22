@@ -1,0 +1,84 @@
+<!-- /snippets/cart-shipping-message.liquid -->
+
+{% comment %}
+  * Text and an optional "progress wheel" that displays the amount left to spend before free shipping is unlocked.
+  * Limitation: There is no liquid currency object to convert currencies so the currency must be handled in JS
+  * using the window.Shopify.currency.rate to convert from the main currency to the merchant currency.
+
+  *  message {string} - the text that shows next to the progress wheel
+  *  show_wheel {boolean} - whether or not to show the progress wheel
+  *  font_size_class {string} - the font size class to apply to the message
+
+  {% render 'cart-shipping-message', message: 'Spend ||amount|| more to get free shipping', show_wheel: true %}
+{% endcomment %}
+
+{% assign font_size_class = font_size_class | default: '' %}
+{% assign limit = settings.free_shipping_limit | plus: 0 %}
+
+{% if limit > 0 and message != blank %}
+  {% assign limit_currency = limit | times: 100 %}
+  {% assign subtotal_without_currency = cart.total_price | plus: 0 | divided_by: 100 %}
+
+  {% capture left_to_spend %}
+    <span data-left-to-spend class="strong">
+      {% if settings.currency_code_enable %}
+        {{ limit_currency | minus: cart.total_price | money_with_currency }}
+      {% else %}
+        {{ limit_currency | minus: cart.total_price | money_without_trailing_zeros }}
+      {% endif %}
+    </span>
+  {% endcapture %}
+
+  {% assign free_shipping_message = message | replace: '||amount||', left_to_spend %}
+  {% assign qualified_shipping_message = 'cart.general.qualified_shipping_message' | t %}
+  {% assign class_message = '' %}
+
+  {% if subtotal_without_currency >= limit %}
+    {% if qualified_shipping_message != blank %}
+      {% assign class_message = 'is-success' %}
+    {% else %}
+      {% assign class_message = 'is-hidden' %}
+    {% endif %}
+  {% elsif subtotal_without_currency == 0 %}
+    {% comment %} {% assign class_message = 'is-hidden' %} {% endcomment %}
+  {% endif %}
+
+  <p class="cart__message {{ class_message }} {{ font_size_class }}" data-cart-message="{% if qualified_shipping_message != blank %}true{% else %}false{% endif %}" data-limit="{{ limit }}">
+
+    {% if show_wheel %}
+      {% assign percent = limit | minus: subtotal_without_currency | times: 100 | divided_by: limit %}
+      {% assign percent = 100 | minus: percent %}
+
+      {% if percent > 100 %}
+        {% assign percent = 100 %}
+      {% endif %}
+
+      <small class="cart__graph">
+        {% for i in (1..6) %}
+          <small class="cart__graph-dot cart__graph-dot--{{ i }}"></small>
+        {% endfor %}
+        {%- assign stroke_dashoffset = '87.96459430051421' -%}
+        {%- if settings.cart_style == 'compatible' -%}
+          {%- assign math_pi = 3.14159265359 -%}
+          {%- assign stroke_circumference = 28 | times: math_pi -%}
+          {%- assign stroke_calculate = percent | times: stroke_circumference -%}
+          {%- assign stroke_calculate = stroke_calculate | divided_by: 100 | divided_by: 2 -%}
+          {%- assign stroke_dashoffset = stroke_circumference | minus: stroke_calculate -%}
+        {%- endif -%}
+
+        <svg height="18" width="18">
+          <circle r="7" cx="9" cy="9" />
+          <circle class="cart__graph-progress" stroke-dasharray="87.96459430051421 87.96459430051421" style="stroke-dashoffset: {{ stroke_dashoffset }}" data-cart-progress data-percent="{{ percent }}" r="7" cx="9" cy="9" />
+        </svg>
+      </small>
+    {% endif %}
+
+    {% if qualified_shipping_message != blank %}
+      <span class="cart__message-success">{{ qualified_shipping_message }}</span>
+    {% endif %}
+
+    <span class="cart__message-default">
+      {{ free_shipping_message }}
+    </span>
+  </p>
+{% endif %}

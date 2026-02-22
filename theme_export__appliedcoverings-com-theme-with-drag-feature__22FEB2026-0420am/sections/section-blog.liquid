@@ -1,0 +1,388 @@
+<!-- /sections/section-blog.liquid -->
+{%- liquid
+  assign blog = blogs[section.settings.homepage_blog]
+  assign post_count = section.settings.homepage_blog_count
+
+  assign show_mobile_bar = false
+  assign show_desktop_bar = false
+  if section.settings.progress_bar == 'mobile'
+    assign show_mobile_bar = true
+  endif
+  if section.settings.progress_bar == 'desktop'
+    assign show_desktop_bar = true
+  endif
+  if section.settings.progress_bar == 'both'
+    assign show_mobile_bar = true
+    assign show_desktop_bar = true
+  endif
+
+  assign section_no_title_class = ''
+  if section.settings.title == blank
+    assign section_no_title_class = 'section-without-title'
+
+    if section.settings.width == 'wrapper--narrow'
+      assign section_no_title_class = section_no_title_class | append: ' not-moved-arrows'
+    endif
+  endif
+-%}
+
+<div
+  class="section-blog section-{{ section.id }} {{ section.settings.bg }} {{ section_no_title_class }} {% if show_mobile_bar %} section-without-padding-mobile{% endif %}"
+  data-section-id="{{ section.id }}"
+  data-section-type="section-blog"
+  style="--PT: {{ section.settings.padding_top }}px; --PB: {{ section.settings.padding_bottom }}px;">
+  <div class="{{ section.settings.width }} section-padding" data-wrapper>
+    <flickity-carousel>
+      {% unless section.settings.title == '' %}
+        <h2 class="kicker-flourished mb-r11">{{ section.settings.title | escape }}</h2>
+      {% endunless %}
+      <div
+        data-carousel
+        data-grid
+        data-grid-large
+        data-grid-medium
+        data-grid-small
+        style="
+          --grid-large-items: {{ section.settings.grid_large }};
+          --grid-medium-items: {{ section.settings.grid_medium }};
+          --grid-small-items: {{ section.settings.grid_mobile }};
+        "
+        data-options='{"watchCSS": {{ show_mobile_bar }}}'
+        {% if show_desktop_bar %} data-carousel-progress{% endif %}
+        {% if show_mobile_bar %} data-custom-scrollbar-items{% endif %}
+        class="float-grid grid--uniform grid--articles{% if show_mobile_bar %} flickity-disabled-mobile{% endif %}"
+      >
+        {% for article in blog.articles limit: post_count %}
+          <div class="grid__item" data-item data-carousel-slide>
+            {% render 'article-grid-item', article: article, wh_ratio: section.settings.wh_ratio, show_author: section.settings.show_author, show_preview: section.settings.show_preview, show_link: section.settings.show_link, show_tags: section.settings.show_tags, show_date: section.settings.show_date %}
+          </div>
+        {% else %}
+          {%- if section.settings.homepage_blog == blank -%}
+            {% comment %} Show onboarding content {% endcomment %}
+            {% for i in (1..post_count) %}
+              <div class="grid__item" data-item data-carousel-slide>
+                {% render 'onboarding-article-grid-item', article: article, wh_ratio: section.settings.wh_ratio, show_author: section.settings.show_author, show_preview: section.settings.show_preview, show_link: section.settings.show_link, show_tags: section.settings.show_tags, show_date: section.settings.show_date %}
+              </div>
+            {% endfor %}
+          {%- endif -%}
+        {% endfor %}
+      </div>
+
+      {% if show_desktop_bar %}
+        <div class="custom-scrollbar{% if show_mobile_bar %} medium-up--show{% else %} large-up--show{% endif %}">
+          <div class="custom-scrollbar__track" data-carousel-track></div>
+        </div>
+      {% endif %}
+
+      {% if show_mobile_bar %}
+        <div class="custom-scrollbar small-down--show" data-custom-scrollbar>
+          <div class="custom-scrollbar__track" data-custom-scrollbar-track></div>
+        </div>
+      {% endif %}
+
+      {% if section.settings.show_view_all %}
+        <div class="text-center">
+          <a href="{{ blog.url }}" class="{{ section.settings.button_style }} section-blog__btn">
+            {{ 'collections.general.view_all' | t }}
+          </a>
+        </div>
+      {% endif %}
+    </flickity-carousel>
+  </div>
+</div>
+{% schema %}
+{
+	"name": "Blog posts",
+	"settings": [
+		{
+			"type": "text",
+			"id": "title",
+			"label": "Title",
+			"default": "News"
+		},
+		{
+			"type": "blog",
+			"id": "homepage_blog",
+			"label": "Blog"
+		},
+		{
+			"type": "range",
+			"id": "homepage_blog_count",
+			"min": 1,
+			"max": 12,
+			"step": 1,
+			"label": "Number of posts to display",
+			"default": 6
+		},
+		{
+			"type": "select",
+			"id": "progress_bar",
+			"label": "Progress bar style",
+			"default": "mobile",
+			"options": [
+				{
+					"value": "hidden",
+					"label": "Hidden"
+				},
+				{
+					"value": "mobile",
+					"label": "Mobile only"
+				},
+				{
+					"value": "desktop",
+					"label": "Desktop only"
+				},
+				{
+					"value": "both",
+					"label": "Mobile and desktop"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Posts per row"
+		},
+		{
+			"type": "range",
+			"id": "grid_large",
+			"min": 1,
+			"max": 6,
+			"step": 1,
+			"label": "Desktop",
+			"default": 3
+		},
+		{
+			"type": "range",
+			"id": "grid_medium",
+			"min": 1,
+			"max": 4,
+			"step": 1,
+			"label": "Tablet",
+			"default": 2
+		},
+		{
+			"type": "range",
+			"id": "grid_mobile",
+			"min": 1,
+			"max": 3,
+			"step": 0.1,
+			"label": "Mobile",
+			"default": 1.2
+		},
+		{
+			"type": "header",
+			"content": "Article"
+		},
+		{
+			"type": "range",
+			"id": "wh_ratio",
+			"min": 0.5,
+			"max": 5,
+			"step": 0.1,
+			"unit": ":1",
+			"label": "Image scaling ratio",
+			"default": 1.7
+		},
+		{
+			"type": "checkbox",
+			"id": "show_author",
+			"label": "Show author",
+			"default": true
+		},
+		{
+			"type": "checkbox",
+			"id": "show_tags",
+			"label": "Show tags",
+			"default": true
+		},
+		{
+			"type": "checkbox",
+			"id": "show_date",
+			"label": "Show date",
+			"default": true
+		},
+		{
+			"type": "checkbox",
+			"id": "show_preview",
+			"label": "Show article excerpt",
+			"default": false
+		},
+		{
+			"type": "checkbox",
+			"id": "show_link",
+			"label": "Show read more link",
+			"default": false
+		},
+		{
+			"type": "header",
+			"content": "Layout"
+		},
+		{
+			"type": "select",
+			"id": "bg",
+			"label": "Background color",
+			"default": "palette--light bg--neutral",
+			"options": [
+				{
+					"value": "palette--light bg--neutral",
+					"label": "Default"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "color",
+			"label": "Text color",
+			"default": "text--white",
+			"options": [
+				{
+					"value": "text--neutral",
+					"label": "Normal text"
+				},
+				{
+					"value": "text--white",
+					"label": "White"
+				},
+				{
+					"value": "text--primary",
+					"label": "Primary accent"
+				},
+				{
+					"value": "text--secondary",
+					"label": "Secondary accent"
+				},
+				{
+					"value": "text--black",
+					"label": "Black"
+				},
+				{
+					"value": "text--invert--primary",
+					"label": "Primary dark accent"
+				},
+				{
+					"value": "text--invert--secondary",
+					"label": "Secondary dark accent"
+				},
+				{
+					"value": "text--invert",
+					"label": "Inverted text color"
+				},
+				{
+					"value": "text--bright--primary",
+					"label": "Primary bright accent"
+				},
+				{
+					"value": "text--bright--secondary",
+					"label": "Secondary bright accent"
+				}
+			]
+		},
+		{
+			"type": "checkbox",
+			"id": "show_view_all",
+			"label": "Show 'View all' button",
+			"default": false
+		},
+		{
+			"type": "select",
+			"id": "button_style",
+			"label": "Button style",
+			"default": "btn--outline",
+			"options": [
+				{
+					"value": "btn-text-thick-line",
+					"label": "Capitalized text"
+				},
+				{
+					"value": "btn",
+					"label": "Solid button"
+				},
+				{
+					"value": "btn--soft",
+					"label": "Soft button"
+				},
+				{
+					"value": "btn--outline",
+					"label": "Outlined button"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper",
+			"options": [
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				},
+				{
+					"value": "wrapper--narrow",
+					"label": "Page width narrow"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 36
+		}
+	],
+	"presets": [
+		{
+			"name": "Blog posts"
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"footer",
+			"aside"
+		]
+	}
+}
+{% endschema %}

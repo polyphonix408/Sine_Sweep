@@ -1,0 +1,45 @@
+<!-- /sections/gift-card.liquid -->
+
+<header class="giftcard-header">
+  <div class="h1 header-logo">
+    {% if section.settings.logo != blank %}
+      {%- assign width = section.settings.logo.width | at_most: section.settings.logo_max_limit %}
+      {%- assign width_2x = width | times: 2 -%}
+
+      {% capture srcset %}
+        {{ section.settings.logo | image_url: width: width_2x }} 2x,
+        {{ section.settings.logo | image_url: width: width }}
+      {% endcapture %}
+
+      {%- assign alt = section.settings.logo.alt | default: shop.name | strip_html | escape %}
+      <a href="{{ shop.url }}" itemprop="url">
+        {{ section.settings.logo | image_url: width: width | image_tag: alt: alt, srcset: srcset, loading: 'lazy' }}
+      </a>
+    {% else %}
+      <a href="{{ shop.url }}" itemprop="url">{{ shop.name }}</a>
+    {% endif %}
+  </div>
+  <div class="shop-url">{{ shop.url }}</div>
+</header>
+{% schema %}
+{
+	"name": "Gift card",
+	"settings": [
+		{
+			"type": "image_picker",
+			"id": "logo",
+			"label": "Logo image"
+		},
+		{
+			"type": "range",
+			"id": "logo_max_limit",
+			"min": 5,
+			"max": 495,
+			"step": 5,
+			"unit": "px",
+			"label": "Logo width",
+			"default": 120
+		}
+	]
+}
+{% endschema %}

@@ -1,0 +1,8 @@
+{% liquid
+  assign heading_size_class = _settings.text_size | prepend: 'heading-size-'
+  assign text = text | default: _settings.text | default: _settings.title
+%}
+
+<div class="block__title {{ heading_size_class }}" {{ attributes }}>
+  <p role='heading' aria-level='2'>{{ text }}</p>
+</div>

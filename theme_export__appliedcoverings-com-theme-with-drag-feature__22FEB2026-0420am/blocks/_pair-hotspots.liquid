@@ -1,0 +1,106 @@
+{%- capture image_id -%}
+  {{ block.id }}-hotspots-image
+{%- endcapture -%}
+
+{% capture content %}
+  {% content_for 'blocks' %}
+{% endcapture %}
+
+<div
+  class="relative brick__block flex items-center"
+  data-overflow-frame
+  x-ensemble:hotspots
+  x-data="{
+    ensembleId: 'hotspots',
+    {% comment %} Return the id for the first peer of this ensemble member in order to use it as the aria-labelledby and aria-controls for the other members {% endcomment %}
+    get ensemblePeerId() {
+      const peerIds = $ensemble.getPeerIds(this.ensembleId)
+      if (peerIds.length === 0) return null
+      return peerIds[0]
+    },
+  }"
+  x-init="$ensemble.registerMember(ensembleId, $el)"
+  {{ block.shopify_attributes }}
+>
+  {% if section.settings.image %}
+    {{ section.settings.image | image_url: width: 1 | image_tag:
+      class: 'absolute inset-0 w-full h-full',
+      aria-hidden: 'true'
+    }}
+  {% endif %}
+  <div class="brick__block__image brick__block__image--hotspots {{ block.settings.text_color }} w-full">
+    <figure>
+      {% if section.settings.image %}
+        <figcaption class="sr-only">
+          {{ section.settings.image.alt }}
+        </figcaption>
+      {% endif %}
+
+      <div role='list' aria-label="{{ 'general.accessibility.hotspots' | t }}">
+        {{ content }}
+      </div>
+
+      {%- capture srcset -%}
+        {%- render 'image-grid-srcset',
+          image: section.settings.image,
+          columns_desktop: 2,
+          columns_tablet: 2,
+          columns_mobile: 1.0,
+          section_width: section.settings.width
+        %}
+      {%- endcapture -%}
+
+      {%- render 'image-parallax',
+        img_object: section.settings.image,
+        img_object_mobile: section.settings.image_mobile,
+        frame_height_class: 'use_image',
+        frame_class: 'bare-placeholder-colors',
+        srcset: srcset,
+        sizes: '(max-width:768px) 100vw, 50vw',
+        parallax_enabled: false,
+        image_id: image_id
+      -%}
+    </figure>
+  </div>
+</div>
+
+{% schema %}
+{
+	"name": "Hotspots",
+	"tag": null,
+	"settings": [],
+	"blocks": [
+		{
+			"type": "_pair-hotspots-hotspot"
+		}
+	],
+	"presets": [
+		{
+			"name": "Hotspots",
+			"blocks": [
+				{
+					"type": "_pair-hotspots-hotspot",
+					"settings": {
+						"top": 50,
+						"left": 50
+					}
+				},
+				{
+					"type": "_pair-hotspots-hotspot",
+					"settings": {
+						"top": 90,
+						"left": 30
+					}
+				},
+				{
+					"type": "_pair-hotspots-hotspot",
+					"settings": {
+						"top": 30,
+						"left": 70
+					}
+				}
+			]
+		}
+	]
+}
+{% endschema %}

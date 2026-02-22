@@ -1,0 +1,142 @@
+<!-- /snippets/onboarding-product.liquid -->
+
+{% assign wrapper_class = 'wrapper' %}
+{% if section.settings.width != blank %}
+  {% assign wrapper_class = section.settings.width %}
+{% endif %}
+
+{%- assign product_image_width = 'large-up--five-eighths medium--one-half' -%}
+{%- assign product_description_width = 'large-up--three-eighths medium--one-half' -%}
+
+{% if wrapper_class == 'wrapper--tiny' or wrapper_class == 'wrapper--narrow' %}
+  {%- assign product_image_width = 'one-whole' -%}
+  {%- assign product_description_width = 'one-whole' -%}
+{% endif %}
+
+<div class="{{ wrapper_class }} product__align-left" style="--OPTION-SPACE: 30px;">
+  <div class="float-grid product-single">
+    <div class="grid__item product__media__wrapper {{ product_image_width }} product__mobile--{{ section.settings.mobile_layout }}">
+      <div class="product__grid product__grid--slides">
+        <div class="product__media">
+          {{ 'product-5' | placeholder_svg_tag: 'placeholder-svg' }}
+        </div>
+      </div>
+    </div>
+    <div class="grid__item {{ product_description_width }}">
+      <div class="product__inner is-sticky">
+
+        <div class="product__block__title">
+          <div class="product__headline">
+            <div class="product__title__wrapper">
+              <h1 class="product__title heading-size-9">
+                {{ 'home_page.onboarding.product_title' | t }}
+              </h1>
+            </div>
+          </div>
+        </div>
+
+        <div class="product__block__price">
+          <div class="product__price__wrap">
+            <div class="product__price__main">
+              <span class="product__price accent-size-5">
+                {{ 1999 | money }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="product__block__variants">
+          <div class="selector-wrapper">
+            <fieldset class="radio__fieldset">
+              <legend class="radio__legend">
+                <span class="radio__legend__label">{{ 'home_page.onboarding.color' | t }}</span>
+                <span data-option-value data-swapper-target>White</span>
+              </legend>
+
+              <div class="radio__inputs radio__inputs--swatch">
+                {%- for i in (1..3) -%}
+                  {%- capture value -%}{%- cycle 'White', 'Grey', 'Black' -%}{%- endcapture -%}
+
+                  <radio-swatch class="swatch__button{% if settings.swatches_squares %} swatch__button--square{% endif %}">
+                    <input type="radio"
+                      data-swatch-input
+                      name="options[{{ option.name | escape_once }}]"
+                      value="{{ value | escape_once }}"
+                      id="option-{{ value }}-0-{{ section.id }}"
+                      {% if value == 'White' -%}checked{%- endif %}
+                    >
+                    <label for="option-{{ value }}-0-{{ section.id }}" data-swatch="{{ value | escape_once }}" data-swapper-hover="{{ value | escape_once }}">
+                      <span class="visually-hidden value">{{ value | escape_once }}</span>
+                    </label>
+                  </radio-swatch>
+                {%- endfor -%}
+              </div>
+            </fieldset>
+          </div>
+
+          <div class="selector-wrapper">
+            <fieldset class="radio__fieldset">
+              <legend class="radio__legend">
+                <span class="radio__legend__label">{{ 'home_page.onboarding.size' | t }}</span>
+                <span data-option-value data-swapper-target>White</span>
+              </legend>
+
+              <div class="radio__inputs">
+                {%- for i in (1..3) -%}
+                  {%- capture value -%}{%- cycle 'Small', 'Medium', 'Large' -%}{%- endcapture -%}
+
+                  <span class="radio__button">
+                    <input
+                      type="radio"
+                      name="Size"
+                      value="{{ value | escape_once }}"
+                      id="option-{{ value }}-1-{{ section.id }}"
+                      form="{{ uniq_id }}"
+                      {% if value == 'Small' -%}checked{%- endif %}>
+                    <label for="option-{{ value }}-1-{{ section.id }}">
+                      <span>{{ value | escape_once }}</span>
+                    </label>
+                  </span>
+                {%- endfor -%}
+              </div>
+            </fieldset>
+          </div>
+        </div>
+
+        <div class="product__block__quantity">
+          <div class="quantity__wrapper" data-quantity-selector>
+            <button class="quantity__button quantity__button--minus" data-decrease-quantity type="button">&minus;</button>
+            <input data-quantity-input
+              aria-label="{{ 'cart.label.quantity' | t }}"
+              class="quantity__input"
+              type="number"
+              min="1"
+              name="quantity"
+              value="1"/>
+            <button class="quantity__button quantity__button--plus" data-increase-quantity type="button">+</button>
+          </div>
+        </div>
+
+        <div class="product__block__buttons">
+          <div class="product__form__inner">
+            <div class="product__submit">
+              <div class="product__submit__buttons">
+                <button disabled class="btn--outline btn--large btn--full btn--add-to-cart" data-add-to-cart>
+                  <span>{{ 'products.product.add_to_cart' | t }}</span>
+                  <span>•</span>
+                  <span>
+                    {{ 1999 | money }}
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+

@@ -1,0 +1,28 @@
+<!-- /sections/section-liquid.liquid -->
+
+{{ section.settings.custom_liquid }}
+
+{% schema %}
+{
+	"name": "Custom Liquid",
+	"settings": [
+		{
+			"type": "liquid",
+			"id": "custom_liquid",
+			"label": "Custom Liquid",
+			"info": "Add app snippets or other Liquid code to create advanced customizations."
+		}
+	],
+	"presets": [
+		{
+			"name": "Custom Liquid"
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"aside"
+		]
+	}
+}
+{% endschema %}

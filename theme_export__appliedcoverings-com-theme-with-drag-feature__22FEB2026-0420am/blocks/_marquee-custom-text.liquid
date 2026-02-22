@@ -1,0 +1,84 @@
+{% liquid
+  assign text_color = block.settings.text_color
+  assign outline_text = block.settings.outline_text
+  assign font_family = block.settings.font_family
+  assign text = block.settings.text
+%}
+
+<div
+  class="
+    type-{{ font_family }}
+    text-[--text-color]
+    {% if outline_text %}
+      text-stroke
+      text-stroke-[color:--text-color]
+    {% endif %}
+    shrink-0
+  "
+  style="
+    --text-color: {{ text_color }};
+  "
+  {% if request.design_mode %}
+    @shopify:block:select="$marquee.pause(); $marquee.scrollTo($el)"
+    @shopify:block:deselect="$marquee.play()"
+  {% endif %}
+  {{ block.shopify_attributes }}
+>
+  {{ text }}
+</div>
+
+{% schema %}
+{
+	"name": "Custom Text",
+	"tag": null,
+	"settings": [
+		{
+			"type": "inline_richtext",
+			"id": "text",
+			"label": "Text",
+			"default": "Act Now"
+		},
+		{
+			"type": "checkbox",
+			"id": "outline_text",
+			"label": "Outline Text",
+			"default": true
+		},
+		{
+			"type": "header",
+			"content": "Custom overrides"
+		},
+		{
+			"type": "select",
+			"id": "font_family",
+			"label": "Font",
+			"default": "accent",
+			"options": [
+				{
+					"value": "heading",
+					"label": "Title"
+				},
+				{
+					"value": "body",
+					"label": "Body"
+				},
+				{
+					"value": "accent",
+					"label": "Accent"
+				}
+			]
+		},
+		{
+			"type": "color",
+			"id": "text_color",
+			"label": "Text Color",
+			"default": "#888888"
+		}
+	],
+	"presets": [
+		{
+			"name": "Custom Text"
+		}
+	]
+}
+{% endschema %}

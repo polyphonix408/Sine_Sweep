@@ -1,0 +1,51 @@
+{%- comment -%}
+* Generate a string of image sizes and srcset
+
+  *  section_width
+  *  columns_desktop
+  *  columns_tablet
+  *  columns_mobile
+
+{%- capture sizes -%}
+  {% render 'image-grid-sizes', columns: columns, section_width: section_width  %}
+{%- endcapture -%}
+{%- endcomment -%}
+{%- liquid
+  assign page_gutter_width = settings.layout_outer
+  assign layout_max_width = settings.layout_site_width
+  assign total_page_gutter_width = page_gutter_width | times: 2
+
+  assign columns_desktop = columns_desktop | default: 1
+  assign columns_tablet = columns_tablet | default: 1
+  assign columns_mobile = columns_mobile | default: 1.0
+
+  # Default width is viewport size
+  assign base = '100vw'
+
+  case section_width
+    when 'wrapper--none'
+      # Section is as wide as viewport
+      assign base = '100vw'
+    when 'wrapper--full'
+      # Section is as wide as viewport minus page gutter
+      assign base = '(100vw' | append: ' - ' | append: total_page_gutter_width | append: 'px)'
+    when 'wrapper'
+      # Section is as wide as layout width
+      assign base = "min(" | append: '100vw' | append: ', ' | append: layout_max_width | append: "px)"
+    when 'wrapper--narrow'
+      # Section width is layout width times narrow adustment factor
+      assign layout_adjustment_factor = 0.66
+      assign base = "min(" | append: '100vw' | append: ', ' | append: layout_max_width | append: "px * " | append: layout_adjustment_factor | append: ")"
+    when 'wrapper--tiny'
+      # Section width is layout width times tiny adustment factor
+      assign layout_adjustment_factor = 0.4
+      assign base = "min(" | append: '100vw' | append: ', ' | append: layout_max_width | append: "px * " | append: layout_adjustment_factor | append: ")"
+  endcase
+
+  assign desktop_size = "calc(" | append: base | append: ' / ' | append: columns_desktop | append: ")"
+  assign tablet_size = "calc(" | append: base | append: ' / ' | append: columns_tablet | append: ")"
+  assign mobile_size = "calc(" | append: base | append: ' / ' | append: columns_mobile | append: ")"
+-%}
+(min-width: 1024px) {{ desktop_size }},
+(min-width: 768px) {{ tablet_size }},
+{{ mobile_size }}

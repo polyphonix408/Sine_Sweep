@@ -1,0 +1,231 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+	"sections": {
+		"hero": {
+			"type": "section-hero",
+			"blocks": {
+				"story-hero-kicker-block": {
+					"type": "kicker",
+					"disabled": true,
+					"settings": {
+						"kicker": "Introducing",
+						"text_size": 3
+					}
+				},
+				"story-hero-heading-block": {
+					"type": "heading",
+					"settings": {
+						"title": "Our Story",
+						"text_size": 10
+					}
+				}
+			},
+			"block_order": [
+				"story-hero-kicker-block",
+				"story-hero-heading-block"
+			],
+			"settings": {
+				"height": "use_screen_one_fifth",
+				"overlay_opacity": 50,
+				"overlay_color": "#000000",
+				"enable_overlay_text": false,
+				"preload_image": true,
+				"content_width": 2000,
+				"text_align": "align--middle-center",
+				"text_color": "text--white",
+				"color_bg": "hero__content--transparent",
+				"width": "wrapper--none",
+				"padding_top": 0,
+				"padding_bottom": 0
+			}
+		},
+		"main": {
+			"type": "page",
+			"settings": {
+				"kicker": "",
+				"kicker_size": 3,
+				"show_title": false,
+				"title_size": 8,
+				"show_content": true,
+				"content_size": 5,
+				"align_text": "text-center",
+				"text_color": "text--neutral",
+				"bg": "palette--light bg--neutral",
+				"width": "wrapper--narrow",
+				"padding_top": 64,
+				"padding_bottom": 64
+			}
+		},
+		"custom-content-2": {
+			"type": "section-custom-content",
+			"blocks": {
+				"custom-content-2-0": {
+					"type": "text",
+					"settings": {
+						"kicker": "Humble beginnings",
+						"title": "",
+						"text": "<p>Our story begins in a small shop with a small team. With nothing but passion and a dream our brand was born. </p>",
+						"font_size": 5,
+						"text_columns": 1,
+						"align_text": "text-left",
+						"button_text": "",
+						"button_url": "",
+						"button_color": "btn--neutral",
+						"button_style": "btn-text-thick-line",
+						"text_color": "text--neutral",
+						"bg_color": "#f7f7f7"
+					}
+				},
+				"custom-content-2-1": {
+					"type": "video",
+					"settings": {
+						"object_position": "center-center",
+						"video_link": "",
+						"popup_text": "",
+						"kicker": "",
+						"title": "",
+						"richtext": "",
+						"text_align": "align--middle-center",
+						"text_color": "text--white",
+						"overlay_opacity": 50,
+						"overlay_color": "#000000",
+						"link_text": "Our Pledge",
+						"button_color": "btn--white",
+						"button_style": "btn--soft"
+					}
+				}
+			},
+			"block_order": [
+				"custom-content-2-0",
+				"custom-content-2-1"
+			],
+			"settings": {
+				"height": "use_screen_one_half",
+				"borders": false,
+				"width": "wrapper--full",
+				"padding_top": 0,
+				"padding_bottom": 0
+			}
+		},
+		"custom-content-1": {
+			"type": "section-custom-content",
+			"blocks": {
+				"custom-content-1-0": {
+					"type": "video",
+					"settings": {
+						"object_position": "center-center",
+						"video_link": "https://www.youtube.com/watch?v=_9VUPq3SxOc",
+						"popup_text": "Learn our story",
+						"kicker": "",
+						"title": "",
+						"richtext": "",
+						"text_align": "align--middle-center",
+						"text_color": "text--white",
+						"overlay_opacity": 55,
+						"overlay_color": "#000000",
+						"link_text": "",
+						"link": "",
+						"button_color": "btn--white",
+						"button_style": "btn"
+					}
+				},
+				"custom-content-1-1": {
+					"type": "text",
+					"settings": {
+						"kicker": "Quality first",
+						"title": "",
+						"text": "<p>We started making the products we wanted to see in the world and we did this with an uncompromising approach to sustainability.</p>",
+						"font_size": 5,
+						"text_columns": 1,
+						"align_text": "text-left",
+						"button_text": "",
+						"button_url": "",
+						"button_color": "btn--neutral",
+						"button_style": "btn-text-thick-line",
+						"text_color": "text--neutral",
+						"bg_color": "#f7f7f7"
+					}
+				}
+			},
+			"block_order": [
+				"custom-content-1-0",
+				"custom-content-1-1"
+			],
+			"settings": {
+				"height": "use_screen_one_half",
+				"borders": false,
+				"width": "wrapper--full",
+				"padding_top": 36,
+				"padding_bottom": 36
+			}
+		},
+		"icons": {
+			"type": "section-icons",
+			"blocks": {
+				"icons-0": {
+					"type": "icon_block",
+					"settings": {
+						"icon_name": "icon-basket-return",
+						"icon_color": "#aaaaaa",
+						"title": "Free returns",
+						"text": "<p>Returns within 30 days receive a full refund.</p>",
+						"link_text": "",
+						"link_url": ""
+					}
+				},
+				"icons-1": {
+					"type": "icon_block",
+					"settings": {
+						"icon_name": "icon-shipment-world",
+						"icon_color": "#aaaaaa",
+						"title": "Worldwide shipping",
+						"text": "<p>Ship anywhere, rates available at checkout.</p>",
+						"link_text": "",
+						"link_url": ""
+					}
+				},
+				"icons-2": {
+					"type": "icon_block",
+					"settings": {
+						"icon_name": "icon-phone",
+						"icon_color": "#aaaaaa",
+						"title": "24/7 support",
+						"text": "<p>Call us anytime at 1(800) 555-1234.</p>",
+						"link_text": "",
+						"link_url": ""
+					}
+				}
+			},
+			"block_order": [
+				"icons-0",
+				"icons-1",
+				"icons-2"
+			],
+			"settings": {
+				"title": "",
+				"bg": "palette--light bg--accent",
+				"icon_alignment": "icon--top",
+				"layout": "grid--stacked",
+				"align_text": "text-left",
+				"width": "wrapper",
+				"padding_top": 36,
+				"padding_bottom": 36
+			}
+		}
+	},
+	"order": [
+		"hero",
+		"main",
+		"custom-content-2",
+		"custom-content-1",
+		"icons"
+	]
+}

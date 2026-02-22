@@ -1,0 +1,75 @@
+<!-- /snippets/hero.liquid -->
+
+{% comment %}
+  A wrapper for rendering banner images optonally with parallax
+
+  * frame_height_class - css class to control frame height
+  * frame_class - Additional CSS classes for the fram
+  * parallax_enabled - Boolean value to turn off parallax (enabled by default)
+  * img_object - Image object to use used
+  * img_object_mobile {object} - Image has a mobile override, use the picture tag (optional)
+
+  Example:
+  {% render 'image-parallax', img_object: section.settings.image, frame_height_class: section.settings.image_height %}
+{% endcomment %}
+
+{%- liquid
+  assign height_class = frame_height_class | default: 'use_image'
+
+  assign wh_ratio = img_object.aspect_ratio | default: 1
+  assign wh_ratio_mobile = img_object_mobile.aspect_ratio | default: wh_ratio
+
+  assign height = 1 | divided_by: wh_ratio | times: 100
+  assign height_mobile = 1 | divided_by: wh_ratio_mobile | times: 100
+
+  assign placeholder = placeholder | default: 'lifestyle-1'
+  assign sizes = sizes | default: '100vw'
+
+  assign parallax_enabled = parallax_enabled | default: settings.parallax_enable, allow_false: true
+-%}
+
+<div
+  class="image__hero__frame fade-in-child aspect-[--wh-ratio-mobile] md:aspect-[--wh-ratio] {{ height_class }} {{ frame_class }}"
+  data-overflow-background
+  {% if parallax_enabled %}data-parallax-wrapper{% endif %}
+  {% if height_class == 'use_image' %}
+    style="
+      --wh-ratio:  {{ wh_ratio }};
+      --wh-ratio-mobile:  {{ wh_ratio_mobile }};
+    "
+  {% endif %}
+>
+  <div class="image__hero__pane">
+    <div
+      {% if parallax_enabled %}
+        class="image__hero__scale h-[--height-mobile] md:h-[--height]"
+        style="
+          --height: {{ height }}vw;
+          --height-mobile: {{ height_mobile }}vw;
+        "
+        data-parallax-img
+      {% else %}
+        class="image__hero__scale"
+      {% endif %}
+    >
+      {% render 'image',
+        cover: true,
+        img_object: img_object,
+        img_object_mobile: img_object_mobile,
+        class: class,
+        wh_ratio: wh_ratio,
+        alt: alt,
+        srcset: srcset,
+        sizes: sizes,
+        placeholder: placeholder,
+        preload: preload,
+        loading: loading,
+        fetchpriority: fetchpriority,
+        style: style,
+        bg_position: bg_position,
+        loading_animation: loading_animation,
+        image_id: image_id
+      %}
+    </div>
+  </div>
+</div>

@@ -1,0 +1,39 @@
+<!-- /snippets/select-locale.liquid -->
+
+{%- assign wrapper_class = wrapper_class | default: '' -%}
+
+<div class="{{ wrapper_class }} js">
+  <h2 class="visually-hidden" id="lang-heading-{{ unique }}">
+    {{ 'layout.footer.language' | t }}
+  </h2>
+
+  <popout-select>
+    <div class="popout" data-popout>
+      <button type="button" class="popout__toggle js" aria-expanded="false" aria-controls="lang-list-{{ unique }}" aria-describedby="lang-heading-{{ unique }}" data-popout-toggle>
+        {{ localization.language.endonym_name }}
+
+        {%- render 'icon-core-chevron-down' -%}
+      </button>
+
+      <input type="checkbox" name="lang-list-toggle" id="lang-list-toggle-{{ unique }}-checkbox" class="no-js no-js-checkbox">
+
+      <label for="lang-list-toggle-{{ unique }}-checkbox" class="popout__toggle no-js">
+        {{ localization.language.endonym_name }}
+
+        {%- render 'icon-core-chevron-down' -%}
+      </label>
+
+      <ul id="lang-list-{{ unique }}" class="popout-list no-js-dropdown" data-popout-list{% if enable_scroll %} data-popout-list-scroll{% endif %} data-scroll-lock-scrollable>
+        {% for language in localization.available_languages %}
+          <li class="popout-list__item {% if language == localization.language %}popout-list__item--current{% endif %}">
+            <a class="popout-list__option" href="#" lang="{{ language.iso_code }}" {% if language == localization.language %}aria-current="true"{% endif %} data-value="{{ language.iso_code }}" data-popout-option>
+              <span>{{ language.endonym_name }}</span>
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+
+      <input type="hidden" name="language_code" id="LocaleSelector-{{ unique }}" value="{{ form.current_locale.iso_code }}" data-popout-input/>
+    </div>
+  </popout-select>
+</div>

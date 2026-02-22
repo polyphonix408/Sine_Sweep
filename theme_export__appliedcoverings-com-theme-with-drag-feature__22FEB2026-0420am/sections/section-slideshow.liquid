@@ -1,0 +1,512 @@
+<!-- /sections/section-slideshow.liquid -->
+
+{%- assign scroll_class = '' -%}
+{% if section.settings.height == 'use_screen_full' %}
+  {%- assign scroll_class = 'has-scroll-arrow' -%}
+{%- endif -%}
+
+{% assign hero_content_class = 'hero__content' %}
+{% if section.settings.width == 'wrapper--tiny' or section.settings.width == 'wrapper--narrow' %}
+  {% assign hero_content_class = 'hero__content hero__content--large' %}
+{% endif %}
+
+<div class="section-slideshow {{ section.settings.color_bg }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="slideshow"
+  style="--PT: {{ section.settings.padding_top }}px; --PB: {{ section.settings.padding_bottom }}px;">
+  {% if section.blocks.size > 0 %}
+    <div class="{{ section.settings.width }} section-padding">
+      <div class="slideshow__wrapper js-overflow-container flickity-badge-dots {{ scroll_class }}"
+      data-slideshow-wrapper
+      data-slideshow-autoplay="{{ section.settings.autoplay }}"
+      data-slideshow-slides="{{ section.blocks.size }}"
+      data-slideshow-speed="{{ section.settings.autoplay_speed | times: 1000 }}">
+      {% for block in section.blocks %}
+        <div class="slideshow__slide section--image {{ block.settings.text_color }}"
+        {% if section.settings.width == "wrapper--none" and section.settings.padding_top == 0 %} data-overlay-header {% endif %}
+          id="aos-{{ block.id }}"
+          data-slideshow-index="{{ forloop.index0 }}"
+          {{ block.shopify_attributes }}>
+          <div class="hero__content__wrapper {{ block.settings.text_align }}">
+            <div class="{{ hero_content_class }} js-overflow-content {% if block.settings.enable_overlay_text %} backdrop--hero{% endif %}" {% if block.settings.enable_overlay_text %} style="--bg: {{ block.settings.overlay_color }}; --opacity: {{ block.settings.overlay_opacity | times: 0.01 }};"{% endif %}>
+              {% unless block.settings.kicker == '' %}
+                <p class="hero__kicker"
+                  data-aos="hero"
+                  data-aos-order="1">
+                  {{ block.settings.kicker | escape }}
+                </p>
+              {% endunless %}
+              {% unless block.settings.title == '' %}
+                <h1 class="hero__title heading-size-9"
+                  data-aos="hero"
+                  data-aos-order="2">
+                  {{ block.settings.title | escape }}
+                </h1>
+              {% endunless %}
+              {% unless block.settings.richtext == '' %}
+                <div class="hero__description rte body-size-6"
+                  data-aos="hero"
+                  data-aos-order="3">
+                  {{ block.settings.richtext }}
+                </div>
+              {% endunless %}
+              {% unless block.settings.link_text == '' %}
+                <div class="hero__cta__wrapper">
+                  <a class="{{ block.settings.button_color }} {{ block.settings.button_style }} hero__btn btn--long"
+                    href="{{ block.settings.link }}"
+                    data-aos="hero"
+                    data-aos-order="4">
+                    {{ block.settings.link_text | escape }}
+                  </a>
+                </div>
+              {% endunless %}
+            </div>
+            <div data-slide-custom-prev class="custom-prev-next-button previous"></div>
+            <div data-slide-custom-next class="custom-prev-next-button next"></div>
+
+            {% if block.settings.link_text == '' and block.settings.link %}
+              <a class="link-over-image" href="{{ block.settings.link }}" aria-label="{{ block.settings.link.object.title | default: block.settings.title | strip_html | escape }}"></a>
+            {% endif %}
+          </div>
+
+          {% unless block.settings.enable_overlay_text %}
+            <div class="image-overlay" style="--bg:{{ block.settings.overlay_color }}; opacity:{{ block.settings.overlay_opacity | times: 0.01 }};"></div>
+          {% endunless %}
+
+
+          {% if section.settings.preload_first_image and forloop.first %}
+            {%- assign preload = true -%}
+            {%- assign loading = 'eager' -%}
+            {%- assign fetchpriority = 'high' -%}
+          {% else %}
+            {%- assign preload = false -%}
+            {%- assign loading = 'lazy' -%}
+          {% endif %}
+
+
+          {%- assign alt_default = "Slideshow Image " | append: forloop.index -%}
+          {%- assign alt = block.settings.image.alt | default: alt_default -%}
+          {% render 'image-parallax', img_object: block.settings.image, img_object_mobile: block.settings.mobile_image, frame_height_class: section.settings.height, alt: alt, preload: preload, loading: loading, fetchpriority: fetchpriority %}
+
+          {% if section.settings.height == 'use_screen_full' %}
+            <div class="scroll_icon_wrap">
+              <button data-scroll-down class="scroll_link bloop" aria-label="{{ 'general.accessibility.scroll' | t }}">
+                <span class="scroll_icon">{% render 'icon-core-chevron-down' %}</span>
+              </button>
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  {% if section.blocks.size == 0 %}
+    <div class="slideshow__slide">
+      <div class="text-center vertical-align">{{ 'home_page.onboarding.no_content' | t }}</div>
+      <div class="image-overlay" style="--bg: #000; opacity:0.15;"></div>
+    </div>
+  {% endif %}
+
+</div>
+
+{% schema %}
+{
+	"name": "Slideshow",
+	"settings": [
+		{
+			"type": "checkbox",
+			"id": "autoplay",
+			"label": "Auto-rotate slides",
+			"default": false
+		},
+		{
+			"type": "range",
+			"id": "autoplay_speed",
+			"min": 1,
+			"max": 15,
+			"step": 1,
+			"unit": "sec",
+			"label": "Change slides every",
+			"default": 8
+		},
+		{
+			"type": "checkbox",
+			"id": "preload_first_image",
+			"label": "Prioritize first image load",
+			"default": false,
+			"info": "Prioritize loading the first image of the slideshow before all other images on the page. Helpful when this section is first on a page, harmful when this section is below other image sections."
+		},
+		{
+			"type": "select",
+			"id": "height",
+			"label": "Section height",
+			"default": "use_screen_two_thirds",
+			"options": [
+				{
+					"value": "use_screen_full",
+					"label": "Full screen height"
+				},
+				{
+					"value": "use_screen_three_quarters",
+					"label": "Three quarters of screen height"
+				},
+				{
+					"value": "use_screen_two_thirds",
+					"label": "Two thirds of screen height"
+				},
+				{
+					"value": "use_screen_one_half",
+					"label": "One half of screen height"
+				},
+				{
+					"value": "use_screen_one_third",
+					"label": "One third of screen height"
+				},
+				{
+					"value": "use_screen_one_fifth",
+					"label": "One fifth of screen height"
+				},
+				{
+					"value": "use_pixels_800",
+					"label": "800px"
+				},
+				{
+					"value": "use_pixels_650",
+					"label": "650px"
+				},
+				{
+					"value": "use_pixels_500",
+					"label": "500px"
+				},
+				{
+					"value": "use_image",
+					"label": "Image height"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "color_bg",
+			"label": "Background color",
+			"default": "palette--light bg--neutral",
+			"options": [
+				{
+					"value": "palette--light bg--neutral",
+					"label": "Default"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper--none",
+			"options": [
+				{
+					"value": "wrapper--none",
+					"label": "Full width"
+				},
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				},
+				{
+					"value": "wrapper--narrow",
+					"label": "Page width narrow"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 0
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 0
+		}
+	],
+	"blocks": [
+		{
+			"type": "image",
+			"name": "Slide",
+			"settings": [
+				{
+					"type": "image_picker",
+					"id": "image",
+					"label": "Image",
+					"info": "Match size to other slides"
+				},
+				{
+					"type": "image_picker",
+					"id": "mobile_image",
+					"label": "Mobile image"
+				},
+				{
+					"type": "range",
+					"id": "overlay_opacity",
+					"min": 0,
+					"max": 100,
+					"step": 5,
+					"label": "Image overlay opacity",
+					"info": "Increase contrast for legible text.",
+					"default": 15
+				},
+				{
+					"type": "color",
+					"id": "overlay_color",
+					"label": "Overlay color",
+					"default": "#000"
+				},
+				{
+					"type": "checkbox",
+					"id": "enable_overlay_text",
+					"label": "Overlay behind text only",
+					"default": false
+				},
+				{
+					"type": "header",
+					"content": "Text"
+				},
+				{
+					"type": "text",
+					"id": "kicker",
+					"label": "Kicker",
+					"default": "Introducing"
+				},
+				{
+					"type": "text",
+					"id": "title",
+					"label": "Title",
+					"default": "Image slideshow"
+				},
+				{
+					"type": "richtext",
+					"id": "richtext",
+					"label": "Text",
+					"default": "<p>Tell your brand's story through images.</p>"
+				},
+				{
+					"type": "select",
+					"id": "text_align",
+					"label": "Alignment",
+					"default": "align--middle-center",
+					"options": [
+						{
+							"value": "align--top-left",
+							"label": "Top left"
+						},
+						{
+							"value": "align--top-center",
+							"label": "Top center"
+						},
+						{
+							"value": "align--top-right",
+							"label": "Top right"
+						},
+						{
+							"value": "align--middle-left",
+							"label": "Middle left"
+						},
+						{
+							"value": "align--middle-center",
+							"label": "Absolute center"
+						},
+						{
+							"value": "align--middle-right",
+							"label": "Middle right"
+						},
+						{
+							"value": "align--bottom-left",
+							"label": "Bottom left"
+						},
+						{
+							"value": "align--bottom-center",
+							"label": "Bottom center"
+						},
+						{
+							"value": "align--bottom-right",
+							"label": "Bottom right"
+						}
+					]
+				},
+				{
+					"type": "select",
+					"id": "text_color",
+					"label": "Text color",
+					"default": "text--white",
+					"options": [
+						{
+							"value": "text--neutral",
+							"label": "Normal text"
+						},
+						{
+							"value": "text--white",
+							"label": "White"
+						},
+						{
+							"value": "text--primary",
+							"label": "Primary accent"
+						},
+						{
+							"value": "text--secondary",
+							"label": "Secondary accent"
+						},
+						{
+							"value": "text--black",
+							"label": "Black"
+						},
+						{
+							"value": "text--invert--primary",
+							"label": "Primary dark accent"
+						},
+						{
+							"value": "text--invert--secondary",
+							"label": "Secondary dark accent"
+						},
+						{
+							"value": "text--invert",
+							"label": "Inverted text color"
+						},
+						{
+							"value": "text--bright--primary",
+							"label": "Primary bright accent"
+						},
+						{
+							"value": "text--bright--secondary",
+							"label": "Secondary bright accent"
+						}
+					]
+				},
+				{
+					"type": "header",
+					"content": "Button"
+				},
+				{
+					"type": "text",
+					"id": "link_text",
+					"label": "Text",
+					"default": "View products",
+					"info": "Leave blank to link entire image"
+				},
+				{
+					"type": "url",
+					"id": "link",
+					"label": "Link"
+				},
+				{
+					"type": "select",
+					"id": "button_color",
+					"label": "Color",
+					"default": "btn--white",
+					"options": [
+						{
+							"value": "btn--primary",
+							"label": "Bright accent"
+						},
+						{
+							"value": "btn--secondary",
+							"label": "Secondary accent"
+						},
+						{
+							"value": "btn--neutral",
+							"label": "Text color"
+						},
+						{
+							"value": "btn--black",
+							"label": "Black"
+						},
+						{
+							"value": "btn--white",
+							"label": "White"
+						}
+					]
+				},
+				{
+					"type": "select",
+					"id": "button_style",
+					"label": "Button style",
+					"default": "btn",
+					"options": [
+						{
+							"value": "btn",
+							"label": "Solid button"
+						},
+						{
+							"value": "btn--soft",
+							"label": "Soft button"
+						},
+						{
+							"value": "btn--outline",
+							"label": "Outlined button"
+						}
+					]
+				}
+			]
+		}
+	],
+	"presets": [
+		{
+			"name": "Slideshow",
+			"settings": {
+				"height": "use_screen_two_thirds"
+			},
+			"blocks": [
+				{
+					"type": "image"
+				},
+				{
+					"type": "image"
+				}
+			]
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"footer",
+			"aside"
+		]
+	}
+}
+{% endschema %}

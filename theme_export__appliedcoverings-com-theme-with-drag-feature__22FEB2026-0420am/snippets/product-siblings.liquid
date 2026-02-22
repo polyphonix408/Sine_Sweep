@@ -1,0 +1,78 @@
+<!-- /snippets/product-siblings.liquid -->
+
+{%- liquid
+  assign sibs_collection = collections[block.settings.siblings_collection].products
+  assign cutline_default = block.settings.cutline | default: product.metafields.theme.cutline.value
+  assign siblings_label = 'general.siblings.label' | t | default: 'Color'
+-%}
+
+{%- if sibs_collection.size > 1 -%}
+  <div class="product__block__siblings"
+    style="
+      --PB: {{ block.settings.padding_bottom }}px;
+      --OPTION-SIZE-SIBLING: {{ block.settings.option_size_sibling | default: 50 }}px;
+    "
+    {{ block.shopify_attributes }}
+  >
+    {%- assign title_down = product.title | downcase -%}
+    {%- assign cutline_down = cutline_default | downcase -%}
+    {%- unless title_down contains cutline_down -%}
+      {% comment %} Form ID must match value in product-form.liquid {% endcomment %}
+      <input type="hidden" form="{{ uniq_id }}" name="properties[{{ siblings_label }}]" value="{{ cutline_default }}">
+    {%- endunless -%}
+
+    {%- if sibs_collection -%}
+      <div class="product__page__siblings" data-swapper-wrapper>
+        <legend class="radio__legend">
+          <span class="radio__legend__label">{{ siblings_label }}</span>
+          <span data-swapper-target>{{ cutline_default }}</span>
+        </legend>
+
+        {%- for sib_product in sibs_collection limit: 50 -%}
+          {%- assign modifier_class = '' -%}
+          {%- if sib_product.available == false -%}
+            {%- assign modifier_class = modifier_class | append: ' siblings__link--sold-out' -%}
+          {%- endif -%}
+          {%- assign title_safe = sib_product.title | strip_html | escape -%}
+          {%- assign color_name = sib_product.metafields.theme.cutline.value | default: title_safe -%}
+          {% capture aria_label %}
+            {{ color_name }}
+            {% if sib_product.available == false %}
+              - {{ 'products.product.sold_out' | t }}
+            {% endif %}
+          {% endcapture %}
+          <a
+            href="{{ sib_product.url }}"
+            class="siblings__link {{ modifier_class }}"
+            data-swapper-hover="{{ color_name }}"
+            title="{{ color_name }}"
+            {% if sib_product.handle == product.handle %}aria-current="true"{%- endif -%}
+            aria-label="{{ aria_label }}"
+          >
+            <div class="siblings__swatch">
+              <div class="sibling__image{% if settings.swatches_squares %} sibling__image--square{% endif %}">
+                {% assign image = sib_product.featured_media.preview_image %}
+                {% assign image_width = block.settings.option_size_sibling | at_most: image.width %}
+                {% assign image_width_2x = image_width | times: 2 | at_most: image.width %}
+                {% assign alt = image.alt | default: color_name %}
+
+                {% capture srcset %}
+                  {{ image | image_url: width: image_width_2x }} 2x,
+                  {{ image | image_url: width: image_width }}
+                {% endcapture %}
+
+                {%- render 'image',
+                  img_object: image,
+                  wh_ratio: 1.0,
+                  width: image_width,
+                  srcset: srcset,
+                  alt: alt
+                -%}
+              </div>
+            </div>
+          </a>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+{%- endif -%}

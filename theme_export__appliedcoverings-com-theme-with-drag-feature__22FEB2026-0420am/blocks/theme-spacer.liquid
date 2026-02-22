@@ -1,0 +1,79 @@
+<div
+  style="--spacer-half: {{ block.settings.spacer_padding | divided_by: 2 }}px"
+  class="py-[--spacer-half] w-full flex"
+  {{ block.shopify_attributes }}
+>
+  {%- if block.settings.line_stroke > 0 -%}
+    <div
+      style="
+        border-top: {{ block.settings.line_stroke }}px solid {{ block.settings.line_color }};
+        {% if block.settings.line_width == 'short' %}
+          width: 30px;
+        {% else %}
+          width: 100%;
+        {% endif %}
+      "
+    ></div>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+	"name": "Spacer",
+	"tag": null,
+	"settings": [
+		{
+			"type": "range",
+			"id": "spacer_padding",
+			"label": "Padding",
+			"unit": "px",
+			"min": 0,
+			"max": 100,
+			"step": 1,
+			"default": 20
+		},
+		{
+			"type": "header",
+			"content": "Line (optional)"
+		},
+		{
+			"type": "range",
+			"id": "line_stroke",
+			"label": "Stroke",
+			"unit": "px",
+			"min": 0,
+			"max": 10,
+			"step": 0.5,
+			"default": 0
+		},
+		{
+			"type": "color",
+			"id": "line_color",
+			"label": "Color",
+			"default": "#000000"
+		},
+		{
+			"type": "select",
+			"id": "line_width",
+			"label": "Width",
+			"default": "full",
+			"options": [
+				{
+					"value": "full",
+					"label": "Full"
+				},
+				{
+					"value": "short",
+					"label": "Short"
+				}
+			]
+		}
+	],
+	"presets": [
+		{
+			"name": "Spacer",
+			"blocks": []
+		}
+	]
+}
+{% endschema %}

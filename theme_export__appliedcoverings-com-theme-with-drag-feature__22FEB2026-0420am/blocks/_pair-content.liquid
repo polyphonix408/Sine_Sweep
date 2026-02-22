@@ -1,0 +1,194 @@
+{% liquid
+  assign bg_color = block.settings.bg_color
+  assign transparent_spacing_class = ""
+  if bg_color == 'rgba(0,0,0,0)' or bg_color == blank
+    assign transparent_spacing_class = "brick__block__text--transparent"
+  endif
+%}
+
+{% capture blocks %}
+  {% content_for 'blocks' %}
+{% endcapture %}
+
+<div
+  class="brick__block" data-prevent-transparent-header {{ block.shopify_attributes }}
+  {{ block.shopify_attributes }}
+>
+  <div class="brick__block__text py-[--outer] {{ transparent_spacing_class }} {{ block.settings.text_color }}" data-overflow-frame style="--bg: {{ bg_color }};">
+    {% render 'core-placement',
+      content: blocks,
+      _settings: block.settings,
+      attributes: block.shopify_attributes,
+      class: 'h-full'
+    %}
+  </div>
+</div>
+
+{% schema %}
+{
+	"name": "Content",
+	"tag": null,
+	"settings": [
+		{
+			"type": "select",
+			"id": "vertical_placement",
+			"label": "Vertical placement",
+			"default": "start",
+			"options": [
+				{
+					"value": "start",
+					"label": "⤒"
+				},
+				{
+					"value": "center",
+					"label": "—"
+				},
+				{
+					"value": "end",
+					"label": "⤓"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "horizontal_placement",
+			"label": "Horizontal placement",
+			"default": "start",
+			"options": [
+				{
+					"value": "start",
+					"label": "⇤"
+				},
+				{
+					"value": "center",
+					"label": "|"
+				},
+				{
+					"value": "end",
+					"label": "⇥"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "gap",
+			"label": "Gap",
+			"default": "sm",
+			"options": [
+				{
+					"value": "0",
+					"label": "0"
+				},
+				{
+					"value": "sm",
+					"label": "S"
+				},
+				{
+					"value": "md",
+					"label": "M"
+				},
+				{
+					"value": "lg",
+					"label": "L"
+				},
+				{
+					"value": "xl",
+					"label": "XL"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Colors"
+		},
+		{
+			"type": "select",
+			"id": "text_color",
+			"label": "Text color",
+			"default": "text--neutral",
+			"options": [
+				{
+					"value": "text--neutral",
+					"label": "Normal text"
+				},
+				{
+					"value": "text--white",
+					"label": "White"
+				},
+				{
+					"value": "text--primary",
+					"label": "Primary accent"
+				},
+				{
+					"value": "text--secondary",
+					"label": "Secondary accent"
+				},
+				{
+					"value": "text--black",
+					"label": "Black"
+				},
+				{
+					"value": "text--invert--primary",
+					"label": "Primary dark accent"
+				},
+				{
+					"value": "text--invert--secondary",
+					"label": "Secondary dark accent"
+				},
+				{
+					"value": "text--invert",
+					"label": "Inverted text color"
+				},
+				{
+					"value": "text--bright--primary",
+					"label": "Primary bright accent"
+				},
+				{
+					"value": "text--bright--secondary",
+					"label": "Secondary bright accent"
+				}
+			]
+		},
+		{
+			"type": "color",
+			"id": "bg_color",
+			"label": "Background"
+		}
+	],
+	"blocks": [
+		{
+			"type": "@theme"
+		},
+		{
+			"type": "@app"
+		},
+		{
+			"type": "_text-spotlight",
+		}
+	],
+	"presets": [
+		{
+			"name": "Text",
+			"blocks": [
+				{
+					"type": "theme-group",
+					"blocks": [
+						{
+							"type": "theme-kicker",
+							"settings": {
+								"kicker": "Accent Title"
+							}
+						}
+					]
+				},
+				{
+					"type": "theme-text",
+					"settings": {
+						"text": "Text"
+					}
+				}
+			]
+		}
+	]
+}
+{% endschema %}

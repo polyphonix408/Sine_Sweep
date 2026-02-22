@@ -1,0 +1,227 @@
+{% liquid
+  assign font_family = block.settings.font_family
+  assign text_size = block.settings.text_size
+  assign gap = block.settings.gap
+  assign text_color = block.settings.text_color
+  assign bg_color = block.settings.bg_color
+  assign rotation = block.settings.rotation
+  assign top = block.settings.top
+%}
+
+{% capture gap_class %}
+  {% case block.settings.gap %}
+    {% when '0' %}
+      [--gap:0]
+    {% when 'xs' %}
+      [--gap:theme(spacing.r2)]
+    {% when 'sm' %}
+      [--gap:theme(spacing.r4)]
+    {% when 'md' %}
+      [--gap:theme(spacing.r8)]
+    {% when 'lg' %}
+      [--gap:theme(spacing.r12)]
+    {% when 'xl' %}
+      [--gap:theme(spacing.r15)]
+  {% endcase %}
+
+  {% comment %} Add a gap between each block, and then gap after the element to create a gap between the source and target elements {% endcomment %}
+  gap-x-[--gap] pr-[--gap]
+{% endcapture %}
+
+<div
+  class="
+    flex flex-row items-center
+    absolute origin-center -translate-y-1/2 rotate-[--rotation] top-[--top] -left-1/2 -right-1/2
+    overflow-hidden
+    inline-rte text-r{{ text_size }} type-{{ font_family }} text-{{ text_size }} text-[color:--text-color]
+    py-r2 whitespace-nowrap !z-20 overflow-hidden select-none pointer-events-none
+
+  "
+  style="
+    --text-color: {{ text_color }};
+    --rotation: {{ rotation }}deg;
+    --top: {{ top }}%;
+    background-color: {{ bg_color }};
+  "
+  x-data
+  x-marquee.speed.{{- block.settings.speed | times: 15 -}}.fill
+
+  {% if request.design_mode %}
+    @shopify:block:select="$marquee.pause()"
+    @shopify:block:deselect="$marquee.play()"
+  {% endif %}
+
+  {{ block.shopify_attributes }}
+>
+  {% capture content_class %}
+    flex flex-row items-center justitify-start shrink-0 transition-opacity duration-500 opacity-0
+    {{ gap_class }}
+    {% comment %} Initial container width should be the max width of the content so that the width can be measured and the elements can be cloned to fit screen {% endcomment %}
+    w-max
+  {% endcapture %}
+
+  {% comment %} Source element contains the rendered blocks, which are then cloned to fill the screen if content is smaller than viewport {% endcomment %}
+  <div
+    x-marquee:source
+    class="{{ content_class }}"
+    :class="$marquee.isReady ? 'opacity-100' : 'opacity-0'"
+  >
+    {% content_for "blocks" %}
+  </div>
+
+  {% comment %} Children of source element are copied to target element to allow for an infinitley scrolling marquee {% endcomment %}
+  <div
+    x-marquee:target
+    class="{{ content_class }}"
+    :class="$marquee.isReady ? 'opacity-100' : 'opacity-0'"
+    aria-hidden="true"
+  ></div>
+</div>
+
+{% schema %}
+{
+	"name": "Marquee",
+	"tag": null,
+	"settings": [
+		{
+			"type": "select",
+			"id": "font_family",
+			"label": "Font",
+			"default": "accent",
+			"options": [
+				{
+					"value": "heading",
+					"label": "Title"
+				},
+				{
+					"value": "body",
+					"label": "Body"
+				},
+				{
+					"value": "accent",
+					"label": "Accent"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "text_size",
+			"label": "Size",
+			"min": 1,
+			"max": 15,
+			"step": 1,
+			"default": 7
+		},
+		{
+			"type": "select",
+			"id": "gap",
+			"label": "Gap",
+			"default": "lg",
+			"options": [
+				{
+					"value": "0",
+					"label": "0"
+				},
+				{
+					"value": "sm",
+					"label": "S"
+				},
+				{
+					"value": "md",
+					"label": "M"
+				},
+				{
+					"value": "lg",
+					"label": "L"
+				},
+				{
+					"value": "xl",
+					"label": "XL"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "speed",
+			"label": "Speed",
+			"min": -10,
+			"max": 10,
+			"step": 1,
+			"default": 5
+		},
+		{
+			"type": "header",
+			"content": "Color"
+		},
+		{
+			"type": "color",
+			"id": "text_color",
+			"label": "Text",
+			"default": "#FFFFFF"
+		},
+		{
+			"type": "color",
+			"id": "bg_color",
+			"label": "Background",
+			"default": "#000000"
+		},
+		{
+			"type": "header",
+			"content": "Positioning"
+		},
+		{
+			"type": "range",
+			"id": "rotation",
+			"min": -90,
+			"max": 90,
+			"step": 2,
+			"label": "Rotation",
+			"default": 0,
+			"unit": "%"
+		},
+		{
+			"type": "range",
+			"id": "top",
+			"min": 0,
+			"max": 100,
+			"step": 1,
+			"label": "Top",
+			"default": 50,
+			"unit": "%"
+		}
+	],
+	"presets": [
+		{
+			"name": "Marquee",
+			"settings": {
+				"rotation": 10
+			},
+			"blocks": [
+				{
+					"type": "_marquee-text",
+					"settings": {
+						"text": "Act Now"
+					}
+				},
+				{
+					"type": "_marquee-text",
+					"settings": {
+						"text": "Limited time only"
+					}
+				}
+			]
+		}
+	],
+	"blocks": [
+		{
+			"type": "_marquee-text"
+		},
+		{
+			"type": "_marquee-image"
+		},
+		{
+			"type": "_marquee-custom-text"
+		}
+	]
+}
+{% endschema %}

@@ -1,0 +1,148 @@
+<!-- /snippets/nav-item.liquid -->
+
+{%- liquid
+  assign parent = false
+  assign grandparent = false
+  if link.levels == 1
+    assign parent = true
+  endif
+  if link.levels == 2
+    assign grandparent = true
+  endif
+
+  assign child_count = 0
+  if grandparent
+    assign child_count = link.links.size
+    if child_count > 10
+      assign child_count = 10
+    endif
+  endif
+
+  assign index = index | append: ""
+  assign block_count = 0
+  assign blocks_count_class = ''
+  for block in section.blocks
+    if block.settings.position == index
+      assign display = block.settings.display | default: 'all'
+      if display == 'mobile'
+        continue
+      endif
+
+      assign grandparent = true
+      if block.type == 'collection'
+        assign block_count = block_count | plus: block.settings.limit
+        assign child_count = child_count | plus: block.settings.limit
+        else
+        assign block_count = block_count | plus: 1
+        assign child_count = child_count | plus: 1
+      endif
+
+      if block.settings.wide_element
+        assign child_count = child_count | plus: 1
+      endif
+    endif
+  endfor
+
+  if parent or grandparent
+    assign expands = true
+    assign key = link.url | append: link.title | append: link.levels | md5
+  endif
+
+  if parent and link.levels == 1
+    assign child_count = child_count | plus: 1
+  endif
+
+  assign link_title_handle = link.title | handle
+  assign highlight_links = 'general.header.highlight_links' | t | strip | split: ',' | join: '___' | handle | replace: '___-', '___' | replace: '-___', '___' | split: '___'
+  assign collections_string = '/collections/'
+
+  if block_count > 0
+    assign blocks_count_class = blocks_count_class | append: 'blocks-' | append: block_count
+  endif
+-%}
+{% capture classes %}{% if grandparent %} grandparent kids-{{ child_count }} {{ blocks_count_class }}{% elsif parent %} parent{% else %} child{% endif %}{% if link.active %} main-menu--active{% endif %}{% endcapture %}
+
+<div class="menu__item {{ classes }}"
+  data-main-menu-text-item
+  {% if expands %}
+    role="button"
+    aria-haspopup="true"
+    aria-expanded="false"
+    data-hover-disclosure-toggle="dropdown-{{ key }}"
+    aria-controls="dropdown-{{ key }}"
+  {% endif %}>
+  <a href="{{ link.url }}" data-top-link class="navlink navlink--toplevel{% if highlight_links contains link_title_handle %} highlight--link{% endif %}">
+    <span class="navtext">{{ link.title | strip_html | escape }}</span>
+  </a>
+  {% if expands %}
+    <div class="header__dropdown"
+      data-hover-disclosure
+      id="dropdown-{{ key }}">
+      <div class="header__dropdown__wrapper">
+        <div class="header__dropdown__inner">
+          {%- if grandparent -%}
+
+            {% if link.levels == 2 %}
+              {% for link in link.links %}
+                <div class="dropdown__family dropdown__family--grandchild">
+                  {%- if section.settings.show_collection_images and link.url contains collections_string -%}
+                    {%- assign collection_string = link.url | split: collections_string | last -%}
+                    {%- assign collection_obj = collections[collection_string] -%}
+
+                    {%- if collection_obj.image != blank -%}
+                      <a href="{{ collection_obj.url }}" class="dropdown__image" aria-label="{{ collection_obj.title | strip_html | escape  }}">
+                        {%- render 'image',
+                          cover: true,
+                          img_object: collection_obj.image,
+                          wh_ratio: section.settings.collection_wh_ratio,
+                          sizes: '25vw',
+                          loading: 'lazy'
+                        -%}
+                      </a>
+                    {%- endif -%}
+                  {%- endif -%}
+
+                  {% assign link_title_handle = link.title | handle %}
+                  <a href="{{ link.url }}" data-stagger-first class="navlink navlink--child{% if link.active %} main-menu--active{% endif %}{% if highlight_links contains link_title_handle %} highlight--link{% endif %}">
+                    <span class="navtext">{{ link.title | strip_html | escape }}</span>
+                  </a>
+                  {% for link in link.links %}
+                    {% assign link_title_handle = link.title | handle %}
+                    <a href="{{ link.url }}" data-stagger-second class="navlink navlink--grandchild{% if link.active %} main-menu--active{% endif %}{% if highlight_links contains link_title_handle %} highlight--link{% endif %}">
+                      <span class="navtext">{{ link.title | strip_html | escape }}</span>
+                    </a>
+                  {% endfor %}
+                </div>
+              {% endfor %}
+            {% elsif link.levels == 1 %}
+              <div class="dropdown__family dropdown__family--child">
+                {% for link in link.links %}
+                  {% assign link_title_handle = link.title | handle %}
+                  <a href="{{ link.url }}" data-stagger class="navlink navlink--grandchild{% if link.active %} main-menu--active{% endif %}{% if highlight_links contains link_title_handle %} highlight--link{% endif %}">
+                    <span class="navtext">{{ link.title | strip_html | escape }}</span>
+                  </a>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            {% for block in section.blocks %}
+              {% comment %} Render block content {% endcomment %}
+              {%- if block.settings.position == index -%}
+                {% render 'header-block', block: block, column_count: child_count %}
+              {%- endif -%}
+            {% endfor %}
+
+          {%- else -%}
+            {% comment %} Simple dropdown {% endcomment %}
+            {% for link in link.links %}
+              {% assign link_title_handle = link.title | handle %}
+              <a href="{{ link.url }}" data-stagger class="navlink navlink--child{% if link.active %} main-menu--active{% endif %}{% if highlight_links contains link_title_handle %} highlight--link{% endif %}">
+                <span class="navtext">{{ link.title | strip_html | escape }}</span>
+              </a>
+            {% endfor %}
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</div>

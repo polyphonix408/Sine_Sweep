@@ -1,0 +1,132 @@
+<!-- /snippets/product-buttons.liquid -->
+
+{%- liquid
+  assign buybutton_setting = false
+  assign gift_card_recipient_feature_active = false
+  assign current_variant = product.selected_or_first_available_variant
+
+  if block.settings.enable_gift_card_recipient and product.gift_card?
+    assign gift_card_recipient_feature_active = true
+  endif
+
+  comment
+    Quick buy buttons are incompatable with gift card products and subscription products
+  endcomment
+  if block.settings.enable_payment_button and gift_card_recipient_feature_active == false
+    assign buybutton_setting = true
+  endif
+  if product.selling_plan_groups.size > 0
+    assign buybutton_setting = false
+  endif
+-%}
+
+<product-form x-data="productAddButtonForm()" class="product__block__buttons" style="--PB: {{ block.settings.padding_bottom }}px;" {{ block.shopify_attributes }} >
+  <div data-product-form-outer>
+    {% comment %} The [data-product-form] tag distinguishes the product form from upsell instant-add-buttons. {% endcomment %}
+    {%- form 'product', product, id: uniq_id, data-product-form: '', data-product-handle: product.handle -%}
+      {%- unless hidden -%}
+        <div class="product__form__inner" data-form-inner>
+
+          {% comment %}
+            Note: the gift card recipient form is controlled in Checkout and must contain these undocumented line item propeties:
+            * properties[__shopify_send_gift_card_to_recipient] - Hidden - Toggles the feature on/off in checkout, following properties have no effect without it
+            * properties[Recipient email] - The email of the gift card recipient
+            * properties[Recipient name] - The name of the gift card recipient
+            * properties[Message] - Shopify chose a highly generic name for the gift card message, this could easily conflict with an app or custom code
+          {% endcomment %}
+          {%- if gift_card_recipient_feature_active -%}
+            {%- render 'gift-card-recipient-form', product: product, form: form, section: section -%}
+          {%- endif -%}
+
+          <div class="product__submit" data-buttons-wrapper data-add-action-wrapper data-error-boundary>
+            <div data-error-display role='alert' class="add-action-errors"></div>
+
+            {%- assign button_text = 'products.product.add_to_cart' | t -%}
+            {%- if product.metafields.theme.preorder.value == true -%}
+              {% comment %} Add a line item property with 'Sale type: Pre-order' and make the button say 'Pre-order'{% endcomment %}
+              <input type="hidden" data-product-preorder name="properties[{{ 'products.product.sale_type' | t }}]" value="{{ 'products.product.pre_order' | t }}">
+              {%- assign button_text =  'products.product.pre_order' | t -%}
+            {%- endif -%}
+
+            {%- render 'sibling-color-as-line-prop' product: product -%}
+
+            {%- unless current_variant.available -%}
+              {%- assign button_text =  'products.product.sold_out' | t -%}
+            {%- endunless -%}
+
+            <div class="product__submit__buttons{% if product.has_only_default_variant %} product__submit__buttons--clear{% endif %}">
+              <span class="sr-only" aria-live="polite" x-show="isLoading">
+                {{ 'products.product.adding_to_cart' | t }}
+              </span>
+              <span class="sr-only" aria-live="polite" x-show="isSuccess">
+                {{ 'products.product.added_to_cart' | t }}
+              </span>
+
+              <button
+                type="submit"
+                name="add"
+                class="btn--outline btn--full btn--primary btn--add-to-cart"
+                data-add-to-cart
+                {% comment %} Explicitly add aria label so that button text isn't read out in screen readers in uppercase {% endcomment %}
+                aria-label="{{ button_text }}"
+                :class="{
+                  'has-success': isSuccess,
+                  'loading': isLoading
+                }"
+                {% unless current_variant.available %} disabled="disabled" {% endunless %}
+              >
+                <span class="btn-state-ready flex justify-center">
+                  <span data-add-to-cart-text>
+                    {{ button_text }}
+                  </span>
+                  <span class="cta__dot opacity-50">•</span>
+                  <span data-button-price>
+                    {%- if settings.currency_code_enable -%}
+                      {{ current_variant.price | money_with_currency }}
+                    {%- else -%}
+                      {{ current_variant.price | money }}
+                    {%- endif -%}
+                  </span>
+                </span>
+
+                <span class="btn-state-loading">
+                  <svg height="18" width="18" class="svg-loader">
+                    <circle r="7" cx="9" cy="9" />
+                    <circle stroke-dasharray="87.96459430051421 87.96459430051421" r="7" cx="9" cy="9" />
+                  </svg>
+                </span>
+
+                <span class="btn-state-complete">&nbsp;</span>
+              </button>
+
+              {%- if buybutton_setting -%}
+                <div class="product__submit__quick">
+                  {{ form | payment_button }}
+                </div>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+
+        {% comment %} Shop pay split payment terms {% endcomment %}
+        <div class="shop-pay-terms">{{- form | payment_terms -}}</div>
+      {%- endunless -%}
+
+      {% comment %} The input with name="id" submits to cart {% endcomment %}
+      <input type="hidden" name="id" value="{{ current_variant.id }}">
+
+      <script data-product-json type="application/json">
+        {{ product | json }}
+      </script>
+    {%- endform -%}
+  </div>
+</product-form>
+
+
+
+
+
+
+
+
+

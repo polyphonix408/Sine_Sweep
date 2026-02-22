@@ -1,0 +1,161 @@
+{%- liquid
+  assign before_image = before_image | default: _settings.before_image
+  assign after_image = after_image | default: _settings.after_image
+  assign orientation = orientation | default: _settings.orientation | default: 'horizontal'
+  assign handle_color = handle_color | default: _settings.handle_color | default: '#FFFFFF'
+  assign start_position = start_position | default: _settings.start_position | default: 50
+  assign width = width | default: _settings.width | default: 'page'
+  assign pt = pt | default: _settings.padding_top | default: 10
+  assign pb = pb | default: _settings.padding_bottom | default: 10
+
+  assign min_start_position = 3
+  assign max_start_position = 100 | minus: min_start_position
+
+  assign start_position = start_position | at_least: min_start_position | at_most: max_start_position
+
+  assign animate_from_position = 0
+
+  if start_position > 50
+    assign animate_from_position = max_start_position
+  endif
+-%}
+
+<div
+  class="relative flex items-center justify-center overflow-hidden {{ class }}"
+  style="
+    --handle-color: {{ handle_color }};
+    --thumb-size: 45px;
+    {{ style }}
+  "
+
+  x-data="{
+    isVisible: false,
+    hasBeenViewed: false,
+  }"
+
+  {% if orientation == 'vertical' %}
+    x-slider-reveal.vertical.progress.{{ start_position }}%
+  {% else %}
+    x-slider-reveal.progress.{{ start_position }}%
+  {% endif %}
+
+  x-init="
+    {% comment %} Animate to start position when first visible {% endcomment %}
+    $watch('hasBeenViewed', (hasBeenViewed, wasNotPreviouslyViewed) => {
+      if (hasBeenViewed && !wasNotPreviouslyViewed) {
+        $sliderReveal.enableScroll()
+
+        $nextTick(() => {
+          $m.animate($sliderReveal.progressMotionValue, [{{ animate_from_position }}, {{ start_position }}], {
+            duration: 0.6,
+            ease: ['easeOut'],
+          })
+        })
+      }
+    })
+
+    {% comment %} Enable/disable scroll when section is visible/hidden {% endcomment %}
+    $watch('isVisible', (isVisible) => {
+      if (hasBeenViewed) {
+        if (isVisible) {
+          $sliderReveal.enableScroll()
+        } else {
+          $sliderReveal.disableScroll()
+        }
+      }
+    })
+  "
+
+  x-intersect:enter="isVisible = true; hasBeenViewed = true"
+  x-intersect:leave="isVisible = false"
+>
+  <input
+    x-model.number.fill="$sliderReveal.progress"
+    type="range"
+    min="{{ min_start_position }}"
+    max="{{ max_start_position }}"
+    class="
+      absolute z-40 h-full w-full !p-0 opacity-0
+      [&::-moz-range-thumb]:rounded-none
+      [&::-webkit-slider-thumb]:rounded-none
+
+      {% if _settings.orientation == 'vertical' %}
+        cursor-row-resize
+        [writing-mode:vertical-lr]
+        [&::-moz-range-thumb]:h-[--thumb-size]
+        [&::-webkit-slider-thumb]:h-[--thumb-size]
+        [&::-moz-range-thumb]:w-[100vw]
+        [&::-webkit-slider-thumb]:w-[100vw]
+      {% else %}
+        cursor-col-resize
+        [&::-moz-range-thumb]:h-[100vh]
+        [&::-webkit-slider-thumb]:h-[100vh]
+        [&::-moz-range-thumb]:w-[--thumb-size]
+        [&::-webkit-slider-thumb]:w-[--thumb-size]
+      {% endif %}
+    "
+  >
+
+  <div
+    x-slider-reveal:handle
+    class="absolute z-30 h-full w-full"
+  >
+    <div
+      class="
+        flex items-center
+        {% if _settings.orientation == 'vertical' %}
+          h-0 w-full
+        {% else %}
+          w-0 h-full
+        {% endif %}
+      "
+    >
+      <!-- Vertical line -->
+      <div
+        class="
+          absolute start-[-1.5px] bg-[--handle-color]
+          {% if _settings.orientation == 'vertical' %}
+            h-[1.5px] w-full
+          {%- else -%}
+            w-[1.5px] h-full
+          {% endif %}
+        "
+      ></div>
+
+      <!-- White circle with blur -->
+      <div
+        class="
+          absolute h-[--thumb-size] w-[--thumb-size] rounded-full border-[1.5px] border-[--handle-color] bg-white/10 backdrop-blur
+          {% if _settings.orientation == 'vertical' %}
+            start-[calc(50%+(var(--thumb-size)/-2))] rotate-90
+          {%- else -%}
+            start-[calc(var(--thumb-size)/-2)]
+          {% endif %}
+        "
+      >
+        <div class="flex h-full items-center justify-center">
+          <div class="text-r5 text-[--handle-color]">
+            {% render 'icon-core-chevron-left' %}
+          </div>
+          <div class="text-r5 text-[--handle-color]">
+            {% render 'icon-core-chevron-right' %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="z-0 w-full h-full reverse-z-stack grid-stack">
+    <div
+      class="z-20 w-full h-full overflow-hidden"
+      x-slider-reveal:reveal
+    >
+      {% render 'image', cover: true, placeholder: 'collection-3', img_object: _settings.before_image %}
+    </div>
+
+    <div class="z-10 w-full h-full overflow-hidden">
+      {%- assign container_wh_ratio = _settings.after_image.aspect_ratio | default: 2.0 -%}
+      {% render 'image', placeholder: 'collection-4', class: 'z-10', wh_ratio: container_wh_ratio, img_object: _settings.after_image %}
+    </div>
+  </div>
+</div>

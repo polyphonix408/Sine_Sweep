@@ -1,0 +1,360 @@
+<!-- /sections/section-map.liquid -->
+
+{%- liquid
+  assign display_map = false
+
+  if section.settings.api_key != blank and section.settings.map_address
+    assign display_map = true
+  endif
+
+  if section.settings.height == 'use_image'
+    assign padding_ratio = 1 | divided_by: section.settings.image.aspect_ratio | times: 100 | append: '%'
+  endif
+
+  assign animation_anchor = "[data-section-id='" | append: section.id | append: "']"
+-%}
+
+{%- capture srcset -%}
+  {%- render 'image-grid-srcset',
+      image: section.settings.image,
+      columns_desktop: 2,
+      columns_tablet: 2,
+      columns_mobile: 1.0,
+      section_width: section.settings.width
+  %}
+{%- endcapture -%}
+
+{%- capture sizes -%}
+  {%- render 'image-grid-sizes',
+      columns_desktop: 2,
+      columns_tablet: 2,
+      columns_mobile: 1.0,
+      section_width: section.settings.width
+  %}
+{%- endcapture -%}
+
+<div class="map-section section-padding"
+     data-section-id="{{ section.id }}"
+     data-section-type="section-map"
+     data-style="{{ section.settings.style }}"
+     data-zoom="{{ section.settings.zoom }}"
+     data-address="{{ section.settings.map_address | escape }}"
+     data-api-key="{{ section.settings.api_key }}"
+     data-latlong-correction="{{ section.settings.enable_latlong }}"
+     data-lat="{{ section.settings.lat }}"
+     data-long="{{ section.settings.long }}"
+     style="--padding-ratio: {{ padding_ratio | default: '100%' }};
+            --PT: {{ section.settings.padding_top }}px;
+            --PB: {{ section.settings.padding_bottom }}px;">
+  <div class="{{ section.settings.width }}">
+    <div class="brick__section {{ section.settings.height }}" data-overflow-wrapper>
+      {% if section.settings.heading != blank or section.settings.address != blank or section.settings.button != blank and section.settings.map_address != blank %}
+        <div class="brick__block {{ section.settings.bg }}" {{ block.shopify_attributes }}>
+          <div class="brick__block__text text-center" data-overflow-frame>
+            <div class="brick__block__text__inner" data-overflow-content>
+              <div class="text__standard">
+                {% if section.settings.heading != blank %}
+                  <h2 class="kicker-flourished mb-r8"
+                    data-aos="hero"
+                    data-aos-anchor="{{ animation_anchor }}"
+                    data-aos-order="1">
+                      {{ section.settings.heading | escape }}
+                    </h2>
+                {% endif %}
+                {% if section.settings.address != blank %}
+                  <div class="rte body-size-4"
+                    data-aos="hero"
+                    data-aos-anchor="{{ animation_anchor }}"
+                    data-aos-order="2">
+                    {{ section.settings.address }}
+                  </div>
+                {% endif %}
+                {% if section.settings.button != blank and section.settings.map_address != blank %}
+                  <p
+                    data-aos="hero"
+                    data-aos-anchor="{{ animation_anchor }}"
+                    data-aos-order="3">
+                    <a href="https://maps.google.com?daddr={{ section.settings.map_address | escape | replace: ' ', '+' }}" target="_blank" rel="noopener" class="{{ section.settings.button_style }} btn--small">
+                    {{ section.settings.button | escape }}
+                    </a>
+                  </p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="brick__block" data-overflow-frame>
+        {% if display_map %}
+          <div class="map-section__container {{ section.settings.height }}" data-map-container data-overflow-background></div>
+        {% else %}
+          <div class="brick__block__image" data-overflow-background>
+            {% render 'image-parallax', img_object: section.settings.image, frame_height_class: section.settings.height, srcset: srcset, sizes: sizes %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+	"name": "Map",
+	"settings": [
+		{
+			"type": "select",
+			"id": "height",
+			"label": "Section height",
+			"default": "use_screen_one_half",
+			"options": [
+				{
+					"value": "use_screen_full",
+					"label": "Full screen height"
+				},
+				{
+					"value": "use_screen_two_thirds",
+					"label": "Two thirds of screen height"
+				},
+				{
+					"value": "use_screen_one_half",
+					"label": "One half of screen height"
+				},
+				{
+					"value": "use_screen_one_third",
+					"label": "One third of screen height"
+				},
+				{
+					"value": "use_image",
+					"label": "Image height"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Address and directions"
+		},
+		{
+			"type": "text",
+			"id": "heading",
+			"label": "Title",
+			"default": "Our store"
+		},
+		{
+			"type": "richtext",
+			"id": "address",
+			"label": "Address and hours",
+			"default": "<p>123 Fake St.<br>Whistler, Canada</p><p>Mon - Fri, 10am - 9pm<br>Weekends, 11am - 4pm</p>"
+		},
+		{
+			"type": "text",
+			"id": "button",
+			"label": "Map link label",
+			"default": "Directions"
+		},
+		{
+			"type": "select",
+			"id": "button_style",
+			"label": "Button style",
+			"default": "btn",
+			"options": [
+				{
+					"value": "btn",
+					"label": "Solid button"
+				},
+				{
+					"value": "btn--soft",
+					"label": "Soft button"
+				},
+				{
+					"value": "btn--outline",
+					"label": "Outlined button"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "style",
+			"label": "Map style",
+			"default": "light",
+			"options": [
+				{
+					"value": "default",
+					"label": "Default"
+				},
+				{
+					"value": "light",
+					"label": "Desaturated"
+				},
+				{
+					"value": "light_blank",
+					"label": "Desaturated without labels"
+				},
+				{
+					"value": "white_label",
+					"label": "White"
+				},
+				{
+					"value": "white_blank",
+					"label": "White without labels"
+				},
+				{
+					"value": "dark_label",
+					"label": "Black"
+				},
+				{
+					"value": "dark_blank",
+					"label": "Black without labels"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "zoom",
+			"min": 1,
+			"max": 20,
+			"step": 1,
+			"label": "Zoom",
+			"info": "Low numbers are less zoomed",
+			"default": 11
+		},
+		{
+			"type": "select",
+			"id": "bg",
+			"label": "Background color",
+			"default": "palette--light bg--neutral",
+			"options": [
+				{
+					"value": "palette--light bg--neutral",
+					"label": "Default"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Map"
+		},
+		{
+			"id": "api_key",
+			"type": "text",
+			"label": "Google Maps API key",
+			"info": "You’ll need to [register a Google Maps API Key](https://help.shopify.com/manual/using-themes/troubleshooting/map-section-api-key) to display the map"
+		},
+		{
+			"id": "map_address",
+			"type": "text",
+			"label": "Map address",
+			"info": "Google Maps will find the exact location",
+			"default": "4300 Main St, Whistler"
+		},
+		{
+			"type": "image_picker",
+			"id": "image",
+			"label": "Image",
+			"info": "Displayed if the map isn’t loaded"
+		},
+		{
+			"type": "header",
+			"content": "Location correction"
+		},
+		{
+			"type": "paragraph",
+			"content": "Correct the pin position if Google shows an incorrect location for your address."
+		},
+		{
+			"type": "checkbox",
+			"id": "enable_latlong",
+			"label": "Enable location correction",
+			"default": false
+		},
+		{
+			"type": "text",
+			"id": "lat",
+			"label": "Latitude",
+			"info": "Example: 21.6640"
+		},
+		{
+			"type": "text",
+			"id": "long",
+			"label": "Longitude",
+			"info": "Example: -158.0539"
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper--none",
+			"options": [
+				{
+					"value": "wrapper--none",
+					"label": "Full width"
+				},
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 0
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 0
+		}
+	],
+	"presets": [
+		{
+			"name": "Map"
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"footer",
+			"aside"
+		]
+	}
+}
+{% endschema %}

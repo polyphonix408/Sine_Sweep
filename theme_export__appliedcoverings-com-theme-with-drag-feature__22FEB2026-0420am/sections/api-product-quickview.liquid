@@ -1,0 +1,48 @@
+<div data-api-content>
+  <div class="drawer__top quickview__modal__top" data-quickview-head>
+
+    <div class="drawer__top__left">
+      {%- render 'product-title', product: product, block: block, section: section -%}
+      {%- render 'product-price', product: product, block: block, section: section -%}
+    </div>
+
+    <button class="drawer__button drawer__close"
+      data-first-focus
+      data-micromodal-close tabindex="-1"
+      aria-label="{{ 'general.accessibility.close' | t }}">
+      {% render 'icon-core-x' %}
+    </button>
+  </div>
+
+  <div class="drawer__body" data-drawer-scrolls>
+    {%- if product.media.size > 0 -%}
+      <div class="quickview__modal__images" data-product-slideshow data-slideshow-desktop-style="none" data-slideshow-mobile-style="none">
+        {% for media in product.media %}
+          {% render 'media', media: media, section: section %}
+        {% endfor %}
+      </div>
+    {%- endif -%}
+  </div>
+
+  <div class="quickview__form">
+    {%- assign uniq_id = 'quickview-form-' | append: section.id | append: '-' | append: product.id -%}
+
+    {% capture form_attr %}form="uniq_id"{% endcapture %}
+    {%- render 'sibling-color-as-line-prop' product: product, attributes: form_attr -%}
+
+    <div class="product__form__outer product__align-left">
+      <button type="button" class="quickview__form__toggle btn standard__cta is-active hide" data-toggle-button>
+        <span>{{ 'products.general.hide_options' | t }}</span>
+        <span>{{ 'products.general.show_options' | t }}</span>
+      </button>
+
+      <div class="quickview__form__wrapper is-expanded" data-quickview-form-area data-product-form-wrapper>
+        {%- render 'product-variant-options' product: product, uniq_id: uniq_id -%}
+        {%- render 'product-subscription' product: product, uniq_id: uniq_id, enable: true -%}
+        {%- render 'product-buttons' product: product, uniq_id: uniq_id -%}
+      </div>
+
+    </div>
+
+  </div>
+</div>

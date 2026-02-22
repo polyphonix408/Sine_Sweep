@@ -1,0 +1,151 @@
+{%- if block.settings.border_width > 0 -%}
+  {% capture class %}
+    {%- case  block.settings.inset -%}
+      {%- when '0' -%}
+        [--inset:0px]
+      {%- when 'xs' -%}
+        [--inset:--grid-xs]
+      {%- when 'sm' -%}
+        [--inset:--grid-sm]
+      {%- when 'md' -%}
+        [--inset:--grid-md]
+      {%- when 'lg' -%}
+        [--inset:--grid-lg]
+      {%- when 'xl' -%}
+        [--inset:--grid-xl]
+    {%- endcase %}
+    inset-[--inset]
+  {% endcapture %}
+{%- endif -%}
+
+<div
+  class="absolute overflow-hidden inset-0"
+  {{ block.shopify_attributes }}
+>
+  <div
+    class="w-full h-full relative z-10"
+    role="presentation"
+    aria-hidden="true"
+  >
+    {% comment %} Frame {% endcomment %}
+    {%  if block.settings.border_width > 0 %}
+      <div
+        class="absolute overflow-hidden z-30 {{ class }}"
+        style="
+          border-width: {{ block.settings.border_width }}px;
+          border-color: {{ block.settings.border_color }};
+        "
+      ></div>
+    {% endif %}
+
+    {% comment %} Overlay {% endcomment %}
+    {%- if block.settings.overlay_opacity > 0 -%}
+      <div
+        class="absolute overflow-hidden inset-0 z-20"
+        style="
+          opacity: {{ block.settings.overlay_opacity | divided_by: 100.0 }};
+          background-color: {{ block.settings.overlay_color }};
+        "
+      ></div>
+    {%- endif -%}
+
+    <div class="absolute inset-0 reverse-z-stack z-10">
+      {% content_for "blocks" %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+	"name": "Background",
+	"tag": null,
+	"settings": [
+		{
+			"type": "header",
+			"content": "Overlay"
+		},
+		{
+			"type": "range",
+			"id": "overlay_opacity",
+			"label": "Opacity",
+			"min": 0,
+			"max": 100,
+			"step": 1,
+			"default": 15
+		},
+		{
+			"type": "color",
+			"id": "overlay_color",
+			"label": "Color",
+			"default": "#000000"
+		},
+		{
+			"type": "header",
+			"content": "Border"
+		},
+		{
+			"type": "range",
+			"id": "border_width",
+			"label": "Width",
+			"unit": "px",
+			"min": 0,
+			"max": 10,
+			"step": 0.5,
+			"default": 0
+		},
+		{
+			"type": "select",
+			"id": "inset",
+			"label": "Inset",
+			"default": "0",
+			"options": [
+				{
+					"value": "0",
+					"label": "0"
+				},
+				{
+					"value": "sm",
+					"label": "S"
+				},
+				{
+					"value": "md",
+					"label": "M"
+				},
+				{
+					"value": "lg",
+					"label": "L"
+				},
+				{
+					"value": "xl",
+					"label": "XL"
+				}
+			]
+		},
+		{
+			"type": "color",
+			"id": "border_color",
+			"label": "Color",
+			"default": "#000000"
+		},
+	],
+	"blocks": [
+		{
+			"type": "_background-pattern-text"
+		},
+		{
+			"type": "_background-collage-image"
+		},
+		{
+			"type": "_background-split"
+		},
+		{
+			"type": "_background-marquee"
+		}
+	],
+	"presets": [
+		{
+			"name": "Background"
+		}
+	]
+}
+{% endschema %}

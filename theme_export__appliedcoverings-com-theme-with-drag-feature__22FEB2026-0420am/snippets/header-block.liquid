@@ -1,0 +1,151 @@
+<!-- /snippets/header-block.liquid -->
+
+{% comment %}
+Header block content, used in both mobile header and desktop header.
+
+Accepts a block, returns the content to render for that block.
+Collection blocks will render multiple product-grid-item divs.
+
+Required params:
+* block: the block that should be rendered.
+
+{% render 'header-block', block: block %}
+
+{% endcomment %}
+
+{%- unless section.settings.full_width -%}
+  {%- assign section_width = 'wrapper' -%}
+{%- endunless -%}
+{%- assign mobile = mobile | default: false -%}
+{%- assign block_show = false -%}
+{%- assign column_count = column_count | at_most: 3 -%}
+{%- assign display = block.settings.display | default: 'all' -%}
+{%- if mobile and display != 'desktop' -%}
+  {%- assign block_show = true -%}
+{%- elsif mobile == false and display != 'mobile' -%}
+  {%- assign block_show = true -%}
+{%- endif -%}
+
+{%- unless block_show -%}
+  {%- continue -%}
+{%- endunless -%}
+
+{% case block.type %}
+  {% when 'image' %}
+    <div {{ block.shopify_attributes }}{% if block.settings.wide_element %} class="header__dropdown__element--wide"{% endif %}>
+      <div class="header__dropdown__image section--image {{ block.settings.button_style }}" data-header-image>
+        <div class="header__dropdown__image__holder">
+          {%- if block.settings.link != blank -%}<a href="{{ block.settings.link }}" class="link-over-image" {% if block.settings.link.object.title %} aria-label="{{ block.settings.link.object.title | strip_html | escape }}"{% endif %}>{%- endif -%}
+          <div class="hero__content__wrapper align--middle-center">
+            <div class="backdrop--wide"
+              style="--bg: {{ block.settings.overlay_color }}; --opacity: {{ block.settings.overlay_opacity | times: 0.01 }};">
+              {% unless block.settings.title == '' %}
+                <h2 class="hero__title heading-size-7 {{ block.settings.title_color }}">
+                  {{ block.settings.title | escape }}
+                </h2>
+              {% endunless %}
+
+              {%- if block.settings.button_style == 'text-button' and block.settings.link_text != blank -%}
+                <span class="hero__btn btn btn--small {{ block.settings.button_color }}">
+                  {{ block.settings.link_text | escape }}
+                </span>
+              {%- endif -%}
+            </div>
+          </div>
+
+          {%- if block.settings.link != blank -%}</a>{%- endif -%}
+
+          {% assign image_column_count = column_count %}
+
+          {% if block.settings.wide_element %}
+            {% assign image_column_count = 2 %}
+          {% endif %}
+
+          {%- capture sizes -%}
+            {%- render 'image-grid-sizes',
+              columns_desktop: image_column_count,
+              columns_tablet: image_column_count,
+              columns_mobile: 1,
+              section_width: section_width
+            %}
+          {%- endcapture -%}
+
+          {%- render 'image',
+            cover: true
+            img_object: block.settings.image,
+            wh_ratio: block.settings.wh_ratio
+            sizes: sizes,
+            loading: 'lazy'
+          -%}
+
+          {%- if block.settings.button_style == 'is-on-image' and block.settings.link_text != blank -%}
+            <div class="header__dropdown__actions text-center">
+              <span class="text-btn-arrow-right {{ block.settings.button_color }}">
+                {{ block.settings.link_text | escape }}
+              </span>
+            </div>
+          {%- endif -%}
+        </div>
+
+        {%- if block.settings.button_style == 'is-below-image' and block.settings.link_text != blank -%}
+          <div class="header__dropdown__actions">
+            {%- if block.settings.link != blank -%}
+              <a href="{{ block.settings.link }}" class="text-btn-arrow-right {{ block.settings.button_color }}">
+                {{ block.settings.link_text | escape }}
+              </a>
+            {%- else -%}
+              <span class="text-btn-arrow-right {{ block.settings.button_color }}">
+                {{ block.settings.link_text | escape }}
+              </span>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+
+  {% when 'product' %}
+    {% assign product = all_products[block.settings.product] %}
+    <div {{ block.shopify_attributes }}{% if block.settings.wide_element %} class="header__dropdown__element--wide"{% endif %}>
+      {% if product.empty? %}
+        {% render 'onboarding-product-grid-item' %}
+      {% else %}
+        {% assign product_column_count = column_count %}
+
+        {% if block.settings.wide_element %}
+          {% assign product_column_count = 2 %}
+        {% endif %}
+
+        {%
+          render 'product-grid-item',
+            product: product,
+            columns_desktop: product_column_count,
+            columns_tablet: product_column_count,
+            columns_mobile: 1,
+            section_width: section_width
+        %}
+      {% endif %}
+    </div>
+
+  {% when 'collection' %}
+    {%- assign collection = collections[block.settings.collection] -%}
+    {% for product in collection.products limit: block.settings.limit %}
+      <div {{ block.shopify_attributes }}{% if block.settings.wide_element %} class="header__dropdown__element--wide"{% endif %}>
+        {% assign product_column_count = column_count %}
+
+        {% if block.settings.wide_element %}
+          {% assign product_column_count = 2 %}
+        {% endif %}
+
+        {%
+          render 'product-grid-item',
+            product: product,
+            columns_desktop: product_column_count,
+            columns_tablet: product_column_count,
+            columns_mobile: 1,
+            section_width: section_width
+        %}
+      </div>
+    {% else %}
+      {% render 'onboarding-product-grid-item', limit: block.settings.limit, block: block %}
+    {% endfor %}
+{% endcase %}

@@ -1,0 +1,133 @@
+<!-- /snippets/nav-item-mobile.liquid -->
+
+{%- liquid
+  assign expands = false
+  assign block_count = 0
+  assign link_level = link_level | default: 0
+  assign link_level_next = link_level | plus: 1
+
+  # we loop through this snippet in the secondary menu, but blocks are not shown there
+  assign show_block_content = true
+  if secondary_menu
+    assign show_block_content = false
+  endif
+
+
+  if section and show_block_content
+    assign index = index | append: ""
+    for block in section.blocks
+      if block.settings.position == index
+        assign display = block.settings.display | default: 'all'
+        if display == 'desktop'
+          continue
+        endif
+
+        if block.type == 'collection'
+          assign block_count = block_count | plus: block.settings.limit
+        else
+          assign block_count = block_count | plus: 1
+        endif
+      endif
+    endfor
+  endif
+
+
+  if link.levels > 0 or block_count > 0
+    assign expands = true
+    assign key = link.url | append: link.title | append: link.levels | append: index | md5
+  endif
+
+  assign link_title_handle = link.title | handle
+  assign highlight_links = 'general.header.highlight_links' | t | strip | split: ',' | join: '___' | handle | replace: '___-', '___' | replace: '-___', '___' | split: '___'
+  assign collections_string = '/collections/'
+-%}
+
+{%- capture link_markup -%}
+  {%- if link.url == "#" -%}
+    <span class="sliderow__title{% if secondary_menu %} sliderow__title--secondary{% endif %}{% if highlight_links contains link_title_handle %} highlight--link{% endif %}" >{{ link.title | strip_html | escape }}</span>
+  {%- else -%}
+    <a class="sliderow__title{% if secondary_menu %} sliderow__title--secondary{% endif %}{% if highlight_links contains link_title_handle %} highlight--link{% endif %}" href="{{ link.url }}">{{ link.title | strip_html | escape }}</a>
+  {%- endif -%}
+{%- endcapture -%}
+
+<div class="sliderule__wrapper{% if secondary_menu %} sliderule__wrapper--secondary{% endif %}">
+  {%- if expands -%}
+    <button class="sliderow{% if secondary_menu %} sliderow--secondary{% endif %}"
+      data-animates="{{ link_level }}"
+      data-sliderule-open="sliderule-{{ key }}">
+      <span class="sliderow__title{% if highlight_links contains link_title_handle %} highlight--link{% endif %}">{{ link.title | strip_html | escape }}</span>
+      <span class="sliderule__chevron--right">
+        {% render 'icon-core-chevron-right' %}
+        <span class="visually-hidden">{{ 'general.accessibility.expand_menu' | t }}</span>
+      </span>
+    </button>
+
+    <div class="mobile__menu__dropdown sliderule__panel"
+      data-sliderule
+      id="sliderule-{{ key }}">
+
+      {%- assign image_html = '' -%}
+      {%- if link_level_next == 2 and section.settings.show_collection_images and link.url contains collections_string -%}
+        {%- assign collection_string = link.url | split: collections_string | last -%}
+        {%- assign collection_obj = collections[collection_string] -%}
+
+        {%- if collection_obj.image != blank -%}
+          {%- capture image_html -%}
+            <div class="sliderule__image" data-animates>
+              {%- render 'image',
+                cover: true,
+                img_object: collection_obj.image,
+                wh_ratio: section.settings.collection_wh_ratio,
+                sizes: '100vw',
+                loading: 'lazy'
+              -%}
+            </div>
+          {%- endcapture -%}
+        {%- endif -%}
+      {%- endif -%}
+
+      <div class="sliderow{% if image_html != '' %} sliderow--borderless{% endif %} sliderow__back" data-animates="{{ link_level_next }}">
+        <button class="drawer__button"
+          data-sliderule-close="sliderule-{{ key }}">
+          <span class="sliderule__chevron--left">
+            {% render 'icon-core-chevron-left' %}
+            <span class="visually-hidden">{{ 'general.accessibility.hide_menu' | t }}</span>
+          </span>
+        </button>
+        {{ link_markup }}
+      </div>
+
+      {%- if image_html != '' -%}
+        {{ image_html }}
+      {%- endif -%}
+
+      <div class="sliderow__links" data-links>
+        {% for link in link.links %}
+          {% comment %}
+            Handle case where multiple child menus
+            have an item called 'sale' in position 1
+          {% endcomment %}
+          {% assign index_recursive = index | append: 'x' | append: forloop.index %}
+          {% render 'nav-item-mobile', link: link, index: index_recursive, link_level: link_level_next %}
+        {% endfor %}
+      </div>
+
+      {%- if section and show_block_content -%}
+        <div class="sliderule-grid blocks-{{ block_count }}">
+          {% for block in section.blocks %}
+            {% comment %} Render block content {% endcomment %}
+            {%- if block.settings.position == index -%}
+              {% render 'header-block', block: block, mobile: true %}
+            {%- endif -%}
+          {% endfor %}
+        </div>
+      {%- endif -%}
+
+    </div>
+  {%- else -%}
+    {% comment %} Single menu item, no nesting {% endcomment %}
+    <div class="sliderow" data-animates="{{ link_level }}">
+      {{ link_markup }}
+    </div>
+  {%- endif -%}
+</div>

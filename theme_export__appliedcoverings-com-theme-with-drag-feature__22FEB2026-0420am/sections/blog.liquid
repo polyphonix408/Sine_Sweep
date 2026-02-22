@@ -1,0 +1,388 @@
+<!-- /sections/blog.liquid -->
+{% case section.settings.post_grid %}
+  {% when 1 %}
+    {% assign blog_grid = 'medium-up--three-quarters medium-up--push-one-eighth' %}
+  {% when 2 %}
+    {% assign blog_grid = 'medium-up--one-half' %}
+  {% when 3 %}
+    {% assign blog_grid = 'medium-up--one-third' %}
+{% endcase %}
+{% assign items = section.settings.rows | times: section.settings.post_grid %}
+
+{% paginate blog.articles by items %}
+
+{% comment %}
+  This template is also used for listing out articles of a specific tag.
+  You can change layouts or styles by checking if current_tags is true.
+{% endcomment %}
+<div data-section-id="{{ section.id }}"
+  data-section-type="blog"
+  style="--PT: {{ section.settings.padding_top }}px; --PB: {{ section.settings.padding_bottom }}px;">
+  {% if section.settings.image %}
+    <div class="section--image fade-in-child js-overflow-container {{ section.settings.text_color }}"
+    {% if section.settings.width == "wrapper--none" and section.settings.padding_top == 0 %} data-overlay-header {% endif %} >
+      <div class="hero__content__wrapper align--middle-center">
+        <div class="hero__content js-overflow-content {% if section.settings.enable_overlay_text %} backdrop--hero{% endif %}" {% if section.settings.enable_overlay_text %} style="--bg: {{ section.settings.overlay_color }}; --opacity: {{ section.settings.overlay_opacity | times: 0.01 }};"{% endif %}>
+          {% if current_tags %}
+            <h1 class="hero__title heading-size-8">{{ current_tags.first }}</h1>
+          {% else %}
+            <h1 class="hero__title heading-size-8">{{ section.settings.heading | default: blog.title }}</h1>
+          {% endif %}
+        </div>
+      </div>
+
+      {% unless section.settings.enable_overlay_text %}
+        <div class="image-overlay" style="--bg:{{ section.settings.overlay_color }}; opacity:{{ section.settings.overlay_opacity | times: 0.01 }};"></div>
+      {% endunless %}
+      {%- assign alt = section.settings.image.alt | default: 'Banner Image' -%}
+      {% render 'image-parallax', img_object: section.settings.image, frame_height_class: section.settings.image_height, preload: true, loading: 'eager', fetchpriority: 'high', alt: alt %}
+    </div>
+  {% endif %}
+
+  <div class="blog section-padding">
+    <div class="{{ section.settings.width }}">
+      {% if section.settings.show_heading %}
+        <h4 class="blog__heading {{ section.settings.text_align }}">
+          {{ section.settings.heading | default: blog.title }}
+        </h4>
+      {% endif %}
+
+      {% if section.settings.tags %}
+        <div class="blog__tags {{ section.settings.text_align }}">
+          {% if section.settings.tag_label %}
+            <p>
+              <strong>{{ section.settings.tag_label }}</strong>
+            </p>
+          {% endif %}
+
+          {% if blog.all_tags.size > 1 %}
+            <div class="blog__tags-wrapper" data-scrollbar data-scrollbar-slider>
+              <a class="blog__tag{% if current_tags == blank %} blog__tag--active btn--soft btn--primary{% endif %}" href="{{ blog.url }}">{{ 'blogs.article.all' | t }}</a>
+
+              {% for tag in blog.all_tags %}
+                {% assign is_active = '' %}
+                {% for current_tag in current_tags %}
+                  {% if current_tag == tag %}
+                    {% assign is_active = ' blog__tag--active btn--soft btn--primary' %}
+                  {% endif %}
+                {% endfor %}
+
+                <a class="blog__tag{{ is_active }}" href="{{ blog.url }}/tagged/{{ tag | handleize }}">{{ tag }}</a>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <div class="float-grid">
+        <div class="grid__item one whole">
+          <div class="float-grid grid--uniform">
+            {% for article in blog.articles %}
+              <div class="grid__item {{ blog_grid }}">
+                {% render 'article-grid-item',
+                  article: article,
+                  wh_ratio: section.settings.wh_ratio,
+                  show_author: section.settings.show_author,
+                  show_preview: section.settings.show_preview,
+                  show_link: section.settings.show_link,
+                  show_tags: section.settings.show_tags,
+                  show_date: section.settings.show_date,
+                  section_columns: section.settings.post_grid,
+                  section_width: section.settings.width
+                %}
+              </div>
+            {% endfor %}
+          </div>
+
+          {% if paginate.pages > 1 %}
+            <div class="text-center">
+              {% render 'pagination-custom', paginate: paginate %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endpaginate %}
+
+
+{% schema %}
+{
+	"name": "Blog",
+	"settings": [
+		{
+			"type": "text",
+			"id": "heading",
+			"label": "Title",
+			"default": "News"
+		},
+		{
+			"type": "checkbox",
+			"id": "show_heading",
+			"default": true,
+			"label": "Show heading"
+		},
+		{
+			"type": "text",
+			"id": "tag_label",
+			"label": "Tags label"
+		},
+		{
+			"type": "checkbox",
+			"id": "tags",
+			"default": false,
+			"label": "Show tags"
+		},
+		{
+			"type": "select",
+			"id": "text_align",
+			"label": "Title alignment",
+			"default": "text-left",
+			"options": [
+				{
+					"value": "text-left",
+					"label": "Left"
+				},
+				{
+					"value": "text-center",
+					"label": "Center"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Article grid"
+		},
+		{
+			"type": "range",
+			"id": "post_grid",
+			"min": 1,
+			"max": 3,
+			"step": 1,
+			"label": "Posts per row",
+			"default": 3
+		},
+		{
+			"type": "range",
+			"id": "rows",
+			"label": "Rows",
+			"min": 1,
+			"max": 10,
+			"step": 1,
+			"default": 3
+		},
+		{
+			"type": "range",
+			"id": "wh_ratio",
+			"min": 0.5,
+			"max": 5,
+			"step": 0.1,
+			"unit": ":1",
+			"label": "Image scaling ratio",
+			"default": 1.7
+		},
+		{
+			"type": "checkbox",
+			"id": "show_author",
+			"label": "Show author",
+			"default": true
+		},
+		{
+			"type": "checkbox",
+			"id": "show_tags",
+			"label": "Show tags",
+			"default": true
+		},
+		{
+			"type": "checkbox",
+			"id": "show_date",
+			"label": "Show date",
+			"default": true
+		},
+		{
+			"type": "checkbox",
+			"id": "show_preview",
+			"label": "Show article excerpt",
+			"default": true
+		},
+		{
+			"type": "checkbox",
+			"id": "show_link",
+			"label": "Show read more link",
+			"default": true
+		},
+		{
+			"type": "header",
+			"content": "Featured image"
+		},
+		{
+			"type": "image_picker",
+			"id": "image",
+			"label": "Banner image"
+		},
+		{
+			"type": "range",
+			"id": "overlay_opacity",
+			"min": 0,
+			"max": 100,
+			"step": 5,
+			"label": "Image overlay opacity",
+			"info": "Increase contrast for legible text.",
+			"default": 30
+		},
+		{
+			"type": "color",
+			"id": "overlay_color",
+			"label": "Overlay color",
+			"default": "#000"
+		},
+		{
+			"type": "checkbox",
+			"id": "enable_overlay_text",
+			"label": "Overlay behind text only",
+			"default": false
+		},
+		{
+			"type": "select",
+			"id": "image_height",
+			"label": "Image height",
+			"default": "use_screen_one_third",
+			"options": [
+				{
+					"value": "use_screen_full",
+					"label": "Full screen height"
+				},
+				{
+					"value": "use_screen_three_quarters",
+					"label": "Three quarters of screen height"
+				},
+				{
+					"value": "use_screen_two_thirds",
+					"label": "Two thirds of screen height"
+				},
+				{
+					"value": "use_screen_one_half",
+					"label": "One half of screen height"
+				},
+				{
+					"value": "use_screen_one_third",
+					"label": "One third of screen height"
+				},
+				{
+					"value": "use_screen_one_fifth",
+					"label": "One fifth of screen height"
+				},
+				{
+					"value": "use_pixels_800",
+					"label": "800px"
+				},
+				{
+					"value": "use_pixels_650",
+					"label": "650px"
+				},
+				{
+					"value": "use_pixels_500",
+					"label": "500px"
+				},
+				{
+					"value": "use_image",
+					"label": "Image height"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "text_color",
+			"label": "Text color",
+			"default": "text--white",
+			"options": [
+				{
+					"value": "text--neutral",
+					"label": "Normal text"
+				},
+				{
+					"value": "text--white",
+					"label": "White"
+				},
+				{
+					"value": "text--primary",
+					"label": "Primary accent"
+				},
+				{
+					"value": "text--secondary",
+					"label": "Secondary accent"
+				},
+				{
+					"value": "text--black",
+					"label": "Black"
+				},
+				{
+					"value": "text--invert--primary",
+					"label": "Primary dark accent"
+				},
+				{
+					"value": "text--invert--secondary",
+					"label": "Secondary dark accent"
+				},
+				{
+					"value": "text--invert",
+					"label": "Inverted text color"
+				},
+				{
+					"value": "text--bright--primary",
+					"label": "Primary bright accent"
+				},
+				{
+					"value": "text--bright--secondary",
+					"label": "Secondary bright accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper",
+			"options": [
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				},
+				{
+					"value": "wrapper--narrow",
+					"label": "Page width narrow"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 36
+		}
+	]
+}
+{% endschema %}

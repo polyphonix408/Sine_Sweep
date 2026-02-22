@@ -1,0 +1,67 @@
+{%- comment -%}
+  * Reorder the media in a String list using media.position e.g.  5,6,9,10,2,4,7,1,3,8
+  *  product {object}- The product with media attribute
+  *  order {boolean} - Disable or Enable the order
+  {% render 'order-media', product: product, order: true %}
+
+  The alt text format #[group]_[variant]
+  Examples:
+  #color_pink
+  #color_olive-green
+  blabla #color_grey
+  #color_grey blabla
+
+{%- endcomment -%}
+{%- liquid
+
+  #Get list of similar alt text for group images
+  assign filter_alt_text_list = '' | split: ','
+  if order and product.media.size > 0
+    assign all_alt_text = product.media | map: "alt"
+    for alt_text in all_alt_text
+      assign alt_text = alt_text | strip_html
+      assign alt_text_parts = alt_text | split: '#'
+      assign alt_text_option = ''
+      if alt_text contains '#' and alt_text contains '_' and alt_text_parts.size == 2
+        #Split using ' ' incase alt text is added after the format #[group]_[variant]
+        assign alt_text_option = alt_text_parts | last | split: ' ' | first
+        unless filter_alt_text_list contains alt_text_option
+          assign alt_text_option = alt_text_option | split: ','
+          assign filter_alt_text_list = filter_alt_text_list | concat: alt_text_option
+        endunless
+      endif
+    endfor
+  endif
+
+  #Product media order from the filter alt text list
+  assign media_list = '' | split: ','
+  assign filter_alt_text_list_parts = filter_alt_text_list | compact | uniq
+  for filter_alt_text in filter_alt_text_list_parts
+    #Add the variant image first to ensure it starts the list group segments
+    for variant in product.variants
+      assign alt_text = variant.featured_media.alt | strip_html
+      if alt_text contains filter_alt_text
+        assign media_array = variant.featured_media.position | split: ','
+        assign media_list = media_list | concat: media_array
+      endif
+    endfor
+    for media in product.media
+      unless media_list contains media.position
+        assign alt_text = media.alt | strip_html
+        if alt_text contains filter_alt_text
+          assign media_array = media.position | split: ','
+          assign media_list = media_list | concat: media_array
+        endif
+      endunless
+    endfor
+  endfor
+
+  #Add other product media to the end of the list if not in the filter list
+  for media in product.media
+    unless media_list contains media.position
+      assign media_array = media.position | split: ','
+      assign media_list = media_list | concat: media_array
+    endunless
+  endfor
+-%}
+{{- media_list | uniq | compact | join: ',' -}}

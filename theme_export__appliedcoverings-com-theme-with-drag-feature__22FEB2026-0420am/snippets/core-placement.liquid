@@ -1,0 +1,44 @@
+{%- liquid
+  assign vertical_placement = vertical_placement | default: _settings.vertical_placement
+  assign horizontal_placement = horizontal_placement | default: _settings.horizontal_placement
+  assign gap = gap | default: _settings.gap
+-%}
+
+<div
+  class="
+    flex-1
+    w-full flex flex-col
+    {% if vertical_placement %}
+      justify-{{ vertical_placement }}
+    {% endif %}
+    {% if horizontal_placement %}
+      items-{{ horizontal_placement }}
+      text-{{ horizontal_placement }}
+    {% endif %}
+    {% if gap %}
+  {%- case gap -%}
+    {%- when '0' -%}
+      [--gap:0px]
+    {%- when 'xs' -%}
+      [--gap:--grid-xs]
+    {%- when 'sm' -%}
+      [--gap:--grid-sm]
+    {%- when 'md' -%}
+      [--gap:--grid-md]
+    {%- when 'lg' -%}
+      [--gap:--grid-lg]
+    {%- when 'xl' -%}
+      [--gap:--grid-xl]
+  {%- endcase %}
+  gap-[--gap]
+{% endif %}
+    {{ class }}
+  "
+  style="
+    --content-alignment-default: {{ horizontal_placement }};
+    {{ style }}
+  "
+  {{ attributes }}
+>
+  {{ content }}
+</div>

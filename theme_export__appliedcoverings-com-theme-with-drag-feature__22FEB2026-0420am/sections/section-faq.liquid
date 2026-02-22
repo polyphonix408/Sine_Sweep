@@ -1,0 +1,286 @@
+<!-- /sections/section-faq.liquid-->
+
+<section class="section-faq {{ section.settings.text_color }} {{ section.settings.height }} {{ section.settings.bg }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="page-faq"
+  style="--PT: {{ section.settings.padding_top }}px; --PB: {{ section.settings.padding_bottom }}px;">
+  <div class="{{ section.settings.width }} section-padding">
+    <div class="text__standard" data-accordion-group>
+      {% if section.settings.title != blank %}
+        {% assign title_size_class = section.settings.title_size | prepend: 'accent-size-' %}
+        <p class="standard__kicker {{ section.settings.title_align }} {{ title_size_class }}">
+          {{ section.settings.title }}
+        </p>
+      {% endif %}
+      {% for block in section.blocks %}
+        {% assign block_id = block.id %}
+        <div class="accordion__wrapper">
+          {% assign heading_size_class = section.settings.heading_size | prepend: 'accent-size-' %}
+          <button class="accordion__title js {{ heading_size_class }}"
+            data-accordion-trigger="accordion-{{ block_id }}"
+            aria-controls="accordion-{{ block_id }}"
+            aria-haspopup="true"
+            aria-expanded="false">
+            {{ block.settings.title }}
+          </button>
+          <input type="checkbox"
+            name="accordion-{{ block_id }}--{{ forloop.index }}"
+            id="accordion-{{ block_id }}--{{ forloop.index }}-checkbox"
+            class="no-js no-js-checkbox"
+            {% if block.settings.description_expanded %}checked{% endif %}>
+
+          <label for="accordion-{{ block_id }}--{{ forloop.index }}-checkbox" class="accordion__title no-js">
+            {{ block.settings.title }}
+          </label>
+
+          {% assign font_size_class = section.settings.text_size | prepend: 'body-size-' %}
+          <div class="accordion__body no-js-accordion rte {{ font_size_class }}"
+            data-accordion-body
+            id="accordion-{{ block_id }}">
+              <span {{ block.shopify_attributes }}></span>
+              {{ block.settings.content }}
+          </div>
+        </div>
+      {% else %}
+        <div class="rte">
+          {{ 'home_page.onboarding.no_content' | t }}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+	"name": "Accordion group",
+	"settings": [
+		{
+			"type": "text",
+			"id": "title",
+			"label": "Title"
+		},
+		{
+			"type": "select",
+			"id": "title_align",
+			"label": "Title alignment",
+			"default": "text-left",
+			"options": [
+				{
+					"value": "text-left",
+					"label": "Left"
+				},
+				{
+					"value": "text-center",
+					"label": "Centered"
+				},
+				{
+					"value": "text-right",
+					"label": "Right"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "title_size",
+			"label": "Title size",
+			"min": 1,
+			"max": 15,
+			"step": 1,
+			"default": 4
+		},
+		{
+			"type": "range",
+			"id": "heading_size",
+			"label": "Heading size",
+			"min": 1,
+			"max": 15,
+			"step": 1,
+			"default": 5
+		},
+		{
+			"type": "range",
+			"id": "text_size",
+			"label": "Text size",
+			"min": 1,
+			"max": 15,
+			"step": 1,
+			"default": 5
+		},
+		{
+			"type": "header",
+			"content": "Colors"
+		},
+		{
+			"type": "select",
+			"id": "text_color",
+			"label": "Text",
+			"default": "text--neutral",
+			"options": [
+				{
+					"value": "text--neutral",
+					"label": "Normal text"
+				},
+				{
+					"value": "text--white",
+					"label": "White"
+				},
+				{
+					"value": "text--primary",
+					"label": "Primary accent"
+				},
+				{
+					"value": "text--secondary",
+					"label": "Secondary accent"
+				},
+				{
+					"value": "text--black",
+					"label": "Black"
+				},
+				{
+					"value": "text--invert--primary",
+					"label": "Primary dark accent"
+				},
+				{
+					"value": "text--invert--secondary",
+					"label": "Secondary dark accent"
+				},
+				{
+					"value": "text--invert",
+					"label": "Inverted text color"
+				},
+				{
+					"value": "text--bright--primary",
+					"label": "Primary bright accent"
+				},
+				{
+					"value": "text--bright--secondary",
+					"label": "Secondary bright accent"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "bg",
+			"label": "Background",
+			"default": "palette--light bg--neutral",
+			"options": [
+				{
+					"value": "palette--light bg--neutral",
+					"label": "Default"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper",
+			"options": [
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				},
+				{
+					"value": "wrapper--narrow",
+					"label": "Page width narrow"
+				},
+				{
+					"value": "wrapper--tiny",
+					"label": "Page width extra narrow"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 36
+		}
+	],
+	"blocks": [
+		{
+			"type": "text",
+			"name": "Text block",
+			"settings": [
+				{
+					"type": "text",
+					"id": "title",
+					"label": "Title",
+					"default": "Frequently asked question"
+				},
+				{
+					"id": "content",
+					"type": "richtext",
+					"label": "Text",
+					"default": "<p>Share details about your shipping policies, item returns, or customer service.</p>"
+				}
+			]
+		}
+	],
+	"presets": [
+		{
+			"name": "Accordion group",
+			"blocks": [
+				{
+					"type": "text"
+				},
+				{
+					"type": "text"
+				},
+				{
+					"type": "text"
+				}
+			]
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"footer",
+			"aside"
+		]
+	}
+}
+{% endschema %}

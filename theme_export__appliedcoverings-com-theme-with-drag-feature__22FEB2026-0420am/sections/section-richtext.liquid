@@ -1,0 +1,3164 @@
+<!-- /sections/section-richtext.liquid-->
+{%- assign animation_anchor = "[data-section-id='" | append: section.id | append: "']" -%}
+{%- assign flex_horizontal_position = 'flex-start' -%}
+
+{%- if section.settings.align_text == 'text-center' -%}
+  {%- assign flex_horizontal_position = 'center' -%}
+{% elsif section.settings.align_text == 'text-right' %}
+  {%- assign flex_horizontal_position = 'flex-end' -%}
+{%- endif -%}
+
+  <section class="{{ section.settings.text_color }} {{ section.settings.bg }}"
+    data-section-id="{{ section.id }}"
+    data-section-type="rich-text"
+    style="
+      --PT: {{ section.settings.padding_top }}px;
+      --PB: {{ section.settings.padding_bottom }}px;
+      --FLEX-POSITION: {{ flex_horizontal_position }};
+      --CONTENT-WIDTH: {{ section.settings.content_width }}px;">
+    <div class="{{ section.settings.width }} section-padding">
+      <div class="text__standard {{ section.settings.align_text }}">
+        {%- assign elements_counter = 0 -%}
+
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when 'kicker' -%}
+              {%- assign elements_counter = elements_counter | plus: 1 -%}
+              {%- assign font_size_class = block.settings.text_size | prepend: 'accent-size-' -%}
+              {%- assign flourish_class = '' -%}
+              {%- if block.settings.enable_line -%}
+                {%- assign flourish_class = 'block__kicker--flourished mb-r5' -%}
+              {%- endif -%}
+              <div class="standard__kicker {{ font_size_class }} {{ flourish_class }}"
+                data-aos="hero"
+                data-aos-anchor="{{ animation_anchor }}"
+                data-aos-order="{{ elements_counter }}"
+                {{ block.shopify_attributes }}>
+                <p>{{ block.settings.kicker }}</p>
+              </div>
+            {%- when 'heading' -%}
+              {%- assign heading_size_class = block.settings.text_size | prepend: 'heading-size-' -%}
+              {%- assign elements_counter = elements_counter | plus: 1 -%}
+              <div class="standard__heading {{ heading_size_class }}"
+                data-aos="hero"
+                data-aos-anchor="{{ animation_anchor }}"
+                data-aos-order="{{ elements_counter }}"
+                {{ block.shopify_attributes }}>
+                <p>{{ block.settings.heading }}</p>
+              </div>
+            {%- when 'text' -%}
+              {%- assign font_size_class = block.settings.text_size | prepend: 'body-size-' -%}
+              {%- assign text_columns_class = block.settings.text_columns | prepend: 'columns--' -%}
+              {%- assign characters = section.settings.text | size -%}
+              {%- assign justify_class = '' -%}
+              {%- if characters > 400 and section.settings.align_text == 'text-center' and block.settings.text_columns > 1 -%}
+                {%- assign justify_class = 'text-justify' -%}
+              {%- endif -%}
+              {%- assign elements_counter = elements_counter | plus: 1 -%}
+              <div class="rte {{ font_size_class }} {{ text_columns_class }} {{ justify_class }}"
+                data-aos="hero"
+                data-aos-anchor="{{ animation_anchor }}"
+                data-aos-order="{{ elements_counter }}"
+                {{ block.shopify_attributes }}>
+                {{ block.settings.text }}
+              </div>
+            {%- when 'button' -%}{% assign buttons_markup = '' %}
+
+{% for i in (1..3) %}
+  {% assign btn_text = 'link_text_' | append: forloop.index %}
+  {% assign btn_text = block.settings[btn_text] %}
+
+  {% assign btn_link = 'link_' | append: forloop.index %}
+  {% assign btn_link = block.settings[btn_link] %}
+
+  {% assign btn_size = 'button_size_' | append: forloop.index %}
+  {% assign btn_size = block.settings[btn_size] %}
+
+  {% assign btn_style = 'button_style_' | append: forloop.index %}
+  {% assign btn_style = block.settings[btn_style] %}
+
+  {% assign btn_color = 'button_color_' | append: forloop.index %}
+  {% assign btn_color = block.settings[btn_color] %}
+
+  {% if btn_text != blank %}
+    {% assign elements_counter = elements_counter | plus: 1 %}
+
+    {% capture buttons_markup %}
+      {{ buttons_markup }}
+
+      <a
+        class="standard__cta hero__btn {{ btn_style }} {{ btn_color }} {{ btn_size }}"
+        href="{{ btn_link | default: '#' }}"
+        data-aos="hero"
+        data-aos-anchor="{{ animation_anchor }}"
+        data-aos-order="{{ elements_counter }}">
+        {{ btn_text | escape }}
+      </a>
+    {% endcapture %}
+  {% endif %}
+{% endfor %}
+
+<div class="hero__cta__wrapper" {{ block.shopify_attributes }}>
+  {{ buttons_markup }}
+</div>{%- when 'icon' -%}
+              {%- assign elements_counter = elements_counter | plus: 1 -%}
+              {% render 'standard-icon-block', section: section, block: block, forloop: forloop, aos_anchor: animation_anchor %}
+            {%- when 'icon-text' -%}
+              {%- assign elements_counter = elements_counter | plus: 1 -%}
+              {% render 'standard-icon-block', section: section, block: block, forloop: forloop, aos_anchor: animation_anchor %}
+            {%- when 'image' -%}
+              {%- assign elements_counter = elements_counter | plus: 1 -%}
+              <div class="standard__image"
+                data-aos="hero"
+                data-aos-anchor="{{ animation_anchor }}"
+                data-aos-order="{{ elements_counter }}"
+                {{ block.shopify_attributes }}
+                style="max-width: {{ block.settings.image_max_limit | append: 'px' }};">
+                {%- if block.settings.link != blank -%}
+                  <a href="{{- block.settings.link -}}">
+                {%- endif -%}
+
+                {% assign image_width = block.settings.image.width | at_most: block.settings.image_max_limit %}
+                {% assign image_width_2x = image_width | times: 2 %}
+
+                {% capture srcset %}
+                  {{ block.settings.image | image_url: width: image_width_2x }} 2x,
+                  {{ block.settings.image | image_url: width: image_width }}
+                {% endcapture %}
+
+                {%- render 'image' img_object: block.settings.image, srcset: srcset, width: image_width -%}
+
+                {%- if block.settings.link != blank -%}
+                  </a>
+                {%- endif -%}
+              </div>
+            {% when 'countdown' %}
+              {%- render 'countdown-timer',
+                end_date: block.settings.end_date,
+                end_time: block.settings.end_time,
+                period: block.settings.period,
+                digit_size: block.settings.digit_size,
+                digit_size_mobile: block.settings.digit_size_mobile,
+                end_message: block.settings.end_message,
+                hide_on_complete: block.settings.hide_on_complete,
+                animation_order: elements_counter,
+                animation_anchor: animation_anchor
+              -%}
+            {% when 'spacer' %}
+              {%- assign elements_counter = elements_counter | plus: 1 -%}
+              <div class="standard__spacer{% if block.settings.show_line %} standard__spacer--line{% endif %}"
+                data-aos="hero"
+                data-aos-anchor="{{ animation_anchor }}"
+                data-aos-order="{{ elements_counter }}"
+                style="--padding: {{ block.settings.spacer_padding | divided_by: 2 }}px;"
+                {{ block.shopify_attributes }}></div>
+            {% when 'list' %}
+              <div class="standard__cta__wrapper" {{ block.shopify_attributes }}>
+                {%- for i in (1..3) -%}
+                  {%- assign list_items = 'list_text_' | append: forloop.index -%}
+
+                  {%- if block.settings[list_items] != blank -%}
+                    {%- assign list_items = block.settings[list_items] | newline_to_br | replace: '<br />', '</li><li>' | prepend: '<li>' | append: '</li>' -%}
+
+                    {%- assign list_type = 'type_' | append: forloop.index -%}
+                    {%- assign elements_counter = elements_counter | plus: 1 -%}
+
+                    <div class="standard__list"
+                      data-aos="hero"
+                      data-aos-anchor="{{ animation_anchor }}"
+                      data-aos-order="{{ elements_counter }}">
+                      {%- if block.settings[list_type] == 'bullets' -%}
+                        <ul>{{ list_items }}</ul>
+                      {%- else -%}
+                        <ol>{{ list_items }}</ol>
+                      {%- endif -%}
+                    </div>
+                  {%- endif -%}
+                {%- endfor -%}
+              </div>
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </section>
+
+  {% schema %}
+{
+	"name": "Rich text",
+	"settings": [
+		{
+			"type": "header",
+			"content": "Style"
+		},
+		{
+			"type": "select",
+			"id": "align_text",
+			"label": "Text alignment",
+			"default": "text-left",
+			"options": [
+				{
+					"value": "text-left",
+					"label": "Left"
+				},
+				{
+					"value": "text-center",
+					"label": "Centered"
+				},
+				{
+					"value": "text-right",
+					"label": "Right"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "text_color",
+			"label": "Text color",
+			"default": "text--neutral",
+			"options": [
+				{
+					"value": "text--neutral",
+					"label": "Normal text"
+				},
+				{
+					"value": "text--white",
+					"label": "White"
+				},
+				{
+					"value": "text--primary",
+					"label": "Primary accent"
+				},
+				{
+					"value": "text--secondary",
+					"label": "Secondary accent"
+				},
+				{
+					"value": "text--black",
+					"label": "Black"
+				},
+				{
+					"value": "text--invert--primary",
+					"label": "Primary dark accent"
+				},
+				{
+					"value": "text--invert--secondary",
+					"label": "Secondary dark accent"
+				},
+				{
+					"value": "text--invert",
+					"label": "Inverted text color"
+				},
+				{
+					"value": "text--bright--primary",
+					"label": "Primary bright accent"
+				},
+				{
+					"value": "text--bright--secondary",
+					"label": "Secondary bright accent"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "bg",
+			"label": "Background color",
+			"default": "palette--light bg--neutral",
+			"options": [
+				{
+					"value": "palette--light bg--neutral",
+					"label": "Default"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "range",
+			"id": "content_width",
+			"label": "Width limit",
+			"unit": "px",
+			"min": 100,
+			"max": 2000,
+			"step": 50,
+			"default": 2000
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper",
+			"options": [
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				},
+				{
+					"value": "wrapper--narrow",
+					"label": "Page width narrow"
+				},
+				{
+					"value": "wrapper--tiny",
+					"label": "Page width extra narrow"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 36
+		}
+	],
+	"blocks": [
+		{
+			"type": "kicker",
+			"name": "Kicker",
+			"settings": [
+				{
+					"type": "text",
+					"id": "kicker",
+					"label": "Kicker",
+					"default": "Introducing"
+				},
+				{
+					"type": "checkbox",
+					"id": "enable_line",
+					"label": "Enable kicker line",
+					"default": true
+				},
+				{
+					"type": "range",
+					"id": "text_size",
+					"label": "Text size",
+					"min": 1,
+					"max": 15,
+					"step": 1,
+					"default": 4
+				}
+			]
+		},
+		{
+			"type": "heading",
+			"name": "Heading",
+			"settings": [
+				{
+					"type": "text",
+					"id": "heading",
+					"label": "Title",
+					"default": "Rich text"
+				},
+				{
+					"type": "range",
+					"id": "text_size",
+					"label": "Text size",
+					"min": 1,
+					"max": 15,
+					"step": 1,
+					"default": 8
+				}
+			]
+		},
+		{
+			"type": "text",
+			"name": "Text",
+			"settings": [
+				{
+					"type": "richtext",
+					"id": "text",
+					"label": "Text",
+					"default": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p>"
+				},
+				{
+					"type": "range",
+					"id": "text_size",
+					"label": "Text size",
+					"min": 1,
+					"max": 15,
+					"step": 1,
+					"default": 4
+				},
+				{
+					"type": "range",
+					"id": "text_columns",
+					"label": "Columns",
+					"min": 1,
+					"max": 3,
+					"step": 1,
+					"default": 1,
+					"info": "Desktop only"
+				}
+			]
+		},
+		{
+			"type": "button",
+			"name": "Buttons",
+			"settings": [
+				{
+					"type": "header",
+					"content": "Button 1"
+				},
+				{
+					"type": "text",
+					"id": "link_text_1",
+					"label": "Text",
+					"default": "View products"
+				},
+				{
+					"type": "url",
+					"id": "link_1",
+					"label": "Link"
+				},
+				{
+					"type": "select",
+					"id": "button_size_1",
+					"label": "Size",
+					"default": "btn--long",
+					"options": [
+						{
+							"value": "btn--small",
+							"label": "Small button"
+						},
+						{
+							"value": "btn--medium",
+							"label": "Medium button"
+						},
+						{
+							"value": "btn--large",
+							"label": "Large button"
+						},
+						{
+							"value": "btn--long",
+							"label": "Long button"
+						}
+					]
+				},
+				{
+					"type": "select",
+					"id": "button_style_1",
+					"label": "Style",
+					"default": "btn",
+					"options": [
+						{
+							"value": "btn-text-thick-line",
+							"label": "Capitalized text"
+						},
+						{
+							"value": "btn",
+							"label": "Solid button"
+						},
+						{
+							"value": "btn--soft",
+							"label": "Soft button"
+						},
+						{
+							"value": "btn--outline",
+							"label": "Outlined button"
+						}
+					]
+				},
+				{
+					"type": "select",
+					"id": "button_color_1",
+					"label": "Color",
+					"default": "btn--white",
+					"options": [
+						{
+							"value": "btn--primary",
+							"label": "Bright accent"
+						},
+						{
+							"value": "btn--secondary",
+							"label": "Secondary accent"
+						},
+						{
+							"value": "btn--neutral",
+							"label": "Text color"
+						},
+						{
+							"value": "btn--black",
+							"label": "Black"
+						},
+						{
+							"value": "btn--white",
+							"label": "White"
+						}
+					]
+				},
+				{
+					"type": "header",
+					"content": "Button 2"
+				},
+				{
+					"type": "text",
+					"id": "link_text_2",
+					"label": "Text",
+					"default": "Learn more"
+				},
+				{
+					"type": "url",
+					"id": "link_2",
+					"label": "Link"
+				},
+				{
+					"type": "select",
+					"id": "button_size_2",
+					"label": "Size",
+					"default": "btn--long",
+					"options": [
+						{
+							"value": "btn--small",
+							"label": "Small button"
+						},
+						{
+							"value": "btn--medium",
+							"label": "Medium button"
+						},
+						{
+							"value": "btn--large",
+							"label": "Large button"
+						},
+						{
+							"value": "btn--long",
+							"label": "Long button"
+						}
+					]
+				},
+				{
+					"type": "select",
+					"id": "button_style_2",
+					"label": "Style",
+					"default": "btn-text-thick-line",
+					"options": [
+						{
+							"value": "btn-text-thick-line",
+							"label": "Capitalized text"
+						},
+						{
+							"value": "btn",
+							"label": "Solid button"
+						},
+						{
+							"value": "btn--soft",
+							"label": "Soft button"
+						},
+						{
+							"value": "btn--outline",
+							"label": "Outlined button"
+						}
+					]
+				},
+				{
+					"type": "select",
+					"id": "button_color_2",
+					"label": "Color",
+					"default": "btn--white",
+					"options": [
+						{
+							"value": "btn--primary",
+							"label": "Bright accent"
+						},
+						{
+							"value": "btn--secondary",
+							"label": "Secondary accent"
+						},
+						{
+							"value": "btn--neutral",
+							"label": "Text color"
+						},
+						{
+							"value": "btn--black",
+							"label": "Black"
+						},
+						{
+							"value": "btn--white",
+							"label": "White"
+						}
+					]
+				},
+				{
+					"type": "header",
+					"content": "Button 3"
+				},
+				{
+					"type": "text",
+					"id": "link_text_3",
+					"label": "Text"
+				},
+				{
+					"type": "url",
+					"id": "link_3",
+					"label": "Link"
+				},
+				{
+					"type": "select",
+					"id": "button_size_3",
+					"label": "Size",
+					"default": "btn--long",
+					"options": [
+						{
+							"value": "btn--small",
+							"label": "Small button"
+						},
+						{
+							"value": "btn--medium",
+							"label": "Medium button"
+						},
+						{
+							"value": "btn--large",
+							"label": "Large button"
+						},
+						{
+							"value": "btn--long",
+							"label": "Long button"
+						}
+					]
+				},
+				{
+					"type": "select",
+					"id": "button_style_3",
+					"label": "Style",
+					"default": "btn-text-thick-line",
+					"options": [
+						{
+							"value": "btn-text-thick-line",
+							"label": "Capitalized text"
+						},
+						{
+							"value": "btn",
+							"label": "Solid button"
+						},
+						{
+							"value": "btn--soft",
+							"label": "Soft button"
+						},
+						{
+							"value": "btn--outline",
+							"label": "Outlined button"
+						}
+					]
+				},
+				{
+					"type": "select",
+					"id": "button_color_3",
+					"label": "Color",
+					"default": "btn--white",
+					"options": [
+						{
+							"value": "btn--primary",
+							"label": "Bright accent"
+						},
+						{
+							"value": "btn--secondary",
+							"label": "Secondary accent"
+						},
+						{
+							"value": "btn--neutral",
+							"label": "Text color"
+						},
+						{
+							"value": "btn--black",
+							"label": "Black"
+						},
+						{
+							"value": "btn--white",
+							"label": "White"
+						}
+					]
+				}
+			]
+		},
+		{
+			"type": "icon",
+			"name": "Icons",
+			"settings": [
+				{
+					"type": "header",
+					"content": "Text settings"
+				},
+				{
+					"type": "range",
+					"id": "kicker_size",
+					"label": "Text size",
+					"min": 2,
+					"max": 7,
+					"step": 1,
+					"default": 3
+				},
+				{
+					"type": "header",
+					"content": "Icon settings"
+				},
+				{
+					"type": "select",
+					"id": "items_per_row",
+					"label": "Items per row",
+					"default": "6",
+					"options": [
+						{
+							"value": "1",
+							"label": "1 icons per row"
+						},
+						{
+							"value": "2",
+							"label": "2 icons per row"
+						},
+						{
+							"value": "3",
+							"label": "3 icons per row"
+						},
+						{
+							"value": "4",
+							"label": "4 icons per row"
+						},
+						{
+							"value": "5",
+							"label": "5 icons per row"
+						},
+						{
+							"value": "6",
+							"label": "6 icons per row"
+						}
+					]
+				},
+				{
+					"type": "color",
+					"id": "icon_color",
+					"label": "Icon color",
+					"default": "#4B4B4B"
+				},
+				{
+					"type": "range",
+					"id": "icon_size",
+					"label": "Icon size",
+					"unit": "px",
+					"min": 16,
+					"max": 50,
+					"step": 2,
+					"default": 24
+				},
+				{
+					"type": "header",
+					"content": "Icon 1"
+				},
+				{
+					"type": "select",
+					"id": "icon_name_1",
+					"label": "Icon",
+					"default": "icon-animal",
+					"options": [
+						{
+							"value": "none",
+							"label": "None"
+						},
+						{
+							"value": "icon-animal",
+							"label": "Animal"
+						},
+						{
+							"value": "icon-animal-paw",
+							"label": "Animal paw"
+						},
+						{
+							"value": "icon-award",
+							"label": "Award"
+						},
+						{
+							"value": "icon-basket-like",
+							"label": "Basket like"
+						},
+						{
+							"value": "icon-basket-return",
+							"label": "Basket return"
+						},
+						{
+							"value": "icon-cart-check",
+							"label": "Cart check"
+						},
+						{
+							"value": "icon-cart-message",
+							"label": "Cart message"
+						},
+						{
+							"value": "icon-chat",
+							"label": "Chat"
+						},
+						{
+							"value": "icon-dollar",
+							"label": "Dollar"
+						},
+						{
+							"value": "icon-earth",
+							"label": "Earth"
+						},
+						{
+							"value": "icon-email",
+							"label": "Email"
+						},
+						{
+							"value": "icon-gluten-free",
+							"label": "Gluten free"
+						},
+						{
+							"value": "icon-iron",
+							"label": "Iron"
+						},
+						{
+							"value": "icon-leaf",
+							"label": "Leaf"
+						},
+						{
+							"value": "icon-legal",
+							"label": "Legal"
+						},
+						{
+							"value": "icon-lock-card",
+							"label": "Lock card"
+						},
+						{
+							"value": "icon-lock-shield",
+							"label": "Lock shield"
+						},
+						{
+							"value": "icon-lock-window",
+							"label": "Lock window"
+						},
+						{
+							"value": "icon-payment",
+							"label": "Payment"
+						},
+						{
+							"value": "icon-phone",
+							"label": "Phone"
+						},
+						{
+							"value": "icon-rating",
+							"label": "Rating"
+						},
+						{
+							"value": "icon-star-rating",
+							"label": "Rating star"
+						},
+						{
+							"value": "icon-recycled",
+							"label": "Recycled"
+						},
+						{
+							"value": "icon-ruler",
+							"label": "Ruler"
+						},
+						{
+							"value": "icon-send",
+							"label": "Send"
+						},
+						{
+							"value": "icon-sewing-machine",
+							"label": "Sewing machine"
+						},
+						{
+							"value": "icon-shipment-world",
+							"label": "Shipment world"
+						},
+						{
+							"value": "icon-shipment",
+							"label": "Shipment"
+						},
+						{
+							"value": "icon-shoes",
+							"label": "Shoes"
+						},
+						{
+							"value": "icon-store",
+							"label": "Store"
+						},
+						{
+							"value": "icon-support-headphones",
+							"label": "Support headphones"
+						},
+						{
+							"value": "icon-thread",
+							"label": "Thread"
+						},
+						{
+							"value": "icon-truck",
+							"label": "Truck"
+						},
+						{
+							"value": "icon-washer",
+							"label": "Washer"
+						},
+						{
+							"value": "icon-water",
+							"label": "Water"
+						}
+					]
+				},
+				{
+					"type": "image_picker",
+					"id": "icon_image_1",
+					"label": "Upload image"
+				},
+				{
+					"type": "text",
+					"id": "icon_kicker_1",
+					"label": "Text",
+					"default": "Vegan"
+				},
+				{
+					"type": "header",
+					"content": "Icon 2"
+				},
+				{
+					"type": "select",
+					"id": "icon_name_2",
+					"label": "Icon",
+					"default": "icon-animal-paw",
+					"options": [
+						{
+							"value": "none",
+							"label": "None"
+						},
+						{
+							"value": "icon-animal",
+							"label": "Animal"
+						},
+						{
+							"value": "icon-animal-paw",
+							"label": "Animal paw"
+						},
+						{
+							"value": "icon-award",
+							"label": "Award"
+						},
+						{
+							"value": "icon-basket-like",
+							"label": "Basket like"
+						},
+						{
+							"value": "icon-basket-return",
+							"label": "Basket return"
+						},
+						{
+							"value": "icon-cart-check",
+							"label": "Cart check"
+						},
+						{
+							"value": "icon-cart-message",
+							"label": "Cart message"
+						},
+						{
+							"value": "icon-chat",
+							"label": "Chat"
+						},
+						{
+							"value": "icon-dollar",
+							"label": "Dollar"
+						},
+						{
+							"value": "icon-earth",
+							"label": "Earth"
+						},
+						{
+							"value": "icon-email",
+							"label": "Email"
+						},
+						{
+							"value": "icon-gluten-free",
+							"label": "Gluten free"
+						},
+						{
+							"value": "icon-iron",
+							"label": "Iron"
+						},
+						{
+							"value": "icon-leaf",
+							"label": "Leaf"
+						},
+						{
+							"value": "icon-legal",
+							"label": "Legal"
+						},
+						{
+							"value": "icon-lock-card",
+							"label": "Lock card"
+						},
+						{
+							"value": "icon-lock-shield",
+							"label": "Lock shield"
+						},
+						{
+							"value": "icon-lock-window",
+							"label": "Lock window"
+						},
+						{
+							"value": "icon-payment",
+							"label": "Payment"
+						},
+						{
+							"value": "icon-phone",
+							"label": "Phone"
+						},
+						{
+							"value": "icon-rating",
+							"label": "Rating"
+						},
+						{
+							"value": "icon-star-rating",
+							"label": "Rating star"
+						},
+						{
+							"value": "icon-recycled",
+							"label": "Recycled"
+						},
+						{
+							"value": "icon-ruler",
+							"label": "Ruler"
+						},
+						{
+							"value": "icon-send",
+							"label": "Send"
+						},
+						{
+							"value": "icon-sewing-machine",
+							"label": "Sewing machine"
+						},
+						{
+							"value": "icon-shipment-world",
+							"label": "Shipment world"
+						},
+						{
+							"value": "icon-shipment",
+							"label": "Shipment"
+						},
+						{
+							"value": "icon-shoes",
+							"label": "Shoes"
+						},
+						{
+							"value": "icon-store",
+							"label": "Store"
+						},
+						{
+							"value": "icon-support-headphones",
+							"label": "Support headphones"
+						},
+						{
+							"value": "icon-thread",
+							"label": "Thread"
+						},
+						{
+							"value": "icon-truck",
+							"label": "Truck"
+						},
+						{
+							"value": "icon-washer",
+							"label": "Washer"
+						},
+						{
+							"value": "icon-water",
+							"label": "Water"
+						}
+					]
+				},
+				{
+					"type": "image_picker",
+					"id": "icon_image_2",
+					"label": "Cruelty free"
+				},
+				{
+					"type": "text",
+					"id": "icon_kicker_2",
+					"label": "Text",
+					"default": "Gentle"
+				},
+				{
+					"type": "header",
+					"content": "Icon 3"
+				},
+				{
+					"type": "select",
+					"id": "icon_name_3",
+					"label": "Icon",
+					"default": "icon-gluten-free",
+					"options": [
+						{
+							"value": "none",
+							"label": "None"
+						},
+						{
+							"value": "icon-animal",
+							"label": "Animal"
+						},
+						{
+							"value": "icon-animal-paw",
+							"label": "Animal paw"
+						},
+						{
+							"value": "icon-award",
+							"label": "Award"
+						},
+						{
+							"value": "icon-basket-like",
+							"label": "Basket like"
+						},
+						{
+							"value": "icon-basket-return",
+							"label": "Basket return"
+						},
+						{
+							"value": "icon-cart-check",
+							"label": "Cart check"
+						},
+						{
+							"value": "icon-cart-message",
+							"label": "Cart message"
+						},
+						{
+							"value": "icon-chat",
+							"label": "Chat"
+						},
+						{
+							"value": "icon-dollar",
+							"label": "Dollar"
+						},
+						{
+							"value": "icon-earth",
+							"label": "Earth"
+						},
+						{
+							"value": "icon-email",
+							"label": "Email"
+						},
+						{
+							"value": "icon-gluten-free",
+							"label": "Gluten free"
+						},
+						{
+							"value": "icon-iron",
+							"label": "Iron"
+						},
+						{
+							"value": "icon-leaf",
+							"label": "Leaf"
+						},
+						{
+							"value": "icon-legal",
+							"label": "Legal"
+						},
+						{
+							"value": "icon-lock-card",
+							"label": "Lock card"
+						},
+						{
+							"value": "icon-lock-shield",
+							"label": "Lock shield"
+						},
+						{
+							"value": "icon-lock-window",
+							"label": "Lock window"
+						},
+						{
+							"value": "icon-payment",
+							"label": "Payment"
+						},
+						{
+							"value": "icon-phone",
+							"label": "Phone"
+						},
+						{
+							"value": "icon-rating",
+							"label": "Rating"
+						},
+						{
+							"value": "icon-star-rating",
+							"label": "Rating star"
+						},
+						{
+							"value": "icon-recycled",
+							"label": "Recycled"
+						},
+						{
+							"value": "icon-ruler",
+							"label": "Ruler"
+						},
+						{
+							"value": "icon-send",
+							"label": "Send"
+						},
+						{
+							"value": "icon-sewing-machine",
+							"label": "Sewing machine"
+						},
+						{
+							"value": "icon-shipment-world",
+							"label": "Shipment world"
+						},
+						{
+							"value": "icon-shipment",
+							"label": "Shipment"
+						},
+						{
+							"value": "icon-shoes",
+							"label": "Shoes"
+						},
+						{
+							"value": "icon-store",
+							"label": "Store"
+						},
+						{
+							"value": "icon-support-headphones",
+							"label": "Support headphones"
+						},
+						{
+							"value": "icon-thread",
+							"label": "Thread"
+						},
+						{
+							"value": "icon-truck",
+							"label": "Truck"
+						},
+						{
+							"value": "icon-washer",
+							"label": "Washer"
+						},
+						{
+							"value": "icon-water",
+							"label": "Water"
+						}
+					]
+				},
+				{
+					"type": "image_picker",
+					"id": "icon_image_3",
+					"label": "Upload image"
+				},
+				{
+					"type": "text",
+					"id": "icon_kicker_3",
+					"label": "Text",
+					"default": "Gluten Free"
+				},
+				{
+					"type": "header",
+					"content": "Icon 4"
+				},
+				{
+					"type": "select",
+					"id": "icon_name_4",
+					"label": "Icon",
+					"default": "icon-leaf",
+					"options": [
+						{
+							"value": "none",
+							"label": "None"
+						},
+						{
+							"value": "icon-animal",
+							"label": "Animal"
+						},
+						{
+							"value": "icon-animal-paw",
+							"label": "Animal paw"
+						},
+						{
+							"value": "icon-award",
+							"label": "Award"
+						},
+						{
+							"value": "icon-basket-like",
+							"label": "Basket like"
+						},
+						{
+							"value": "icon-basket-return",
+							"label": "Basket return"
+						},
+						{
+							"value": "icon-cart-check",
+							"label": "Cart check"
+						},
+						{
+							"value": "icon-cart-message",
+							"label": "Cart message"
+						},
+						{
+							"value": "icon-chat",
+							"label": "Chat"
+						},
+						{
+							"value": "icon-dollar",
+							"label": "Dollar"
+						},
+						{
+							"value": "icon-earth",
+							"label": "Earth"
+						},
+						{
+							"value": "icon-email",
+							"label": "Email"
+						},
+						{
+							"value": "icon-gluten-free",
+							"label": "Gluten free"
+						},
+						{
+							"value": "icon-iron",
+							"label": "Iron"
+						},
+						{
+							"value": "icon-leaf",
+							"label": "Leaf"
+						},
+						{
+							"value": "icon-legal",
+							"label": "Legal"
+						},
+						{
+							"value": "icon-lock-card",
+							"label": "Lock card"
+						},
+						{
+							"value": "icon-lock-shield",
+							"label": "Lock shield"
+						},
+						{
+							"value": "icon-lock-window",
+							"label": "Lock window"
+						},
+						{
+							"value": "icon-payment",
+							"label": "Payment"
+						},
+						{
+							"value": "icon-phone",
+							"label": "Phone"
+						},
+						{
+							"value": "icon-rating",
+							"label": "Rating"
+						},
+						{
+							"value": "icon-star-rating",
+							"label": "Rating star"
+						},
+						{
+							"value": "icon-recycled",
+							"label": "Recycled"
+						},
+						{
+							"value": "icon-ruler",
+							"label": "Ruler"
+						},
+						{
+							"value": "icon-send",
+							"label": "Send"
+						},
+						{
+							"value": "icon-sewing-machine",
+							"label": "Sewing machine"
+						},
+						{
+							"value": "icon-shipment-world",
+							"label": "Shipment world"
+						},
+						{
+							"value": "icon-shipment",
+							"label": "Shipment"
+						},
+						{
+							"value": "icon-shoes",
+							"label": "Shoes"
+						},
+						{
+							"value": "icon-store",
+							"label": "Store"
+						},
+						{
+							"value": "icon-support-headphones",
+							"label": "Support headphones"
+						},
+						{
+							"value": "icon-thread",
+							"label": "Thread"
+						},
+						{
+							"value": "icon-truck",
+							"label": "Truck"
+						},
+						{
+							"value": "icon-washer",
+							"label": "Washer"
+						},
+						{
+							"value": "icon-water",
+							"label": "Water"
+						}
+					]
+				},
+				{
+					"type": "image_picker",
+					"id": "icon_image_4",
+					"label": "Upload image"
+				},
+				{
+					"type": "text",
+					"id": "icon_kicker_4",
+					"label": "Text",
+					"default": "Carbon neutral"
+				},
+				{
+					"type": "header",
+					"content": "Icon 5"
+				},
+				{
+					"type": "select",
+					"id": "icon_name_5",
+					"label": "Icon",
+					"default": "icon-earth",
+					"options": [
+						{
+							"value": "none",
+							"label": "None"
+						},
+						{
+							"value": "icon-animal",
+							"label": "Animal"
+						},
+						{
+							"value": "icon-animal-paw",
+							"label": "Animal paw"
+						},
+						{
+							"value": "icon-award",
+							"label": "Award"
+						},
+						{
+							"value": "icon-basket-like",
+							"label": "Basket like"
+						},
+						{
+							"value": "icon-basket-return",
+							"label": "Basket return"
+						},
+						{
+							"value": "icon-cart-check",
+							"label": "Cart check"
+						},
+						{
+							"value": "icon-cart-message",
+							"label": "Cart message"
+						},
+						{
+							"value": "icon-chat",
+							"label": "Chat"
+						},
+						{
+							"value": "icon-dollar",
+							"label": "Dollar"
+						},
+						{
+							"value": "icon-earth",
+							"label": "Earth"
+						},
+						{
+							"value": "icon-email",
+							"label": "Email"
+						},
+						{
+							"value": "icon-gluten-free",
+							"label": "Gluten free"
+						},
+						{
+							"value": "icon-iron",
+							"label": "Iron"
+						},
+						{
+							"value": "icon-leaf",
+							"label": "Leaf"
+						},
+						{
+							"value": "icon-legal",
+							"label": "Legal"
+						},
+						{
+							"value": "icon-lock-card",
+							"label": "Lock card"
+						},
+						{
+							"value": "icon-lock-shield",
+							"label": "Lock shield"
+						},
+						{
+							"value": "icon-lock-window",
+							"label": "Lock window"
+						},
+						{
+							"value": "icon-payment",
+							"label": "Payment"
+						},
+						{
+							"value": "icon-phone",
+							"label": "Phone"
+						},
+						{
+							"value": "icon-rating",
+							"label": "Rating"
+						},
+						{
+							"value": "icon-star-rating",
+							"label": "Rating star"
+						},
+						{
+							"value": "icon-recycled",
+							"label": "Recycled"
+						},
+						{
+							"value": "icon-ruler",
+							"label": "Ruler"
+						},
+						{
+							"value": "icon-send",
+							"label": "Send"
+						},
+						{
+							"value": "icon-sewing-machine",
+							"label": "Sewing machine"
+						},
+						{
+							"value": "icon-shipment-world",
+							"label": "Shipment world"
+						},
+						{
+							"value": "icon-shipment",
+							"label": "Shipment"
+						},
+						{
+							"value": "icon-shoes",
+							"label": "Shoes"
+						},
+						{
+							"value": "icon-store",
+							"label": "Store"
+						},
+						{
+							"value": "icon-support-headphones",
+							"label": "Support headphones"
+						},
+						{
+							"value": "icon-thread",
+							"label": "Thread"
+						},
+						{
+							"value": "icon-truck",
+							"label": "Truck"
+						},
+						{
+							"value": "icon-washer",
+							"label": "Washer"
+						},
+						{
+							"value": "icon-water",
+							"label": "Water"
+						}
+					]
+				},
+				{
+					"type": "image_picker",
+					"id": "icon_image_5",
+					"label": "Upload image"
+				},
+				{
+					"type": "text",
+					"id": "icon_kicker_5",
+					"label": "Text",
+					"default": "Organic"
+				},
+				{
+					"type": "header",
+					"content": "Icon 6"
+				},
+				{
+					"type": "select",
+					"id": "icon_name_6",
+					"label": "Icon",
+					"default": "icon-water",
+					"options": [
+						{
+							"value": "none",
+							"label": "None"
+						},
+						{
+							"value": "icon-animal",
+							"label": "Animal"
+						},
+						{
+							"value": "icon-animal-paw",
+							"label": "Animal paw"
+						},
+						{
+							"value": "icon-award",
+							"label": "Award"
+						},
+						{
+							"value": "icon-basket-like",
+							"label": "Basket like"
+						},
+						{
+							"value": "icon-basket-return",
+							"label": "Basket return"
+						},
+						{
+							"value": "icon-cart-check",
+							"label": "Cart check"
+						},
+						{
+							"value": "icon-cart-message",
+							"label": "Cart message"
+						},
+						{
+							"value": "icon-chat",
+							"label": "Chat"
+						},
+						{
+							"value": "icon-dollar",
+							"label": "Dollar"
+						},
+						{
+							"value": "icon-earth",
+							"label": "Earth"
+						},
+						{
+							"value": "icon-email",
+							"label": "Email"
+						},
+						{
+							"value": "icon-gluten-free",
+							"label": "Gluten free"
+						},
+						{
+							"value": "icon-iron",
+							"label": "Iron"
+						},
+						{
+							"value": "icon-leaf",
+							"label": "Leaf"
+						},
+						{
+							"value": "icon-legal",
+							"label": "Legal"
+						},
+						{
+							"value": "icon-lock-card",
+							"label": "Lock card"
+						},
+						{
+							"value": "icon-lock-shield",
+							"label": "Lock shield"
+						},
+						{
+							"value": "icon-lock-window",
+							"label": "Lock window"
+						},
+						{
+							"value": "icon-payment",
+							"label": "Payment"
+						},
+						{
+							"value": "icon-phone",
+							"label": "Phone"
+						},
+						{
+							"value": "icon-rating",
+							"label": "Rating"
+						},
+						{
+							"value": "icon-star-rating",
+							"label": "Rating star"
+						},
+						{
+							"value": "icon-recycled",
+							"label": "Recycled"
+						},
+						{
+							"value": "icon-ruler",
+							"label": "Ruler"
+						},
+						{
+							"value": "icon-send",
+							"label": "Send"
+						},
+						{
+							"value": "icon-sewing-machine",
+							"label": "Sewing machine"
+						},
+						{
+							"value": "icon-shipment-world",
+							"label": "Shipment world"
+						},
+						{
+							"value": "icon-shipment",
+							"label": "Shipment"
+						},
+						{
+							"value": "icon-shoes",
+							"label": "Shoes"
+						},
+						{
+							"value": "icon-store",
+							"label": "Store"
+						},
+						{
+							"value": "icon-support-headphones",
+							"label": "Support headphones"
+						},
+						{
+							"value": "icon-thread",
+							"label": "Thread"
+						},
+						{
+							"value": "icon-truck",
+							"label": "Truck"
+						},
+						{
+							"value": "icon-washer",
+							"label": "Washer"
+						},
+						{
+							"value": "icon-water",
+							"label": "Water"
+						}
+					]
+				},
+				{
+					"type": "image_picker",
+					"id": "icon_image_6",
+					"label": "Upload image"
+				},
+				{
+					"type": "text",
+					"id": "icon_kicker_6",
+					"label": "Text",
+					"default": "Reef friendly"
+				}
+			]
+		},
+		{
+			"type": "icon-text",
+			"name": "Icons with text",
+			"settings": [
+				{
+					"type": "header",
+					"content": "Text settings"
+				},
+				{
+					"type": "range",
+					"id": "kicker_size",
+					"label": "Kicker size",
+					"min": 2,
+					"max": 7,
+					"step": 1,
+					"default": 3
+				},
+				{
+					"type": "range",
+					"id": "heading_size",
+					"label": "Heading size",
+					"min": 2,
+					"max": 10,
+					"step": 1,
+					"default": 8
+				},
+				{
+					"type": "range",
+					"id": "text_size",
+					"label": "Text size",
+					"min": 2,
+					"max": 7,
+					"step": 1,
+					"default": 5
+				},
+				{
+					"type": "header",
+					"content": "Icon settings"
+				},
+				{
+					"type": "select",
+					"id": "items_per_row",
+					"label": "Items per row",
+					"default": "3",
+					"options": [
+						{
+							"value": "1",
+							"label": "1 icons per row"
+						},
+						{
+							"value": "2",
+							"label": "2 icons per row"
+						},
+						{
+							"value": "3",
+							"label": "3 icons per row"
+						}
+					]
+				},
+				{
+					"type": "color",
+					"id": "icon_color",
+					"label": "Icon color",
+					"default": "#4B4B4B"
+				},
+				{
+					"type": "range",
+					"id": "icon_size",
+					"label": "Icon size",
+					"unit": "px",
+					"min": 16,
+					"max": 50,
+					"step": 2,
+					"default": 24
+				},
+				{
+					"type": "header",
+					"content": "Icon 1"
+				},
+				{
+					"type": "select",
+					"id": "icon_name_1",
+					"label": "Icon",
+					"default": "icon-basket-return",
+					"options": [
+						{
+							"value": "none",
+							"label": "None"
+						},
+						{
+							"value": "icon-animal",
+							"label": "Animal"
+						},
+						{
+							"value": "icon-animal-paw",
+							"label": "Animal paw"
+						},
+						{
+							"value": "icon-award",
+							"label": "Award"
+						},
+						{
+							"value": "icon-basket-like",
+							"label": "Basket like"
+						},
+						{
+							"value": "icon-basket-return",
+							"label": "Basket return"
+						},
+						{
+							"value": "icon-cart-check",
+							"label": "Cart check"
+						},
+						{
+							"value": "icon-cart-message",
+							"label": "Cart message"
+						},
+						{
+							"value": "icon-chat",
+							"label": "Chat"
+						},
+						{
+							"value": "icon-dollar",
+							"label": "Dollar"
+						},
+						{
+							"value": "icon-earth",
+							"label": "Earth"
+						},
+						{
+							"value": "icon-email",
+							"label": "Email"
+						},
+						{
+							"value": "icon-gluten-free",
+							"label": "Gluten free"
+						},
+						{
+							"value": "icon-iron",
+							"label": "Iron"
+						},
+						{
+							"value": "icon-leaf",
+							"label": "Leaf"
+						},
+						{
+							"value": "icon-legal",
+							"label": "Legal"
+						},
+						{
+							"value": "icon-lock-card",
+							"label": "Lock card"
+						},
+						{
+							"value": "icon-lock-shield",
+							"label": "Lock shield"
+						},
+						{
+							"value": "icon-lock-window",
+							"label": "Lock window"
+						},
+						{
+							"value": "icon-payment",
+							"label": "Payment"
+						},
+						{
+							"value": "icon-phone",
+							"label": "Phone"
+						},
+						{
+							"value": "icon-rating",
+							"label": "Rating"
+						},
+						{
+							"value": "icon-star-rating",
+							"label": "Rating star"
+						},
+						{
+							"value": "icon-recycled",
+							"label": "Recycled"
+						},
+						{
+							"value": "icon-ruler",
+							"label": "Ruler"
+						},
+						{
+							"value": "icon-send",
+							"label": "Send"
+						},
+						{
+							"value": "icon-sewing-machine",
+							"label": "Sewing machine"
+						},
+						{
+							"value": "icon-shipment-world",
+							"label": "Shipment world"
+						},
+						{
+							"value": "icon-shipment",
+							"label": "Shipment"
+						},
+						{
+							"value": "icon-shoes",
+							"label": "Shoes"
+						},
+						{
+							"value": "icon-store",
+							"label": "Store"
+						},
+						{
+							"value": "icon-support-headphones",
+							"label": "Support headphones"
+						},
+						{
+							"value": "icon-thread",
+							"label": "Thread"
+						},
+						{
+							"value": "icon-truck",
+							"label": "Truck"
+						},
+						{
+							"value": "icon-washer",
+							"label": "Washer"
+						},
+						{
+							"value": "icon-water",
+							"label": "Water"
+						}
+					]
+				},
+				{
+					"type": "image_picker",
+					"id": "icon_image_1",
+					"label": "Upload image"
+				},
+				{
+					"type": "text",
+					"id": "icon_kicker_1",
+					"label": "Kicker",
+					"default": "Free returns"
+				},
+				{
+					"type": "text",
+					"id": "icon_heading_1",
+					"label": "Heading"
+				},
+				{
+					"type": "richtext",
+					"id": "icon_text_1",
+					"label": "Description",
+					"default": "<p>Returns within 30 days receive a full refund</p>"
+				},
+				{
+					"type": "header",
+					"content": "Icon 2"
+				},
+				{
+					"type": "select",
+					"id": "icon_name_2",
+					"label": "Icon",
+					"default": "icon-shipment-world",
+					"options": [
+						{
+							"value": "none",
+							"label": "None"
+						},
+						{
+							"value": "icon-animal",
+							"label": "Animal"
+						},
+						{
+							"value": "icon-animal-paw",
+							"label": "Animal paw"
+						},
+						{
+							"value": "icon-award",
+							"label": "Award"
+						},
+						{
+							"value": "icon-basket-like",
+							"label": "Basket like"
+						},
+						{
+							"value": "icon-basket-return",
+							"label": "Basket return"
+						},
+						{
+							"value": "icon-cart-check",
+							"label": "Cart check"
+						},
+						{
+							"value": "icon-cart-message",
+							"label": "Cart message"
+						},
+						{
+							"value": "icon-chat",
+							"label": "Chat"
+						},
+						{
+							"value": "icon-dollar",
+							"label": "Dollar"
+						},
+						{
+							"value": "icon-earth",
+							"label": "Earth"
+						},
+						{
+							"value": "icon-email",
+							"label": "Email"
+						},
+						{
+							"value": "icon-gluten-free",
+							"label": "Gluten free"
+						},
+						{
+							"value": "icon-iron",
+							"label": "Iron"
+						},
+						{
+							"value": "icon-leaf",
+							"label": "Leaf"
+						},
+						{
+							"value": "icon-legal",
+							"label": "Legal"
+						},
+						{
+							"value": "icon-lock-card",
+							"label": "Lock card"
+						},
+						{
+							"value": "icon-lock-shield",
+							"label": "Lock shield"
+						},
+						{
+							"value": "icon-lock-window",
+							"label": "Lock window"
+						},
+						{
+							"value": "icon-payment",
+							"label": "Payment"
+						},
+						{
+							"value": "icon-phone",
+							"label": "Phone"
+						},
+						{
+							"value": "icon-rating",
+							"label": "Rating"
+						},
+						{
+							"value": "icon-star-rating",
+							"label": "Rating star"
+						},
+						{
+							"value": "icon-recycled",
+							"label": "Recycled"
+						},
+						{
+							"value": "icon-ruler",
+							"label": "Ruler"
+						},
+						{
+							"value": "icon-send",
+							"label": "Send"
+						},
+						{
+							"value": "icon-sewing-machine",
+							"label": "Sewing machine"
+						},
+						{
+							"value": "icon-shipment-world",
+							"label": "Shipment world"
+						},
+						{
+							"value": "icon-shipment",
+							"label": "Shipment"
+						},
+						{
+							"value": "icon-shoes",
+							"label": "Shoes"
+						},
+						{
+							"value": "icon-store",
+							"label": "Store"
+						},
+						{
+							"value": "icon-support-headphones",
+							"label": "Support headphones"
+						},
+						{
+							"value": "icon-thread",
+							"label": "Thread"
+						},
+						{
+							"value": "icon-truck",
+							"label": "Truck"
+						},
+						{
+							"value": "icon-washer",
+							"label": "Washer"
+						},
+						{
+							"value": "icon-water",
+							"label": "Water"
+						}
+					]
+				},
+				{
+					"type": "image_picker",
+					"id": "icon_image_2",
+					"label": "Upload image"
+				},
+				{
+					"type": "text",
+					"id": "icon_kicker_2",
+					"label": "Kicker",
+					"default": "Worldwide shipping"
+				},
+				{
+					"type": "text",
+					"id": "icon_heading_2",
+					"label": "Heading"
+				},
+				{
+					"type": "richtext",
+					"id": "icon_text_2",
+					"label": "Description",
+					"default": "<p>Ship anywhere, rates available at checkout</p>"
+				},
+				{
+					"type": "header",
+					"content": "Icon 3"
+				},
+				{
+					"type": "select",
+					"id": "icon_name_3",
+					"label": "Icon",
+					"default": "icon-phone",
+					"options": [
+						{
+							"value": "none",
+							"label": "None"
+						},
+						{
+							"value": "icon-animal",
+							"label": "Animal"
+						},
+						{
+							"value": "icon-animal-paw",
+							"label": "Animal paw"
+						},
+						{
+							"value": "icon-award",
+							"label": "Award"
+						},
+						{
+							"value": "icon-basket-like",
+							"label": "Basket like"
+						},
+						{
+							"value": "icon-basket-return",
+							"label": "Basket return"
+						},
+						{
+							"value": "icon-cart-check",
+							"label": "Cart check"
+						},
+						{
+							"value": "icon-cart-message",
+							"label": "Cart message"
+						},
+						{
+							"value": "icon-chat",
+							"label": "Chat"
+						},
+						{
+							"value": "icon-dollar",
+							"label": "Dollar"
+						},
+						{
+							"value": "icon-earth",
+							"label": "Earth"
+						},
+						{
+							"value": "icon-email",
+							"label": "Email"
+						},
+						{
+							"value": "icon-gluten-free",
+							"label": "Gluten free"
+						},
+						{
+							"value": "icon-iron",
+							"label": "Iron"
+						},
+						{
+							"value": "icon-leaf",
+							"label": "Leaf"
+						},
+						{
+							"value": "icon-legal",
+							"label": "Legal"
+						},
+						{
+							"value": "icon-lock-card",
+							"label": "Lock card"
+						},
+						{
+							"value": "icon-lock-shield",
+							"label": "Lock shield"
+						},
+						{
+							"value": "icon-lock-window",
+							"label": "Lock window"
+						},
+						{
+							"value": "icon-payment",
+							"label": "Payment"
+						},
+						{
+							"value": "icon-phone",
+							"label": "Phone"
+						},
+						{
+							"value": "icon-rating",
+							"label": "Rating"
+						},
+						{
+							"value": "icon-star-rating",
+							"label": "Rating star"
+						},
+						{
+							"value": "icon-recycled",
+							"label": "Recycled"
+						},
+						{
+							"value": "icon-ruler",
+							"label": "Ruler"
+						},
+						{
+							"value": "icon-send",
+							"label": "Send"
+						},
+						{
+							"value": "icon-sewing-machine",
+							"label": "Sewing machine"
+						},
+						{
+							"value": "icon-shipment-world",
+							"label": "Shipment world"
+						},
+						{
+							"value": "icon-shipment",
+							"label": "Shipment"
+						},
+						{
+							"value": "icon-shoes",
+							"label": "Shoes"
+						},
+						{
+							"value": "icon-store",
+							"label": "Store"
+						},
+						{
+							"value": "icon-support-headphones",
+							"label": "Support headphones"
+						},
+						{
+							"value": "icon-thread",
+							"label": "Thread"
+						},
+						{
+							"value": "icon-truck",
+							"label": "Truck"
+						},
+						{
+							"value": "icon-washer",
+							"label": "Washer"
+						},
+						{
+							"value": "icon-water",
+							"label": "Water"
+						}
+					]
+				},
+				{
+					"type": "image_picker",
+					"id": "icon_image_3",
+					"label": "Upload image"
+				},
+				{
+					"type": "text",
+					"id": "icon_kicker_3",
+					"label": "Kicker",
+					"default": "24/7 support"
+				},
+				{
+					"type": "text",
+					"id": "icon_heading_3",
+					"label": "Heading"
+				},
+				{
+					"type": "richtext",
+					"id": "icon_text_3",
+					"label": "Description",
+					"default": "<p>Call us anytime at 1(800)555-1234</p>"
+				},
+				{
+					"type": "header",
+					"content": "Icon 4"
+				},
+				{
+					"type": "select",
+					"id": "icon_name_4",
+					"label": "Icon",
+					"default": "none",
+					"options": [
+						{
+							"value": "none",
+							"label": "None"
+						},
+						{
+							"value": "icon-animal",
+							"label": "Animal"
+						},
+						{
+							"value": "icon-animal-paw",
+							"label": "Animal paw"
+						},
+						{
+							"value": "icon-award",
+							"label": "Award"
+						},
+						{
+							"value": "icon-basket-like",
+							"label": "Basket like"
+						},
+						{
+							"value": "icon-basket-return",
+							"label": "Basket return"
+						},
+						{
+							"value": "icon-cart-check",
+							"label": "Cart check"
+						},
+						{
+							"value": "icon-cart-message",
+							"label": "Cart message"
+						},
+						{
+							"value": "icon-chat",
+							"label": "Chat"
+						},
+						{
+							"value": "icon-dollar",
+							"label": "Dollar"
+						},
+						{
+							"value": "icon-earth",
+							"label": "Earth"
+						},
+						{
+							"value": "icon-email",
+							"label": "Email"
+						},
+						{
+							"value": "icon-gluten-free",
+							"label": "Gluten free"
+						},
+						{
+							"value": "icon-iron",
+							"label": "Iron"
+						},
+						{
+							"value": "icon-leaf",
+							"label": "Leaf"
+						},
+						{
+							"value": "icon-legal",
+							"label": "Legal"
+						},
+						{
+							"value": "icon-lock-card",
+							"label": "Lock card"
+						},
+						{
+							"value": "icon-lock-shield",
+							"label": "Lock shield"
+						},
+						{
+							"value": "icon-lock-window",
+							"label": "Lock window"
+						},
+						{
+							"value": "icon-payment",
+							"label": "Payment"
+						},
+						{
+							"value": "icon-phone",
+							"label": "Phone"
+						},
+						{
+							"value": "icon-rating",
+							"label": "Rating"
+						},
+						{
+							"value": "icon-star-rating",
+							"label": "Rating star"
+						},
+						{
+							"value": "icon-recycled",
+							"label": "Recycled"
+						},
+						{
+							"value": "icon-ruler",
+							"label": "Ruler"
+						},
+						{
+							"value": "icon-send",
+							"label": "Send"
+						},
+						{
+							"value": "icon-sewing-machine",
+							"label": "Sewing machine"
+						},
+						{
+							"value": "icon-shipment-world",
+							"label": "Shipment world"
+						},
+						{
+							"value": "icon-shipment",
+							"label": "Shipment"
+						},
+						{
+							"value": "icon-shoes",
+							"label": "Shoes"
+						},
+						{
+							"value": "icon-store",
+							"label": "Store"
+						},
+						{
+							"value": "icon-support-headphones",
+							"label": "Support headphones"
+						},
+						{
+							"value": "icon-thread",
+							"label": "Thread"
+						},
+						{
+							"value": "icon-truck",
+							"label": "Truck"
+						},
+						{
+							"value": "icon-washer",
+							"label": "Washer"
+						},
+						{
+							"value": "icon-water",
+							"label": "Water"
+						}
+					]
+				},
+				{
+					"type": "image_picker",
+					"id": "icon_image_4",
+					"label": "Upload image"
+				},
+				{
+					"type": "text",
+					"id": "icon_kicker_4",
+					"label": "Kicker"
+				},
+				{
+					"type": "text",
+					"id": "icon_heading_4",
+					"label": "Heading"
+				},
+				{
+					"type": "richtext",
+					"id": "icon_text_4",
+					"label": "Description"
+				},
+				{
+					"type": "header",
+					"content": "Icon 5"
+				},
+				{
+					"type": "select",
+					"id": "icon_name_5",
+					"label": "Icon",
+					"default": "none",
+					"options": [
+						{
+							"value": "none",
+							"label": "None"
+						},
+						{
+							"value": "icon-animal",
+							"label": "Animal"
+						},
+						{
+							"value": "icon-animal-paw",
+							"label": "Animal paw"
+						},
+						{
+							"value": "icon-award",
+							"label": "Award"
+						},
+						{
+							"value": "icon-basket-like",
+							"label": "Basket like"
+						},
+						{
+							"value": "icon-basket-return",
+							"label": "Basket return"
+						},
+						{
+							"value": "icon-cart-check",
+							"label": "Cart check"
+						},
+						{
+							"value": "icon-cart-message",
+							"label": "Cart message"
+						},
+						{
+							"value": "icon-chat",
+							"label": "Chat"
+						},
+						{
+							"value": "icon-dollar",
+							"label": "Dollar"
+						},
+						{
+							"value": "icon-earth",
+							"label": "Earth"
+						},
+						{
+							"value": "icon-email",
+							"label": "Email"
+						},
+						{
+							"value": "icon-gluten-free",
+							"label": "Gluten free"
+						},
+						{
+							"value": "icon-iron",
+							"label": "Iron"
+						},
+						{
+							"value": "icon-leaf",
+							"label": "Leaf"
+						},
+						{
+							"value": "icon-legal",
+							"label": "Legal"
+						},
+						{
+							"value": "icon-lock-card",
+							"label": "Lock card"
+						},
+						{
+							"value": "icon-lock-shield",
+							"label": "Lock shield"
+						},
+						{
+							"value": "icon-lock-window",
+							"label": "Lock window"
+						},
+						{
+							"value": "icon-payment",
+							"label": "Payment"
+						},
+						{
+							"value": "icon-phone",
+							"label": "Phone"
+						},
+						{
+							"value": "icon-rating",
+							"label": "Rating"
+						},
+						{
+							"value": "icon-star-rating",
+							"label": "Rating star"
+						},
+						{
+							"value": "icon-recycled",
+							"label": "Recycled"
+						},
+						{
+							"value": "icon-ruler",
+							"label": "Ruler"
+						},
+						{
+							"value": "icon-send",
+							"label": "Send"
+						},
+						{
+							"value": "icon-sewing-machine",
+							"label": "Sewing machine"
+						},
+						{
+							"value": "icon-shipment-world",
+							"label": "Shipment world"
+						},
+						{
+							"value": "icon-shipment",
+							"label": "Shipment"
+						},
+						{
+							"value": "icon-shoes",
+							"label": "Shoes"
+						},
+						{
+							"value": "icon-store",
+							"label": "Store"
+						},
+						{
+							"value": "icon-support-headphones",
+							"label": "Support headphones"
+						},
+						{
+							"value": "icon-thread",
+							"label": "Thread"
+						},
+						{
+							"value": "icon-truck",
+							"label": "Truck"
+						},
+						{
+							"value": "icon-washer",
+							"label": "Washer"
+						},
+						{
+							"value": "icon-water",
+							"label": "Water"
+						}
+					]
+				},
+				{
+					"type": "image_picker",
+					"id": "icon_image_5",
+					"label": "Upload image"
+				},
+				{
+					"type": "text",
+					"id": "icon_kicker_5",
+					"label": "Kicker"
+				},
+				{
+					"type": "text",
+					"id": "icon_heading_5",
+					"label": "Heading"
+				},
+				{
+					"type": "richtext",
+					"id": "icon_text_5",
+					"label": "Description"
+				},
+				{
+					"type": "header",
+					"content": "Icon 6"
+				},
+				{
+					"type": "select",
+					"id": "icon_name_6",
+					"label": "Icon",
+					"default": "none",
+					"options": [
+						{
+							"value": "none",
+							"label": "None"
+						},
+						{
+							"value": "icon-animal",
+							"label": "Animal"
+						},
+						{
+							"value": "icon-animal-paw",
+							"label": "Animal paw"
+						},
+						{
+							"value": "icon-award",
+							"label": "Award"
+						},
+						{
+							"value": "icon-basket-like",
+							"label": "Basket like"
+						},
+						{
+							"value": "icon-basket-return",
+							"label": "Basket return"
+						},
+						{
+							"value": "icon-cart-check",
+							"label": "Cart check"
+						},
+						{
+							"value": "icon-cart-message",
+							"label": "Cart message"
+						},
+						{
+							"value": "icon-chat",
+							"label": "Chat"
+						},
+						{
+							"value": "icon-dollar",
+							"label": "Dollar"
+						},
+						{
+							"value": "icon-earth",
+							"label": "Earth"
+						},
+						{
+							"value": "icon-email",
+							"label": "Email"
+						},
+						{
+							"value": "icon-gluten-free",
+							"label": "Gluten free"
+						},
+						{
+							"value": "icon-iron",
+							"label": "Iron"
+						},
+						{
+							"value": "icon-leaf",
+							"label": "Leaf"
+						},
+						{
+							"value": "icon-legal",
+							"label": "Legal"
+						},
+						{
+							"value": "icon-lock-card",
+							"label": "Lock card"
+						},
+						{
+							"value": "icon-lock-shield",
+							"label": "Lock shield"
+						},
+						{
+							"value": "icon-lock-window",
+							"label": "Lock window"
+						},
+						{
+							"value": "icon-payment",
+							"label": "Payment"
+						},
+						{
+							"value": "icon-phone",
+							"label": "Phone"
+						},
+						{
+							"value": "icon-rating",
+							"label": "Rating"
+						},
+						{
+							"value": "icon-star-rating",
+							"label": "Rating star"
+						},
+						{
+							"value": "icon-recycled",
+							"label": "Recycled"
+						},
+						{
+							"value": "icon-ruler",
+							"label": "Ruler"
+						},
+						{
+							"value": "icon-send",
+							"label": "Send"
+						},
+						{
+							"value": "icon-sewing-machine",
+							"label": "Sewing machine"
+						},
+						{
+							"value": "icon-shipment-world",
+							"label": "Shipment world"
+						},
+						{
+							"value": "icon-shipment",
+							"label": "Shipment"
+						},
+						{
+							"value": "icon-shoes",
+							"label": "Shoes"
+						},
+						{
+							"value": "icon-store",
+							"label": "Store"
+						},
+						{
+							"value": "icon-support-headphones",
+							"label": "Support headphones"
+						},
+						{
+							"value": "icon-thread",
+							"label": "Thread"
+						},
+						{
+							"value": "icon-truck",
+							"label": "Truck"
+						},
+						{
+							"value": "icon-washer",
+							"label": "Washer"
+						},
+						{
+							"value": "icon-water",
+							"label": "Water"
+						}
+					]
+				},
+				{
+					"type": "image_picker",
+					"id": "icon_image_6",
+					"label": "Upload image"
+				},
+				{
+					"type": "text",
+					"id": "icon_kicker_6",
+					"label": "Kicker"
+				},
+				{
+					"type": "text",
+					"id": "icon_heading_6",
+					"label": "Heading"
+				},
+				{
+					"type": "richtext",
+					"id": "icon_text_6",
+					"label": "Description"
+				}
+			]
+		},
+		{
+			"type": "list",
+			"name": "List",
+			"settings": [
+				{
+					"type": "header",
+					"content": "List 1"
+				},
+				{
+					"type": "select",
+					"id": "type_1",
+					"label": "Type",
+					"options": [
+						{
+							"value": "bullets",
+							"label": "Bullet points"
+						},
+						{
+							"value": "numbers",
+							"label": "Numbers"
+						}
+					]
+				},
+				{
+					"type": "textarea",
+					"id": "list_text_1",
+					"label": "Text",
+					"info": "Break to a new line to add item in the list",
+					"default": "Line item 1 \nLine item 2 \nLine item 3"
+				},
+				{
+					"type": "header",
+					"content": "List 2"
+				},
+				{
+					"type": "select",
+					"id": "type_2",
+					"label": "Type",
+					"options": [
+						{
+							"value": "bullets",
+							"label": "Bullet points"
+						},
+						{
+							"value": "numbers",
+							"label": "Numbers"
+						}
+					]
+				},
+				{
+					"type": "textarea",
+					"id": "list_text_2",
+					"label": "Text",
+					"info": "Break to a new line to add item in the list",
+					"default": "Line item 1 \nLine item 2 \nLine item 3"
+				},
+				{
+					"type": "header",
+					"content": "List 3"
+				},
+				{
+					"type": "select",
+					"id": "type_3",
+					"label": "Type",
+					"options": [
+						{
+							"value": "bullets",
+							"label": "Bullet points"
+						},
+						{
+							"value": "numbers",
+							"label": "Numbers"
+						}
+					]
+				},
+				{
+					"type": "textarea",
+					"id": "list_text_3",
+					"label": "Text",
+					"info": "Break to a new line to add item in the list",
+					"default": "Line item 1 \nLine item 2 \nLine item 3"
+				}
+			]
+		},
+		{
+			"type": "image",
+			"name": "Image",
+			"settings": [
+				{
+					"type": "image_picker",
+					"id": "image",
+					"label": "Image"
+				},
+				{
+					"type": "range",
+					"id": "image_max_limit",
+					"min": 5,
+					"max": 500,
+					"step": 5,
+					"unit": "px",
+					"label": "Width",
+					"default": 120
+				},
+				{
+					"type": "url",
+					"id": "link",
+					"label": "Link"
+				}
+			]
+		},
+		{
+			"type": "countdown",
+			"name": "Countdown",
+			"settings": [
+				{
+					"type": "text",
+					"id": "end_date",
+					"label": "End date",
+					"placeholder": "2025-12-31 23:59",
+					"default": "2025-12-31",
+					"info": "Use format \"YYYY-MM-DD\". Expiration date is based on the [store primary timezone](/admin/settings/general)."
+				},
+				{
+					"type": "text",
+					"id": "end_time",
+					"label": "End time",
+					"default": "11:59",
+					"placeholder": "11:59",
+					"info": "Use 12-hour time convention in format \"HH:MM\""
+				},
+				{
+					"type": "radio",
+					"id": "period",
+					"label": "AM/PM",
+					"default": "am",
+					"options": [
+						{
+							"value": "am",
+							"label": "AM"
+						},
+						{
+							"value": "pm",
+							"label": "PM"
+						}
+					]
+				},
+				{
+					"type": "inline_richtext",
+					"id": "end_message",
+					"label": "End of timer message",
+					"default": "Offer has expired"
+				},
+				{
+					"type": "checkbox",
+					"id": "hide_on_complete",
+					"label": "Hide section after end of timer",
+					"default": false
+				},
+				{
+					"type": "range",
+					"id": "digit_size",
+					"label": "Text size",
+					"min": 1,
+					"max": 15,
+					"step": 1,
+					"default": 8
+				},
+				{
+					"type": "range",
+					"id": "digit_size_mobile",
+					"label": "Mobile text size",
+					"min": 1,
+					"max": 10,
+					"step": 1,
+					"default": 6
+				}
+			]
+		},
+		{
+			"type": "spacer",
+			"name": "Spacer",
+			"settings": [
+				{
+					"type": "range",
+					"id": "spacer_padding",
+					"label": "Padding",
+					"unit": "px",
+					"min": 0,
+					"max": 100,
+					"step": 2,
+					"default": 40
+				},
+				{
+					"type": "checkbox",
+					"id": "show_line",
+					"label": "Show line",
+					"default": false
+				}
+			]
+		}
+	],
+	"presets": [
+		{
+			"name": "Rich text",
+			"blocks": [
+				{
+					"type": "kicker"
+				},
+				{
+					"type": "heading"
+				},
+				{
+					"type": "text"
+				},
+				{
+					"type": "button",
+					"settings": {
+						"link_1": "shopify:\/\/collections\/all",
+						"link_text_1": "Shop all",
+						"button_size_1": "btn--medium",
+						"button_style_1": "btn-text-thick-line",
+						"button_color_1": "btn--neutral",
+						"link_text_2": "",
+						"button_size_2": "btn--medium",
+						"button_style_2": "btn-text-thick-line",
+						"button_color_2": "btn--neutral",
+						"link_text_3": "",
+						"button_size_3": "btn--medium",
+						"button_style_3": "btn-text-thick-line",
+						"button_color_3": "btn--neutral"
+					}
+				}
+			]
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"aside"
+		]
+	}
+}
+{% endschema %}

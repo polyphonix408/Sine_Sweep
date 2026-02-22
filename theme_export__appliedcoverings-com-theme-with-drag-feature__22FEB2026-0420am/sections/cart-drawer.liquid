@@ -1,0 +1,244 @@
+<!-- /snippets/cart-drawer.liquid -->
+
+{% comment %}
+  * The AJAX cart drawer called by layouts/cart.drawer.liquid
+  * cart {object} - the cart
+  {% render 'cart-drawer', cart: cart %}
+{% endcomment %}
+
+{%- liquid
+  assign hide_quantity = 'quantity--hide'
+  if section.settings.cart_show_quantity
+    assign hide_quantity = ''
+  endif
+
+  assign pop_style = 'drawer--right'
+  if settings.cart_style == 'pop'
+    assign pop_style = 'drawer--pop'
+  endif
+-%}
+{%- if settings.cart_style == "drawer" or settings.cart_style == "pop" -%}
+  {%- if template.name != 'cart' -%}
+    <section
+      data-section-id="{{ section.id }}"
+      data-section-type="cart-drawer"
+    >
+      <div class="drawer cart__drawer {{ pop_style }} {{ hide_quantity }} {{ section.settings.cart_color_bg }}"
+        data-cart-message-container
+        data-drawer="drawer-cart"
+        id="drawer-cart">
+        <div class="drawer__content" aria-label="{{ 'layout.cart.title' | t }}">
+          <div class="drawer__top">
+
+            <div class="drawer__top__left">
+              <p class="cart__drawer__title">{{ 'layout.cart.title' | t }}</p>
+            </div>
+
+            <button class="drawer__button drawer__close"
+              data-first-focus
+              data-drawer-toggle="drawer-cart"
+              aria-label="{{ 'general.accessibility.close' | t }}">
+              {% render 'icon-core-x' %}
+            </button>
+          </div>
+          <div class="drawer__body" data-drawer-scrolls>
+
+            {% if section.settings.cart_custom_message_enable and section.settings.cart_custom_message_text != blank %}
+              <div class="cart__message cart__message--custom cart--hidden" data-cart-bar>
+                {{ section.settings.cart_custom_message_text }}
+              </div>
+            {% endif %}
+
+            {%- if section.settings.show_free_shipping_message -%}
+              {% render 'cart-shipping-message', message: section.settings.message, show_wheel: true %}
+            {%- endif -%}
+
+            <div class="errors" data-form-errors style="display: none;"></div>
+
+            {% comment %}Shown if cart is empty{% endcomment %}
+            <div class="cart--hidden" data-cart-empty >
+              {% render 'cart-empty' %}
+            </div>
+
+            {% comment %}Shown if cart has contents{% endcomment %}
+            <div data-cart-form data-cart-loading>
+              <div data-line-items>
+                <div class="cart__items cart__items--blankstate">
+                  <div class="cart__items__row">
+                    <div class="item--loadbar" data-item-loadbar></div>
+                    <div class="cart__items__grid">
+                      <div class="cart__items__image">
+                        <span class="cart__items__img empty-content"></span>
+                      </div>
+                      <div class="cart__items__title empty-content"></div>
+                      <div class="cart__items__price empty-content"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="drawer__bottom cart--hidden" data-cart-bottom data-accordion-group>
+            {%- if section.settings.cart_notes_enable -%}
+              <div class="drawer__bottom__notes drawer__accordion">
+                <button class="accordion__title"
+                  data-accordion-trigger="accordion-cart-notes"
+                  aria-controls="accordion-cart-notes"
+                  aria-haspopup="true"
+                  aria-expanded="false">
+                  {{ 'cart.general.note' | t }}
+                </button>
+                <div class="accordion__body drawer__accordion__body"
+                  data-accordion-body
+                  id="accordion-cart-notes">
+                  <label class="visually-hidden" for="CartSpecialInstructions">{{ 'cart.general.note' | t }}</label>
+                  <textarea form="cart-form" name="note" placeholder="{{ 'cart.general.note' | t }}" class="drawer__notes__input input-full" id="CartSpecialInstructions" data-cart-note>{{ cart.note }}</textarea>
+                </div>
+              </div>
+            {%- endif -%}
+
+            {%- if section.settings.cart_shipping_enable -%}
+              {% render 'cart-shipping-estimate' %}
+            {%- endif -%}
+
+            <p class="drawer__bottom__meta body-size-3"><em>{% render 'taxes-included-cart' %}</em></p>
+
+            <div class="drawer__footer__subtotal" data-cart-subtotal>
+              {% render 'cart-subtotal' %}
+            </div>
+
+            <form id='cart-form' action="{{ routes.cart_url }}" method="post" novalidate class="cart">
+              <button type="submit" name="checkout" class="btn btn--primary btn--large btn--full checkout__button">
+                {{ 'cart.general.checkout' | t }}
+                <span class="cta__dot">•</span>
+                <span data-cart-final>
+                  {{ cart.total_price | money_with_currency }}
+                </span>
+              </button>
+            </form>
+            {% if additional_checkout_buttons and section.settings.cart_show_additional_buttons %}
+              <div class="drawer__checkout__additional">
+                <div class="additional-checkout-buttons additional-checkout-buttons--vertical">
+                  {{ content_for_additional_checkout_buttons }}
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+        <span class="drawer__underlay" data-drawer-underlay>
+          <span class="drawer__underlay__fill"></span>
+          <span class="drawer__underlay__blur"></span>
+        </span>
+      </div>
+    </section>
+  {%- endif -%}
+{%- endif -%}
+
+{% schema %}
+{
+	"settings": [
+		{
+			"type": "checkbox",
+			"id": "cart_shipping_enable",
+			"label": "Enable shipping estimates",
+			"default": false
+		},
+		{
+			"type": "checkbox",
+			"id": "cart_show_quantity",
+			"label": "Show quantity selectors",
+			"default": true
+		},
+		{
+			"type": "checkbox",
+			"id": "cart_notes_enable",
+			"label": "Show cart notes",
+			"default": false
+		},
+		{
+			"type": "header",
+			"content": "Free shipping message"
+		},
+		{
+			"type": "checkbox",
+			"id": "show_free_shipping_message",
+			"label": "Show free shipping message",
+			"default": false
+		},
+		{
+			"type": "textarea",
+			"id": "message",
+			"label": "Message",
+			"info": "Use ||amount|| to display progress towards free shipping, set the amount in your global theme settings for cart.",
+			"default": "Spend ||amount|| more for free shipping"
+		},
+		{
+			"type": "header",
+			"content": "Custom cart message"
+		},
+		{
+			"type": "checkbox",
+			"id": "cart_custom_message_enable",
+			"label": "Show custom message",
+			"default": false
+		},
+		{
+			"type": "richtext",
+			"id": "cart_custom_message_text",
+			"label": "Message text",
+			"default": "<p>Use code <strong>TENOFF</strong> at checkout for 10% off</p>"
+		},
+		{
+			"type": "header",
+			"content": "Colors"
+		},
+		{
+			"type": "select",
+			"id": "cart_color_bg",
+			"label": "Background color",
+			"default": "palette--light bg--neutral",
+			"options": [
+				{
+					"value": "palette--light bg--neutral",
+					"label": "Default"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Additional checkout buttons"
+		},
+		{
+			"type": "paragraph",
+			"content": "Not recommended for drawer style and popup style cart"
+		},
+		{
+			"type": "checkbox",
+			"id": "cart_show_additional_buttons",
+			"label": "Show additional checkout options on cart",
+			"info": "Move buttons for Apple Pay, Amazon Pay and PayPal express from the first step of the checkout to the cart.",
+			"default": false
+		}
+	]
+}
+{% endschema %}

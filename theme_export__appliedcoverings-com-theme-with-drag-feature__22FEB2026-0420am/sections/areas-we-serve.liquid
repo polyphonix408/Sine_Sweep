@@ -1,0 +1,138 @@
+{% comment %}
+  Section: Areas We Serve
+  Layout: two columns (left copy, right map)
+  Theme: Petra (OS 2.0)
+{% endcomment %}
+
+<section id="areas-{{ section.id }}" class="areas-serve">
+  <div class="areas-serve__inner">
+    <div class="areas-serve__left">
+      {% if section.settings.kicker != blank %}
+        <p class="areas-serve__kicker">{{ section.settings.kicker }}</p>
+      {% endif %}
+
+      {% if section.settings.heading != blank %}
+        <h2 class="areas-serve__heading">{{ section.settings.heading }}</h2>
+      {% endif %}
+
+      {% if section.settings.body != blank %}
+        <div class="areas-serve__body rte">{{ section.settings.body }}</div>
+      {% endif %}
+
+      {% assign lines = section.settings.locations
+        | strip
+        | newline_to_br
+        | replace: '<br />', '\n'
+        | split: '\n' %}
+
+      {% if lines.size > 0 and lines.first != blank %}
+        <ul class="areas-serve__list" role="list">
+          {% for item in lines %}
+            {% assign item_trim = item | strip %}
+            {% if item_trim != blank %}
+              <li>{{ item_trim }}</li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+
+    <div class="areas-serve__right">
+      {% if section.settings.map_embed != blank %}
+        <div class="areas-serve__map">
+          {{ section.settings.map_embed }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <style>
+    #areas-{{ section.id }}{
+      padding:clamp(24px,4vw,56px) 0;
+      color:var(--color-foreground,#111);
+      background:var(--color-background,transparent);
+    }
+    #areas-{{ section.id }} .areas-serve__inner{
+      max-width:var(--page-width,1200px);
+      margin:0 auto;
+      padding:0 clamp(16px,3vw,32px);
+      display:grid;
+      grid-template-columns:1.15fr 1fr;
+      gap:clamp(20px,4vw,48px);
+      align-items:start;
+    }
+    /* left */
+    #areas-{{ section.id }} .areas-serve__kicker{
+      margin:0 0 8px;
+      font-size:12px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      opacity:.8;
+    }
+    #areas-{{ section.id }} .areas-serve__heading{
+      margin:0 0 12px;
+      font-size:clamp(22px,2.6vw,32px);
+      line-height:1.25;
+    }
+    #areas-{{ section.id }} .areas-serve__body{
+      margin:0 0 16px;
+      font-size:clamp(14px,1.2vw,16px);
+      line-height:1.6;
+      max-width:70ch;
+    }
+    /* list in two columns */
+    #areas-{{ section.id }} .areas-serve__list{
+      columns:2;
+      column-gap:clamp(20px,3vw,40px);
+      padding:0;
+      margin:0;
+      list-style:disc inside;
+      font-size:clamp(14px,1.1vw,15px);
+    }
+    #areas-{{ section.id }} .areas-serve__list li{
+      break-inside:avoid;
+      margin:4px 0 6px;
+    }
+    /* right map */
+    #areas-{{ section.id }} .areas-serve__map{
+      width:100%;
+      aspect-ratio: 4 / 3;
+      border:0;
+    }
+    #areas-{{ section.id }} .areas-serve__map iframe{
+      width:100%;
+      height:100%;
+      border:0;
+    }
+    /* responsive */
+    @media (max-width: 900px){
+      #areas-{{ section.id }} .areas-serve__inner{
+        grid-template-columns:1fr;
+      }
+      #areas-{{ section.id }} .areas-serve__list{
+        columns:1;
+      }
+      #areas-{{ section.id }} .areas-serve__map{
+        aspect-ratio: 16 / 9;
+      }
+    }
+  </style>
+</section>
+
+{% schema %}
+{
+  "name": "Areas we serve",
+  "settings": [
+    { "type": "text", "id": "kicker", "label": "Kicker (all caps)", "default": "AREA WE SERVE" },
+    { "type": "text", "id": "heading", "label": "Headline", "default": "We Serve San Jose CA, and Its Neighboring Areas in California" },
+    { "type": "richtext", "id": "body", "label": "Short paragraph", "default": "<p>At Applied Coverings, our reach extends across the vibrant landscapes of San Jose and its neighboring areas.</p>" },
+    { "type": "textarea", "id": "locations", "label": "Locations (one per line)", "default": "Glendale, CA\nPasadena, CA\nAlhambra, CA\nDowney, CA\nCompton, CA\nCarson, CA\nLong Beach, CA\nRancho Palos Verdes, CA\nTorrance, CA\nGardena, CA\nWest Hollywood, CA\nBeverly Hills, CA\nCulver City, CA\nInglewood, CA\nHawthorne, CA\nBurbank, CA" },
+    { "type": "html", "id": "map_embed", "label": "Google Maps embed (paste iframe)", "info": "Use Google Maps Share > Embed a map and paste the iframe here." }
+  ],
+  "presets": [
+    {
+      "name": "Areas we serve"
+    }
+  ]
+}
+{% endschema %}

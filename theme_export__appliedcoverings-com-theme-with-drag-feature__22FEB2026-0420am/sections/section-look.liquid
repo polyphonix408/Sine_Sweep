@@ -1,0 +1,443 @@
+<!-- /sections/section-look.liquid -->
+
+<div
+  class="section-look js-overflow-container"
+  data-section-id="{{ section.id }}"
+  data-section-type="look"
+  style="
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+  "
+>
+  {% assign look_dots = '' %}
+  {% assign look_products = '' %}
+
+  {% if section.blocks.size > 0 %}
+    {% for block in section.blocks %}
+      {% capture look_dots %}
+        {{ look_dots }}
+
+        <button
+          type="button"
+          class="look__dot__holder  {{ section.settings.dot_color }} {% if forloop.first and section.settings.default_open %} is-active{% endif %}"
+          data-look-dot="{{ forloop.index0 }}"
+          style="
+            --DOT-TOP-DESKTOP: {{ block.settings.position_y }}%;
+            --DOT-LEFT-DESKTOP: {{ block.settings.position_x }}%;
+            {%- if section.settings.image_mobile_enable -%}
+              --DOT-TOP-MOBILE: {{ block.settings.position_y_mobile }}%;
+              --DOT-LEFT-MOBILE: {{ block.settings.position_x_mobile }}%;
+            {%- else -%}
+              --DOT-TOP-MOBILE: {{ block.settings.position_y }}%;
+              --DOT-LEFT-MOBILE: {{ block.settings.position_x }}%;
+            {%- endif -%}
+          "
+        >
+          <span class="look__dot">{{ forloop.index0 }}</span>
+          <span class="look__dot__pulse"></span>
+        </button>
+      {% endcapture %}
+
+      {% capture look_products %}
+        {{ look_products }}
+
+        {% assign product = all_products[block.settings.product] %}
+
+        <div class="slide-item" data-carousel-slide data-item data-carousel-index="{{ forloop.index0 }}" data-block-id="{{ block.id }}" {{ block.shopify_attributes }}>
+          {%- liquid
+            capture placeholder
+              echo 'product-'
+              cycle '1', '2', '3', '4'
+            endcapture
+            if forloop.index0 == 0
+              assign loading_animation = true
+            else
+              assign loading_animation = false
+            endif
+
+            render 'product-info-item', product: product, placeholder: placeholder, loading_animation: loading_animation
+          -%}
+        </div>
+      {% endcapture %}
+    {% endfor %}
+  {% endif %}
+
+  <div class="{{ section.settings.width }}">
+    <div class="look">
+      {%- assign desktop_conditional_hide = '' -%}
+      {% comment %} Optional mobile image {% endcomment %}
+      {%- if section.settings.image_mobile_enable -%}
+        {% comment %} Use desktop img with mobile aspect_ratio and dot position if no mobile image is set {% endcomment %}
+        {%- if section.settings.image_mobile -%}
+          {%- assign mobile_img_obj = section.settings.image_mobile -%}
+        {%- else -%}
+          {%- assign mobile_img_obj = section.settings.image -%}
+        {%- endif -%}
+
+        {%- capture srcset_mobile -%}
+          {%- render 'image-grid-srcset',
+            image: mobile_img_obj,
+            columns_desktop: 1,
+            columns_tablet: 1,
+            columns_mobile: 1.0,
+            section_width: section.settings.width
+          %}
+        {%- endcapture -%}
+
+        {%- render 'image',
+          cover: true,
+          img_object: mobile_img_obj,
+          wh_ratio: section.settings.wh_ratio_mobile,
+          wrapper_class: 'md:hidden',
+          sizes: sizes,
+          srcset: srcset_mobile,
+          loading: 'lazy'
+        -%}
+        {%- assign desktop_conditional_hide = 'hidden md:block' -%}
+      {%- endif -%}
+
+      {% comment %} Desktop image {% endcomment %}
+      {%- capture sizes -%}
+        {%- render 'image-grid-sizes',
+          columns_desktop: 1,
+          columns_tablet: 1,
+          columns_mobile: 1.0,
+          section_width: section.settings.width
+        %}
+      {%- endcapture -%}
+
+      {%- capture srcset -%}
+        {%- render 'image-grid-srcset',
+          image: section.settings.image,
+          columns_desktop: 1,
+          columns_tablet: 1,
+          columns_mobile: 1.0,
+          section_width: section.settings.width
+        %}
+      {%- endcapture -%}
+
+      {%- render 'image',
+        cover: true,
+        img_object: section.settings.image,
+        wh_ratio: section.settings.wh_ratio,
+        wrapper_class: desktop_conditional_hide,
+        sizes: sizes,
+        srcset: srcset,
+        loading: 'lazy',
+      -%}
+
+      {{ look_dots }}
+
+      {% if look_products != '' %}
+        {% if section.blocks.size > 1 %}{% assign is_slider_class = 'look__products__holder--slides' %}{% endif %}
+        <div
+          class="look__products__holder {{ is_slider_class }} {{ section.settings.position }} {{ section.settings.card_color }}"
+          data-products-holder
+        >
+          <button
+            type="button"
+            class="look__products__holder__close"
+            data-button-close-holder
+            aria-label="{{ 'general.accessibility.close' | t }}"
+          >
+            {% render 'icon-core-x' %}
+          </button>
+
+          <flickity-carousel>
+            <div
+              data-carousel
+              data-grid
+              data-grid-large
+              data-options='{"wrapAround": true}'
+              class="look__products__slider"
+
+              style="
+                --grid-large-items: 1;
+                --grid-small-items: {{ section.settings.grid_small }};"
+            >
+              {{ look_products }}
+            </div>
+          </flickity-carousel>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+	"name": "Shop the look",
+	"settings": [
+		{
+			"type": "image_picker",
+			"id": "image",
+			"label": "Image"
+		},
+		{
+			"type": "range",
+			"id": "wh_ratio",
+			"min": 0.5,
+			"max": 4,
+			"step": 0.1,
+			"unit": ":1",
+			"label": "Image scaling ratio",
+			"default": 1.7
+		},
+		{
+			"type": "checkbox",
+			"id": "default_open",
+			"label": "Default to open",
+			"default": true
+		},
+		{
+			"type": "select",
+			"id": "dot_color",
+			"label": "Dot color",
+			"default": "palette--dark bg--invert",
+			"options": [
+				{
+					"value": "palette--light bg--neutral",
+					"label": "Default"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "card_color",
+			"label": "Product card color",
+			"default": "palette--light bg--neutral",
+			"options": [
+				{
+					"value": "palette--light bg--neutral",
+					"label": "Default"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "position",
+			"label": "Product position",
+			"default": "look__products__holder--right",
+			"options": [
+				{
+					"value": "look__products__holder--left",
+					"label": "Left"
+				},
+				{
+					"value": "look__products__holder--right",
+					"label": "Right"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Mobile"
+		},
+		{
+			"type": "range",
+			"id": "grid_small",
+			"min": 1,
+			"max": 2,
+			"step": 0.1,
+			"label": "Products per row",
+			"default": 1.2
+		},
+		{
+			"type": "checkbox",
+			"id": "image_mobile_enable",
+			"label": "Enable mobile image (optional)",
+			"default": false
+		},
+		{
+			"type": "image_picker",
+			"id": "image_mobile",
+			"label": "Image"
+		},
+		{
+			"type": "range",
+			"id": "wh_ratio_mobile",
+			"min": 0.5,
+			"max": 4,
+			"step": 0.1,
+			"unit": ":1",
+			"label": "Image scaling ratio",
+			"default": 1
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper--none",
+			"options": [
+				{
+					"value": "wrapper--none",
+					"label": "Full width"
+				},
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 0
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 0
+		}
+	],
+	"blocks": [
+		{
+			"type": "product",
+			"name": "Product",
+			"limit": 10,
+			"settings": [
+				{
+					"type": "product",
+					"id": "product",
+					"label": "Product",
+					"info": "Product displayed in the modal"
+				},
+				{
+					"type": "header",
+					"content": "Dot position"
+				},
+				{
+					"type": "range",
+					"id": "position_x",
+					"min": 0,
+					"max": 100,
+					"step": 1,
+					"label": "Horizontal",
+					"unit": "%",
+					"default": 50
+				},
+				{
+					"type": "range",
+					"id": "position_y",
+					"min": 0,
+					"max": 100,
+					"step": 1,
+					"label": "Vertical",
+					"unit": "%",
+					"default": 50
+				},
+				{
+					"type": "paragraph",
+					"content": "Mobile image dot position (optional)"
+				},
+				{
+					"type": "range",
+					"id": "position_x_mobile",
+					"min": 0,
+					"max": 100,
+					"step": 1,
+					"label": "Horizontal",
+					"unit": "%",
+					"default": 50
+				},
+				{
+					"type": "range",
+					"id": "position_y_mobile",
+					"min": 0,
+					"max": 100,
+					"step": 1,
+					"label": "Vertical",
+					"unit": "%",
+					"default": 50
+				}
+			]
+		}
+	],
+	"presets": [
+		{
+			"name": "Shop the look",
+			"blocks": [
+				{
+					"type": "product",
+					"settings": {
+						"position_x": 40,
+						"position_y": 20
+					}
+				},
+				{
+					"type": "product",
+					"settings": {
+						"position_x": 60,
+						"position_y": 60
+					}
+				}
+			]
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"footer",
+			"aside"
+		]
+	}
+}
+{% endschema %}

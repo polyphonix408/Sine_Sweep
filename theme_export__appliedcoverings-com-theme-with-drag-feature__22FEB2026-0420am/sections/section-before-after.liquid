@@ -1,0 +1,128 @@
+<!-- /sections/section-before-after.liquid -->
+
+<div
+  data-section-type="before-after"
+  data-section-id="{{ section.id }}"
+  style="
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="{{ section.settings.width }} section-padding">
+    {% render 'core-before-after', _settings: section.settings %}
+  </div>
+</div>
+
+{% schema %}
+{
+	"name": "Before/After",
+	"settings": [
+		{
+			"type": "image_picker",
+			"id": "after_image",
+			"label": "Before Image"
+		},
+		{
+			"type": "image_picker",
+			"id": "before_image",
+			"label": "After Image"
+		},
+		{
+			"type": "select",
+			"id": "orientation",
+			"label": "Orientation",
+			"default": "horizontal",
+			"options": [
+				{
+					"value": "horizontal",
+					"label": "Horizontal"
+				},
+				{
+					"value": "vertical",
+					"label": "Vertical"
+				}
+			]
+		},
+		{
+			"type": "color",
+			"id": "handle_color",
+			"label": "Handle color",
+			"default": "#FFFFFF"
+		},
+		{
+			"type": "range",
+			"id": "start_position",
+			"min": 0,
+			"max": 100,
+			"step": 1,
+			"unit": "%",
+			"label": "Start position",
+			"default": 50
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper",
+			"options": [
+				{
+					"value": "wrapper--none",
+					"label": "Full width"
+				},
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				},
+				{
+					"value": "wrapper--narrow",
+					"label": "Page width narrow"
+				},
+				{
+					"value": "wrapper--tiny",
+					"label": "Page width extra narrow"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 0
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 0
+		}
+	],
+	"presets": [
+		{
+			"name": "Before/After"
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"footer",
+			"aside"
+		]
+	}
+}
+{% endschema %}

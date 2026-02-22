@@ -1,0 +1,105 @@
+<div class="flex items-center" style="justify-content: var(--content-alignment-default);" {{ block.shopify_attributes }}>
+  {% render 'core-button', _settings: block.settings %}
+</div>
+
+{% schema %}
+{
+	"name": "Button",
+	"tag": null,
+	"settings": [
+		{
+			"type": "text",
+			"id": "text",
+			"label": "Text",
+			"default": "View products"
+		},
+		{
+			"type": "url",
+			"id": "link",
+			"label": "Link"
+		},
+		{
+			"type": "select",
+			"id": "sizing",
+			"label": "Size",
+			"default": "btn--long",
+			"options": [
+				{
+					"value": "btn--small",
+					"label": "Small button"
+				},
+				{
+					"value": "btn--medium",
+					"label": "Medium button"
+				},
+				{
+					"value": "btn--large",
+					"label": "Large button"
+				},
+				{
+					"value": "btn--long",
+					"label": "Long button"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "style",
+			"label": "Style",
+			"default": "btn",
+			"options": [
+				{
+					"value": "btn-block-text-underline",
+					"label": "Capitalized text"
+				},
+				{
+					"value": "btn",
+					"label": "Solid button"
+				},
+				{
+					"value": "btn--soft",
+					"label": "Soft button"
+				},
+				{
+					"value": "btn--outline",
+					"label": "Outlined button"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "color",
+			"label": "Color",
+			"default": "btn--neutral",
+			"options": [
+				{
+					"value": "btn--primary",
+					"label": "Bright accent"
+				},
+				{
+					"value": "btn--secondary",
+					"label": "Secondary accent"
+				},
+				{
+					"value": "btn--neutral",
+					"label": "Text color"
+				},
+				{
+					"value": "btn--black",
+					"label": "Black"
+				},
+				{
+					"value": "btn--white",
+					"label": "White"
+				}
+			]
+		},
+	],
+	"presets": [
+		{
+			"name": "Button",
+			"blocks": []
+		}
+	]
+}
+{% endschema %}

@@ -1,0 +1,541 @@
+<!-- /snippets/product-grid-item-variant.liquid -->
+
+{% comment %}
+  Inner content for a grid item
+{% endcomment %}
+
+{%- liquid
+  assign on_sale = false
+  if product.compare_at_price > product.price
+    assign on_sale = true
+  endif
+
+  assign sold_out = true
+  if product.available
+    assign sold_out = false
+  endif
+
+  assign sellout_badge = false
+  if sold_out and settings.badge_sellout
+    assign sellout_badge = true
+  endif
+
+  assign sale_badge = false
+  if on_sale and settings.badge_sale
+    assign sale_badge = true
+    assign sale_badge_content = 'products.product.sale' | t
+    if settings.badge_sale_discount
+      if settings.badge_sale_type == 'dollar'
+        if settings.currency_code_enable
+          assign sale_badge_content = product.compare_at_price | minus: product.price | money_with_currency
+        else
+          assign sale_badge_content = product.compare_at_price | minus: product.price | money_without_trailing_zeros
+        endif
+      else
+        assign difference = product.compare_at_price | minus: product.price
+        assign percent_off = difference | times: 1.0 | divided_by: product.compare_at_price | times: 100
+        assign sale_badge_content = percent_off | floor | append: '%'
+      endif
+      assign save_word = 'products.product.save' | t | append: ' '
+      assign sale_badge_content = sale_badge_content | prepend: save_word
+    endif
+  endif
+
+  assign custom_badge = false
+  if settings.badge_custom
+    if product.metafields.theme.badge != blank and product.metafields.theme.badge.type == 'single_line_text_field'
+      assign custom_badge = true
+      assign custom_badge_content = product.metafields.theme.badge.value
+    endif
+    for tag in product.tags
+      if tag contains "_badge_"
+        assign tag_content = tag | remove: '_badge_' | replace: '_', ' '
+         if tag_content != ''
+          assign custom_badge = true
+          assign custom_badge_content = tag_content
+         endif
+        break
+      endif
+    endfor
+  endif
+
+  if badge_string and badge_string != ''
+    assign custom_badge = true
+    assign custom_badge_content = badge_string
+  endif
+
+  assign tagged = false
+  if sellout_badge or sale_badge or custom_badge
+    assign tagged = true
+  endif
+
+  comment
+    Disqualify options that have more than 15 variants or are a combined length of > 90 characters
+  endcomment
+  if inline_variant_buttons.values.size > 15
+    assign inline_variant_buttons = nil
+  endif
+
+  if inline_variant_buttons
+    assign all_characters = inline_variant_buttons.values | join: ""
+    if all_characters.size >= 90
+      assign inline_variant_buttons = nil
+    endif
+  endif
+
+  # Sellign plans can be added along with inline or instand buttons if
+  # the product has exactly 1 selling plan with subscriptions required
+  assign simple_selling_plan = nil
+
+  if inline_variant_buttons or instant_add_button
+    if product.requires_selling_plan and product.selling_plan_groups.size == 1 and product.selling_plan_groups[0].selling_plans.size == 1
+      # one variant, one required subscription, no choices to make
+      assign simple_selling_plan = product.selected_or_first_available_selling_plan_allocation.selling_plan
+    elsif product.selling_plan_groups.size > 0
+      # Abort instant and inline add buttons, subs choices must be made
+      assign inline_variant_buttons = nil
+      assign instant_add_button = nil
+    endif
+  endif
+
+  # Catch case where first sibling has inline variants and subsequent do not
+  if product.has_only_default_variant and inline_variant_buttons
+    assign inline_variant_buttons = nil
+    assign instant_add_button = true
+  endif
+
+  # Allow configuration of image sizing for different numbers of grid columns
+  # Note: desktop/tablet are set to a default of 3 just in case the grid sizes are not set to prevent accidental gigantic full-width images from being loaded
+  assign columns_desktop = columns_desktop | default: section.settings.grid_large | default: 3
+  assign columns_tablet = columns_tablet | default: section.settings.grid_medium | default: columns_desktop | default: 3
+  assign columns_mobile = columns_mobile | default: section.settings.grid_mobile | default: 1
+  assign section_width = section_width | default: section.settings.width | default: null
+-%}
+{%- capture badge -%}
+  {%- if tagged %}
+    {%- if custom_badge -%}
+      <div class="product__badge product__badge--custom product__badge--{{ custom_badge_content | strip_html | handle }}">{{ custom_badge_content }}</div>
+    {%- elsif sellout_badge -%}
+      <div class="product__badge product__badge--sold">{{ 'products.product.sold_out' | t }}</div>
+    {%- elsif sale_badge -%}
+      <div class="product__badge product__badge--sale">{{ sale_badge_content }}</div>
+    {%- endif -%}
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- liquid
+  assign first_image = product.media[0].preview_image
+  assign container_wh_ratio = settings.product_card_wh_ratio
+  assign image_cover = true
+
+  case settings.product_grid_image
+  when 'crop'
+    assign image_wh_ratio = container_wh_ratio
+  when 'uneven'
+    assign container_wh_ratio = first_image.aspect_ratio | default: settings.product_card_wh_ratio
+  when 'scale'
+    assign image_cover = false
+    assign image_wh_ratio = first_image.aspect_ratio | default: settings.product_card_wh_ratio
+  endcase
+
+  # Behavior is inferred based on setting and passed into JS
+  assign image_hover = 'disabled'
+  assign images_limit = settings.cycle_images_limit
+  case images_limit
+  when 1
+    assign image_hover = 'disabled'
+  when 2
+    assign image_hover = 'second_immediately'
+  else
+    assign image_hover = 'cycle_images'
+  endcase
+-%}
+
+{%- capture sizes -%}
+  {%- render 'image-grid-sizes',
+    columns_desktop: columns_desktop,
+    columns_tablet: columns_tablet,
+    columns_mobile: columns_mobile,
+    section_width: section_width
+  %}
+{%- endcapture -%}
+
+<product-grid-item-variant
+  class="
+    product-grid-item__content{% if on_sale %} on-sale{% endif %}
+    {% if sold_out %} sold-out{% endif %}
+    {% if tagged %} tagged{% endif %}
+    {% comment %} only used to hide badge on hover {% endcomment %}
+    {% if image_hover == 'cycle_images' %} is-slideshow{% endif %}
+  "
+  style="
+    --enter-animation-duration: 225ms;
+    --exit-animation-duration: 400ms;
+  "
+  data-grid-item="{{ product.id }}"
+  data-slideshow-style="{{ image_hover }}"
+  data-grid-item-variant="{{ variant.id }}"
+  {% if visible != true %} hidden {% endif %}
+  aria-label="{{ variant.title }}"
+>
+  <div class="product-grid-item__container" data-error-boundary>
+    <div data-error-display class="product-grid-item__error-display">&nbsp;</div>
+    <a href="{{ product.url }}" data-grid-link aria-label="{{ product.title | strip_html | escape }}">
+      <div
+        class="product-grid-item__images aspect-[--wh-ratio]"
+        data-grid-images data-grid-slide
+        style="
+          --wh-ratio: {{ container_wh_ratio }};
+        "
+      >
+        {%- if product.media.size > 0 -%}
+          {% comment %}
+            Manually store and increment this variable since we start skipping images below when we exceed the allowed images which would
+            make using e.g. forloop.index0 not work since the index of the variant image could be greater than the number of images allowed
+          {% endcomment %}
+          {%- assign image_index = 0 -%}
+
+          {%- for media in product.media -%}
+            {%- liquid
+              # If we've already exceeded the number of allowed images, and this is not the variant featured media, skip it
+              if image_index > images_limit
+                if product.selected_variant and product.selected_variant.featured_media.id != media.id
+                  continue
+                elsif variant.featured_media.id != media.id
+                  continue
+                endif
+              endif
+
+              assign img_object = media.preview_image
+              assign class = "product-grid-item__image"
+              assign loading = 'lazy'
+              assign fetchpriority = "low"
+              assign visible = false
+              assign active_class = 'is-active'
+              assign is_variant_featured_media = false
+              assign is_selected_variant = false
+              assign preload_image = false
+              assign loading_image = 'lazy'
+
+              if variant.featured_media and media.id == variant.featured_media.id
+                # Variant image is not necessarily first image or default image
+                assign is_variant_featured_media = true
+              endif
+
+              if product.selected_variant and product.selected_variant.featured_image
+                if product.selected_variant.featured_media.id == media.id
+                  assign is_selected_variant = true
+                endif
+
+                # Show variant image is there is a collection filter applied
+                if is_variant_featured_media and is_selected_variant
+                  assign visible = true
+                endif
+              else
+                # If no filters are active show the first image first
+                if forloop.first
+                  assign visible = true
+                endif
+              endif
+
+              if visible
+                assign fetchpriority = "high"
+                if preload
+                  assign loading = 'eager'
+                  assign preload_image = true
+                endif
+                if eagerload
+                  assign loading_image = 'eager'
+                endif
+              endif
+            %}
+
+            {%- capture srcset -%}
+              {%- render 'image-grid-srcset',
+                image: img_object,
+                columns_desktop: columns_desktop,
+                columns_tablet: columns_tablet,
+                columns_mobile: columns_mobile,
+                section_width: section_width,
+                wh_ratio: image_wh_ratio,
+                crop: 'center'
+              %}
+            {%- endcapture -%}
+
+            {% comment %} Use a template to prevent hidden images from loading until user begins slideshow{% endcomment %}
+            <product-grid-item-image
+              class="
+                product-grid-item__image-wrapper
+                {% if visible %}{{ active_class }}{% endif %}
+              "
+              data-grid-image="{{ image_index }}"
+              data-grid-image-target="{{ media.id }}"
+              data-variant-id="{{ }}"
+              loading="{{ loading }}"
+              {% if visible %}data-grid-current-image{% endif %}
+              {% if is_selected_variant and visible %}
+                data-slide-for-filter-selected-variant
+              {% endif %}
+              {% if is_variant_featured_media %}
+                data-slide-for-variant-media
+              {% endif %}
+            >
+              {% unless visible %}<template>{% endunless %}
+
+              {% render 'image',
+                cover: image_cover,
+                img_object: img_object,
+                class: class,
+                sizes: sizes,
+                srcset: srcset,
+                preload: preload_image,
+                loading: loading_image,
+                fetchpriority: fetchpriority,
+                wh_ratio: image_wh_ratio,
+                placeholder: placeholder
+              %}
+              {% unless visible %}</template>{% endunless %}
+            </product-grid-item-image>
+            {%- assign image_index = image_index | plus: 1 -%}
+          {%- endfor -%}
+        {% else %}
+          <div class="product-grid-item__image-wrapper is-active">
+            {% render 'image',
+              cover: image_cover,
+              img_object: null,
+              class: class,
+              placeholder: placeholder,
+              wh_ratio: image_wh_ratio
+            %}
+          </div>
+        {%- endif -%}
+      </div>
+
+      {{ badge }}
+    </a>
+
+    {% capture quick_action_toolbar_classes %}
+      group/quick-actions-toolbar
+      absolute
+      flex flex-col justify-end items-end overflow-hidden
+      top-[calc(var(--inner)/2)]
+      right-[calc(var(--inner)/2)]
+      bottom-[calc(var(--inner)/2)]
+      left-[calc(var(--inner)/2)]
+      transition duration-[--exit-animation-duration]
+      md:items-normal
+      md:opacity-0
+      md:translate-y-r4
+      md:group-hover/product-grid-item:opacity-100
+      md:group-hover/product-grid-item:translate-y-0
+      md:group-focus-within/product-grid-item:opacity-100
+      md:group-focus-within/product-grid-item:translate-y-0
+
+      {% comment %}
+      Prevent pointer events on the outer <inline-add-product> element since it covers the whole card
+      and we only want the options menu to show when either the button wrapper or options menu itself
+      are still being hovered
+      {% endcomment %}
+      pointer-events-none
+    {% endcapture %}
+
+    {% capture quick_action_button_classes %}
+      {{ settings.quick_add_button_color }}
+      group/quick-action-button
+      bg-button
+      flex items-center justify-center
+      type-accent font-bold text-r3
+      transition-opacity duration-[--enter-animation-duration]
+      pointer-events-auto
+      w-r12 aspect-square
+      min-w-[40px]
+      min-h-[40px]
+      md:min-h-[48px]
+      md:px-r8 md:py-r5 md:w-full md:aspect-auto
+      {% if sold_out %}opacity-50 !cursor-not-allowed{% endif %}
+    {% endcapture %}
+
+    {%- if instant_add_button %}
+      {% comment %} Allow for shorter default text on longer translations {% endcomment %}
+      {% liquid
+        if product.metafields.theme.preorder.value == true
+          assign button_text = 'products.general.instant_add_pre_order' | t
+        else
+          assign button_text = 'products.general.instant_add' | t
+        endif
+      %}
+      {% capture button %}
+        <button
+          data-add-to-cart
+          type="submit"
+          name="add"
+          class="{{ quick_action_button_classes }}"
+          :class="{
+            'has-success': isSuccess,
+            'loading': isLoading
+          }"
+          title="{% if sold_out %}{{ 'products.product.sold_out' | t }}{% else %}{{ button_text }}{% endif %}"
+          :disabled="{{sold_out}} || isDisabled"
+          aria-label="{{ button_text }}"
+        >
+          <span class="btn-state-ready text-button-contrast group-hover/quick-action-button:text-button-contrast/50  whitespace-nowrap">
+            <span class="hidden md:block">
+              {{ button_text }}
+            </span>
+            <span aria-hidden class="block md:hidden">
+              {% render 'icon-set-classic-cart' %}
+            </span>
+          </span>
+          <span class="btn-state-loading">
+            <svg height="18" width="18" class="svg-loader" style="--border: rgb(var(--rgb-button-contrast) / 50%); --text: rgb(var(--rgb-button-contrast));">
+              <circle r="7" cx="9" cy="9" />
+              <circle stroke-dasharray="87.96459430051421 87.96459430051421" r="7" cx="9" cy="9" />
+            </svg>
+          </span>
+          <span class="btn-state-complete" style="--primary: rgb(var(--rgb-button-contrast));">&nbsp;</span>
+        </button>
+      {% endcapture %}
+      <div class="{{quick_action_toolbar_classes}}">
+        {% render 'product-add-button-form', variant: variant, selling_plan: simple_selling_plan, button: button, class: "md:w-full" %}
+      </div>
+    {%- elsif inline_variant_buttons %}
+      <div class="{{quick_action_toolbar_classes}}" x-data="productGridItemQuickAddMenu()">
+        <button
+          class="
+            {{ quick_action_button_classes }}
+            transition-opacity
+          "
+          title="{{ 'products.general.inline_add' | t }}"
+          aria-haspopup="true"
+          :aria-expanded="isOpen"
+          :id="$id('quick-add-menu-button')"
+          :aria-controls="$id('quick-add-menu-slideover')"
+          @click.stop="open()"
+          @mouseover="open()"
+          x-ref="button"
+          :class="
+            isOpen ?
+              'duration-[--enter-animation-duration] delay-0 opacity-0 md:opacity-100' :
+              'duration-[--exit-animation-duration] delay-[--exit-animation-duration] opacity-100'
+          "
+          aria-label="{{ 'products.general.inline_add' | t }}"
+        >
+          <span
+            class="
+              whitespace-nowrap
+              text-button-contrast
+              transition translate-y-0 transform
+            "
+            :class="
+              isOpen ?
+                'duration-[--enter-animation-duration] delay-0 translate-y-full opacity-0' :
+                'duration-[--exit-animation-duration] delay-[calc(var(--exit-animation-duration))] translate-y-0 opacity-100'
+            "
+          >
+            <span class="hidden md:block">
+              {{ 'products.general.inline_add' | t }}
+            </span>
+            <span aria-hidden class="block md:hidden">
+              {% render 'icon-set-classic-cart' %}
+            </span>
+          </span>
+        </button>
+
+        <div
+          class="absolute top-0 right-0 bottom-0 left-0 overflow-hidden flex flex-col justify-end"
+          role="popover"
+          x-show="isOpen"
+          x-cloak
+          :aria-labelledby="$id('quick-add-menu-button')"
+        >
+          <div
+            class="
+              {{ settings.quick_add_button_color }}
+              top-0 right-0 bottom-0 left-0 top-auto max-h-full overflow-scroll scrollbar-hide
+              pointer-events-auto
+              transition transform
+              absolute
+              origin-bottom
+              bg-button
+              md:opacity-100
+            "
+            x-show="isOpen"
+
+            {% comment %}
+              Animate outer slider up or down
+            {% endcomment %}
+            x-transition:enter="duration-[calc(var(--enter-animation-duration)*2)] delay-[calc(var(--enter-animation-duration)/2)]"
+            x-transition:enter-start="invisible translate-y-full opacity-0 md:opacity-100"
+            x-transition:enter-end="visible translate-y-0 opacity-100 md:opacity-100"
+            x-transition:leave="duration-[calc(var(--exit-animation-duration)*2)] delay-[calc(var(--exit-animation-duration)/4)]"
+            x-transition:leave-start="visible translate-y-0 opacity-100 md:opacity-100"
+            x-transition:leave-end="invisible translate-y-full opacity-0 md:opacity-100"
+          >
+            <div
+              class="transition transform"
+              x-show="isOpen"
+
+              {% comment %}
+                Stagger inner slider up/down animation so it animates _after_ outer slider
+              {% endcomment %}
+              x-transition:enter="duration-[calc(var(--enter-animation-duration)*2)] delay-[calc(var(--enter-animation-duration)/2)]"
+              x-transition:enter-start="translate-y-1/2 opacity-0"
+              x-transition:enter-end="translate-y-0 opacity-full"
+              x-transition:leave="duration-[calc(var(--exit-animation-duration))] delay-0"
+              x-transition:leave-start="translate-y-0 opacity-full"
+              x-transition:leave-end="translate-y-1/2 opacity-0"
+            >
+              {% render 'product-grid-item-quick-add-toolbar',
+                inline_variants: inline_variants,
+                inline_variant_buttons: inline_variant_buttons,
+                simple_selling_plan: simple_selling_plan
+              %}
+            </div>
+          </div>
+        </div>
+      </div>
+    {%- elsif settings.quickview_enable -%}
+      <div class="{{quick_action_toolbar_classes}}" x-data="productQuickViewButton({{ product.id }}, '{{ product.handle }}')">
+        <div class="quickview md:w-full" data-quickview-holder="{{ product.id }}" data-add-action-wrapper>
+          <button
+            type="button"
+            class="{{ quick_action_button_classes }}"
+            @click.prevent="clickQuickviewButton"
+            :class="{
+              'loading': isLoading
+            }"
+            title="{% if sold_out %}{{ 'products.product.sold_out' | t }}{% else %}{{ 'products.general.quick_view' | t }}{% endif %}"
+            :disabled="{{sold_out}} || isDisabled"
+            aria-label="{{ 'products.general.quick_view' | t }}"
+          >
+            <span class="btn-state-ready text-button-contrast group-hover/quick-action-button:text-button-contrast/50 whitespace-nowrap">
+              <span class="hidden md:block">
+                {{ 'products.general.quick_view' | t }}
+              </span>
+              <span aria-hidden class="block md:hidden">
+                {% render 'icon-set-classic-cart' %}
+              </span>
+            </span>
+            <span class="btn-state-loading">
+              <svg height="18" width="18" class="svg-loader" style="--border: rgb(var(--rgb-button-contrast) / 50%); --text: rgb(var(--rgb-button-contrast));">
+                <circle r="7" cx="9" cy="9" />
+                <circle stroke-dasharray="87.96459430051421 87.96459430051421" r="7" cx="9" cy="9" />
+              </svg>
+            </span>
+          </button>
+
+          <script data-quickview-modal-template type="text/x-template">
+            <div class="drawer drawer--right quickview__modal" data-quickview-modal data-form-holder id="{{ product.id }}" aria-hidden="true">
+              <div class="drawer__content" data-product-quickview-ajax></div>
+
+              <span class="drawer__underlay" data-micromodal-close tabindex="-1">
+                <span class="drawer__underlay__fill"></span>
+                <span class="drawer__underlay__blur"></span>
+              </span>
+            </div>
+          </script>
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+</product-grid-item-variant>

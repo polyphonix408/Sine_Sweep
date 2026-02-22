@@ -1,0 +1,31 @@
+<!-- /snippets/social-icon.liquid -->
+
+{% comment %}
+    Renders a social icon
+    {% render 'social-icon', handle: social_handle %}
+{% endcomment %}
+
+{%- case handle -%}
+  {%- when 'x' -%}
+    {%- render 'icon-social-x' -%}
+  {%- when 'facebook' -%}
+    {%- render 'icon-social-facebook' -%}
+  {%- when 'tiktok' -%}
+    {%- render 'icon-social-tiktok' -%}
+  {%- when 'pinterest' -%}
+    {%- render 'icon-social-pinterest' -%}
+  {%- when 'instagram' -%}
+    {%- render 'icon-social-instagram' -%}
+  {%- when 'snapchat' -%}
+    {%- render 'icon-social-snapchat' -%}
+  {%- when 'tumblr' -%}
+    {%- render 'icon-social-tumblr' -%}
+  {%- when 'linkedin' -%}
+    {%- render 'icon-social-linkedin' -%}
+  {%- when 'youtube' -%}
+    {%- render 'icon-social-youtube' -%}
+  {%- when 'vimeo' -%}
+    {%- render 'icon-social-vimeo' -%}
+  {%- when 'medium' -%}
+    {%- render 'icon-social-medium' -%}
+{%- endcase -%}

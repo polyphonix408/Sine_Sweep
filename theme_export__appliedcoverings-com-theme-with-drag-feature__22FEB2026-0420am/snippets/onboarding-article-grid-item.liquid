@@ -1,0 +1,46 @@
+<!-- /snippets/onboarding-article-grid-item.liquid -->
+
+{% comment %}
+  * An article block that fills the container with an image with overlayed title
+  {% render onboarding-article-grid-item', article: article, wh_ratio: section.settings.wh_ratio, show_author: section.settings.show_author, show_preview: section.settings.show_preview, show_link: section.settings.show_link %}
+{% endcomment %}
+
+<div class="article__item">
+  <div class="article__item-image" data-grid-slide>
+    {%- render 'image', cover: true, img_object: null, wh_ratio: wh_ratio, alt_default: article.title, sizes: sizes, srcset: srcset -%}
+  </div>
+
+  <div class="article__item-content">
+    {% if show_date %}
+      <div class="article__item-meta">
+        {% if show_date %}
+          <span class="article__item-date">
+            <time>{{ "now" | date: format: 'month_day_year' }}</time>
+          </span>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <h3 class="article__item-title heading-size-6 mb-0">
+      <a href="#">{{ 'home_page.onboarding.blog_title' | t }}</a>
+    </h3>
+
+    {% if show_author %}
+      <div class="article__item-author">
+        <span>
+          {{ 'blogs.article.by' | t }}  {{ 'contact.form.name' | t }}
+        </span>
+      </div>
+    {% endif %}
+
+    {% if show_preview %}
+      <div class="rte body-size-4">
+        <p>{{ 'home_page.onboarding.blog_excerpt' | t | truncatewords: 25 }}</p>
+      </div>
+    {% endif %}
+
+    {% if show_link %}
+      <a href="#" class="text-link-bare">{{ 'blogs.article.read_more' | t }}</a>
+    {% endif %}
+  </div>
+</div>

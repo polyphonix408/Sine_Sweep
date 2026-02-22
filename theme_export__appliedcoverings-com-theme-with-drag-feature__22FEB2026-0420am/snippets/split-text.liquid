@@ -1,0 +1,58 @@
+{% liquid
+  assign tokens = text | split: ''
+  assign output = ''
+  assign attributes = attributes | default: 'data-split-text'
+  assign tag = tag | default: 'span'
+  if class != blank
+    assign attributes = attributes | append: ' class="' | append: class | append: '"'
+  endif
+  if style != blank
+    assign attributes = attributes | append: ' style="' | append: style | append: '"'
+  endif
+  assign start_tag = '<' | append: tag | append: ' ' | append: attributes | append: '>'
+  assign end_tag = '</' | append: tag | append: '>'
+  assign start_tag_open = start_tag | split: '>' | first
+
+  assign buffer = ''
+  assign in_tag = false
+
+  assign token_index = 0
+
+  for token in tokens
+    assign indexed_start_tag = start_tag_open | append: ' data-index="' | append: token_index | append: '">'
+
+    if token == '<'
+      # Flush word buffer before starting tag
+      if buffer != ''
+        assign output = output | append: indexed_start_tag | append: buffer | append: end_tag
+        assign buffer = ''
+        assign token_index = token_index | plus: 1
+      endif
+      assign in_tag = true
+      assign output = output | append: token
+    elsif in_tag
+      assign output = output | append: token
+      if token == '>'
+        assign in_tag = false
+      endif
+
+    elsif token == ' '
+      # Flush word buffer and add space
+      if buffer != ''
+        assign output = output | append: indexed_start_tag | append: buffer | append: end_tag
+        assign buffer = ''
+        assign token_index = token_index | plus: 1
+      endif
+      assign output = output | append: ' '
+    else
+      assign buffer = buffer | append: token
+    endif
+  endfor
+
+  # Flush any remaining word
+  if buffer != ''
+    assign indexed_start_tag = start_tag_open | append: ' data-index="' | append: token_index | append: '">'
+    assign output = output | append: indexed_start_tag | append: buffer | append: end_tag
+  endif
+%}
+{{- output -}}

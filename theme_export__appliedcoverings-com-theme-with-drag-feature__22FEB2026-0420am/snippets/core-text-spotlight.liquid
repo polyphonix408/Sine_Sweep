@@ -1,0 +1,40 @@
+<div
+  {% if _settings.enable_scroll_animation %}
+    x-animate-scroll-stagger="
+      {
+        selector: '[data-animate-stagger-item]',
+
+        {% comment %} Start each word animation when the previous word is 20% of the way through its animation {% endcomment %}
+        stagger: 0.2,
+
+        {% comment %}
+         Start the enter stagger animations when the container is 25% visible at the bottom of the
+         viewport and stop when the bottom of the container is 50% of the way through the viewport.
+         Start the leave stagger animations when the top of the container
+         meets the top of the viewport and end when the container is 75% out of view
+        {% endcomment %}
+        scrollOffset: ['25% 100%', '0% 50%', '0% 0%', '75% 0%']
+      }
+    "
+    x-animate-scroll-stagger:enter="{
+      opacity: [0.05, 1.0],
+      y: ['3%', '0%']
+    }"
+    x-animate-scroll-stagger:leave="{
+      opacity: [1.0, 0.05],
+      y: ['0%', '-3%']
+    }"
+  {% endif %}
+  class="
+    {{ class }}
+    overflow-hidden break-words
+
+    {% comment %} Stagger each child elements transitions by 100ms {% endcomment %}
+    *:stagger-each-transition-100
+
+    {% comment %} Ensure we're not trying to transition `transform` which is being animated by x-animate-scroll-stagger {% endcomment %}
+    *:transition-[none]
+  "
+>
+  {{ content }}
+</div>

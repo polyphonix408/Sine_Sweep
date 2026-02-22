@@ -1,0 +1,113 @@
+{% capture attributes %}
+  x-init="$hotspots.register($el)"
+
+  x-data="{
+    get index() {
+      return $hotspots.indexOf($el)
+    },
+    get isSelected() {
+      return $hotspots.isSelected(this.index)
+    },
+    set isSelected(value) {
+      if (value) {
+        $hotspots.select(this.index)
+      } else {
+        $hotspots.deselect(this.index)
+      }
+    }
+  }"
+
+  {% if request.design_mode %}
+    @shopify:block:select='isSelected = true'
+  {% endif %}
+
+  role="listitem"
+  {{ block.shopify_attributes }}
+{% endcapture %}
+
+{% capture button_attributes %}
+  :id="`{{section.id}}-${ensembleId}-hotspot-${index}`"
+  :aria-labelledby="
+    ensemblePeerId ? `{{section.id}}-${ensemblePeerId}-element-${index}` : null
+  "
+  {% comment %} This is a fallback in case the aria-labelledby and aria-controls are not set {% endcomment %}
+  :aria-label="`{{ 'general.accessibility.hotspot' | t }}`"
+
+  @click.stop.prevent="
+    isSelected = true;
+  "
+{% endcapture %}
+
+{% capture content %}
+  <button
+    type="button"
+    class="look__dot__holder {{ section.settings.dot_color }}"
+    :class="isSelected ? 'is-active' : ''"
+    {{ button_attributes }}
+  >
+    <span class="look__dot"></span>
+    <span class="look__dot__pulse"></span>
+  </button>
+{% endcapture %}
+
+{% render 'core-float',
+  content: content,
+  _settings: block.settings,
+  attributes: attributes,
+  z_index: 10
+%}
+
+{% schema %}
+{
+	"name": "Hotspot",
+	"tag": null,
+	"settings": [
+		{
+			"type": "range",
+			"id": "top",
+			"min": 0,
+			"max": 100,
+			"step": 1,
+			"label": "Top",
+			"default": 50,
+			"unit": "%"
+		},
+		{
+			"type": "range",
+			"id": "left",
+			"min": 0,
+			"max": 100,
+			"step": 1,
+			"label": "Left",
+			"default": 50,
+			"unit": "%"
+		},
+		{
+			"type": "range",
+			"id": "top_mobile",
+			"label": "Top (Mobile)",
+			"min": 0,
+			"max": 100,
+			"step": 1,
+			"default": 50,
+			"unit": "%"
+		},
+		{
+			"type": "range",
+			"id": "left_mobile",
+			"label": "Left (Mobile)",
+			"min": 0,
+			"max": 100,
+			"step": 1,
+			"default": 50,
+			"unit": "%"
+		},
+	],
+	"blocks": [],
+	"presets": [
+		{
+			"name": "Hotspot"
+		}
+	]
+}
+{% endschema %}

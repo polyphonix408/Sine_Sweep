@@ -1,0 +1,275 @@
+<section
+  data-section-id="{{ section.id }}"
+  data-section-type="hero"
+  data-overlay-header
+  class="
+    nested-banner
+    w-full
+    relative
+    bg--transparent
+    text-[color:var(--text)]
+  "
+  style="
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="absolute inset-0">
+    <div class="
+      {{ section.settings.width }} section-padding h-full
+      {% comment %} Fixes an issue where the content overflows outside the section's container when it is bottom aligned and there is a "spacer" block above it {% endcomment %}
+      flex flex-col
+    ">
+      {% content_for "blocks" %}
+    </div>
+  </div>
+
+  {% liquid
+    if section.index0 == 0
+      assign loading = 'eager'
+      assign fetchpriority = 'high'
+    else
+      assign preload = false
+      assign loading = 'lazy'
+    endif
+  %}
+
+  {% render 'image-parallax',
+    img_object: section.settings.image,
+    img_object_mobile: section.settings.image_mobile,
+    frame_height_class: section.settings.height,
+    frame_class: 'nested-banner__section-image',
+    preload: preload,
+    loading: loading,
+    fetchpriority: fetchpriority
+  %}
+</section>
+
+{% schema %}
+{
+	"name": "Pro: Image banner",
+	"settings": [
+		{
+			"type": "image_picker",
+			"id": "image",
+			"label": "Image"
+		},
+		{
+			"type": "image_picker",
+			"id": "image_mobile",
+			"label": "Mobile image"
+		},
+		{
+			"type": "header",
+			"content": "Layout"
+		},
+		{
+			"type": "select",
+			"id": "height",
+			"label": "Section height",
+			"default": "use_screen_two_thirds",
+			"options": [
+				{
+					"value": "use_screen_full",
+					"label": "Full screen height"
+				},
+				{
+					"value": "use_screen_three_quarters",
+					"label": "Three quarters of screen height"
+				},
+				{
+					"value": "use_screen_two_thirds",
+					"label": "Two thirds of screen height"
+				},
+				{
+					"value": "use_screen_one_half",
+					"label": "One half of screen height"
+				},
+				{
+					"value": "use_screen_one_third",
+					"label": "One third of screen height"
+				},
+				{
+					"value": "use_screen_one_fifth",
+					"label": "One fifth of screen height"
+				},
+				{
+					"value": "use_pixels_800",
+					"label": "800px"
+				},
+				{
+					"value": "use_pixels_650",
+					"label": "650px"
+				},
+				{
+					"value": "use_pixels_500",
+					"label": "500px"
+				},
+				{
+					"value": "use_image",
+					"label": "Image height"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper",
+			"options": [
+				{
+					"value": "wrapper--none",
+					"label": "Full width"
+				},
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				},
+				{
+					"value": "wrapper--narrow",
+					"label": "Page width narrow"
+				},
+				{
+					"value": "wrapper--tiny",
+					"label": "Page width extra narrow"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 0
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 0
+		}
+	],
+	"blocks": [
+		{
+			"type": "_background"
+		},
+		{
+			"type": "_content"
+		},
+		{
+			"type": "theme-spacer"
+		}
+	],
+	"presets": [
+		{
+			"name": "Pro: Image banner",
+			"settings": {
+				"height": "use_screen_three_quarters",
+				"width": "wrapper",
+				"padding_top": 0,
+				"padding_bottom": 0
+			},
+			"blocks": [
+				{
+					"type": "_content",
+					"settings": {
+						"vertical_placement": "center",
+						"horizontal_placement": "start",
+						"gap": "sm"
+					},
+					"blocks": [
+						{
+							"type": "theme-group-frame",
+							"settings": {
+								"padding": "lg",
+								"color_group": "palette--light",
+								"color_background": "bg--neutral",
+								"color_text": "text--neutral",
+								"border_width": 1,
+								"inset": "lg",
+								"border_color": "#000000"
+							},
+							"blocks": [
+								{
+									"type": "theme-kicker",
+									"settings": {
+										"kicker": "Introducing",
+										"enable_line": true,
+										"text_size": 4
+									}
+								},
+								{
+									"type": "theme-heading",
+									"settings": {
+										"title": "Custom banner",
+										"text_size": 9
+									}
+								},
+								{
+									"type": "theme-text",
+									"settings": {
+										"text": "Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.",
+										"font_family": "body",
+										"text_size": 5,
+										"max_width": 350
+									}
+								},
+								{
+									"type": "theme-group",
+									"settings": {
+										"flow": "row",
+										"alignment": "start",
+										"gap": "xl"
+									},
+									"blocks": [
+										{
+											"type": "theme-button",
+											"settings": {
+												"text": "All products",
+												"link": "shopify://collections/all",
+												"style": "btn",
+												"sizing": "btn--long",
+												"color": "btn--neutral"
+											}
+										},
+										{
+											"type": "theme-button",
+											"settings": {
+												"text": "Learn more",
+												"style": "btn-block-text-underline",
+												"sizing": "btn--long",
+												"color": "btn--neutral"
+											}
+										},
+									]
+								},
+							],
+						},
+					],
+				},
+				{
+					"type": "_background",
+					"blocks": []
+				}
+			]
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"aside"
+		]
+	}
+}
+{% endschema %}

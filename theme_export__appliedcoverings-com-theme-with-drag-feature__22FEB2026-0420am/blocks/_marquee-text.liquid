@@ -1,0 +1,30 @@
+<div
+  class="shrink-0"
+  {% if request.design_mode %}
+    @shopify:block:select="$marquee.pause(); $marquee.scrollTo($el)"
+    @shopify:block:deselect="$marquee.play()"
+  {% endif %}
+  {{ block.shopify_attributes }}
+>
+  {{ block.settings.text }}
+</div>
+
+{% schema %}
+{
+	"name": "Text",
+	"tag": null,
+	"settings": [
+		{
+			"type": "inline_richtext",
+			"id": "text",
+			"label": "Text",
+			"default": "Featured"
+		}
+	],
+	"presets": [
+		{
+			"name": "Text"
+		}
+	]
+}
+{% endschema %}

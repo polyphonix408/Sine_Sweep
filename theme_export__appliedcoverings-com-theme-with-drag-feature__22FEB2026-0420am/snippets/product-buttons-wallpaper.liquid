@@ -1,0 +1,263 @@
+<!-- /snippets/product-buttons-wallpaper.liquid -->
+<!-- Custom product buttons for wallpaper products with Size variants -->
+
+{%- liquid
+  assign buybutton_setting = false
+  assign gift_card_recipient_feature_active = false
+  assign current_variant = product.selected_or_first_available_variant
+
+  # Check if current variant is Custom size
+  assign is_custom_size = false
+  for option in current_variant.options
+    assign option_lower = option | downcase
+    if option_lower == "custom"
+      assign is_custom_size = true
+      break
+    endif
+  endfor
+
+  if block.settings.enable_gift_card_recipient and product.gift_card?
+    assign gift_card_recipient_feature_active = true
+  endif
+
+  comment
+    Quick buy buttons are incompatible with gift card products and subscription products
+  endcomment
+  if block.settings.enable_payment_button and gift_card_recipient_feature_active == false
+    assign buybutton_setting = true
+  endif
+  if product.selling_plan_groups.size > 0
+    assign buybutton_setting = false
+  endif
+-%}
+
+<product-form
+  x-data="productAddButtonForm()"
+  class="product__block__buttons"
+  style="--PB: {{ block.settings.padding_bottom }}px;"
+  {{ block.shopify_attributes }}
+>
+  <div data-product-form-outer>
+    {%- form "product", product, id: uniq_id, data-product-form: "", data-product-handle: product.handle -%}
+      {%- unless hidden -%}
+        <div class="product__form__inner" data-form-inner>
+          {%- if gift_card_recipient_feature_active -%}
+            {%- render "gift-card-recipient-form", product: product, form: form, section: section -%}
+          {%- endif -%}
+
+          <div class="product__submit" data-buttons-wrapper data-add-action-wrapper data-error-boundary>
+            <div data-error-display role="alert" class="add-action-errors"></div>
+
+            {%- assign button_text = "products.product.add_to_cart" | t -%}
+            {%- if product.metafields.theme.preorder.value == true -%}
+              <input
+                type="hidden"
+                data-product-preorder
+                name="properties[{{ 'products.product.sale_type' | t }}]"
+                value="{{ 'products.product.pre_order' | t }}"
+              >
+              {%- assign button_text = "products.product.pre_order" | t -%}
+            {%- endif -%}
+
+            {%- render "sibling-color-as-line-prop", product: product -%}
+
+            {%- unless current_variant.available -%}
+              {%- assign button_text = "products.product.sold_out" | t -%}
+            {%- endunless -%}
+
+            <!-- Regular Add to Cart - shown for Sample size -->
+            <div
+              class="product__submit__buttons{% if product.has_only_default_variant %} product__submit__buttons--clear{% endif %}"
+              id="regular-cart-buttons"
+              {% if is_custom_size %}
+                style="display: none;"
+              {% endif %}
+            >
+              <span class="sr-only" aria-live="polite" x-show="isLoading">
+                {{ "products.product.adding_to_cart" | t }}
+              </span>
+
+              <input type="hidden" name="id" value="{{ current_variant.id }}">
+              <button
+                type="submit"
+                name="add"
+                data-add-to-cart
+                data-focus-element
+                data-lang-available="{{ 'products.product.add_to_cart' | t }}"
+                data-lang-sold-out="{{ 'products.product.sold_out' | t }}"
+                data-lang-pre-order="{{ 'products.product.pre_order' | t }}"
+                :data-lang-loading="isLoading ? '{{ 'products.product.adding_to_cart' | t }}' : false"
+                class="btn--outline btn--full btn--primary btn--add-to-cart uppercase"
+                :class="
+                  {
+                    'is-added': isSuccess,
+                    'is-loading': isLoading
+                  }
+                "
+                :disabled="isDisabled"
+                {% unless current_variant.available %}
+                  disabled
+                {% endunless %}
+              >
+                <span class="btn-state-ready">
+                  {{ button_text }}
+                </span>
+                <span class="btn-state-loading">
+                  <svg height="18" width="18" class="svg-loader">
+                    <circle r="7" cx="9" cy="9" />
+                    <circle stroke-dasharray="87.96459430051421 87.96459430051421" r="7" cx="9" cy="9" />
+                  </svg>
+                </span>
+                <span class="btn-state-complete">&check;</span>
+              </button>
+
+              {%- if buybutton_setting -%}
+                <div class="product__submit__quick">
+                  {{ form | payment_button }}
+                </div>
+              {%- endif -%}
+            </div>
+
+            <!-- Get Started Button - shown for Custom size -->
+            <div
+              class="product__submit__buttons"
+              id="custom-size-button"
+              {% unless is_custom_size %}
+                style="display: none;"
+              {% endunless %}
+            >
+              <button
+                type="button"
+                id="launch-configurator-btn"
+                class="btn--outline btn--full btn--primary btn--add-to-cart"
+                data-launch-configurator
+                data-product-id="{{ product.id }}"
+                data-pattern-url="{% if product.metafields.custom.pattern_file.value %}{{ product.metafields.custom.pattern_file.value | image_url: width: 2048 }}{% elsif product.featured_image %}{{ product.featured_image | image_url: width: 2048 }}{% endif %}"
+                data-pattern-name="{{ product.title | escape }}"
+              >
+                <span>Get Started - Customize Your Wallpaper</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      {%- endunless -%}
+    {%- endform -%}
+  </div>
+</product-form>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Function to check if Custom size is selected
+    function checkCustomSize() {
+      const variantSelects = document.querySelectorAll('[data-variant-option-value]');
+      let isCustom = false;
+
+      variantSelects.forEach((select) => {
+        const value = select.textContent || select.value || '';
+        if (value.toLowerCase() === 'custom') {
+          isCustom = true;
+        }
+      });
+
+      // Also check radio buttons and dropdowns
+      const checkedInputs = document.querySelectorAll('input[type="radio"]:checked');
+      checkedInputs.forEach((input) => {
+        const value = input.value || '';
+        const label = input.closest('label')?.textContent || '';
+        if (value.toLowerCase() === 'custom' || label.toLowerCase().includes('custom')) {
+          isCustom = true;
+        }
+      });
+
+      return isCustom;
+    }
+
+    // Function to toggle between regular and custom buttons
+    function toggleButtons() {
+      const isCustom = checkCustomSize();
+      const regularButtons = document.getElementById('regular-cart-buttons');
+      const customButton = document.getElementById('custom-size-button');
+
+      if (regularButtons && customButton) {
+        if (isCustom) {
+          regularButtons.style.display = 'none';
+          customButton.style.display = 'block';
+        } else {
+          regularButtons.style.display = 'block';
+          customButton.style.display = 'none';
+        }
+      }
+    }
+
+    // Listen for variant changes
+    document.addEventListener('variant:change', toggleButtons);
+
+    // Also listen for direct clicks on variant options
+    document.addEventListener('click', function (e) {
+      if (
+        e.target.closest('[data-variant-option-value]') ||
+        e.target.closest('input[type="radio"]') ||
+        e.target.closest('select')
+      ) {
+        setTimeout(toggleButtons, 100);
+      }
+    });
+
+    // Initial check
+    toggleButtons();
+
+    // Handle Get Started button click
+    const launchBtn = document.getElementById('launch-configurator-btn');
+    const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
+    const configuratorWrapper = document.getElementById('configurator-wrapper');
+    const productId = '{{ product.id }}';
+    const storageKey = `pattern_product_view_${productId}`;
+
+    // Check if we should show configurator immediately
+    // For product.wallpaper template, always show configurator (no marketing page)
+    const isWallpaperTemplate = '{{ template.suffix }}' === 'wallpaper';
+    const savedView = sessionStorage.getItem(storageKey);
+
+    if (isWallpaperTemplate || savedView === 'configurator') {
+      // Show configurator immediately if using wallpaper template or it was the last view
+      setTimeout(() => {
+        showConfigurator();
+      }, 100); // Small delay to ensure DOM is ready
+    }
+
+    function showConfigurator() {
+      if (mainContent) {
+        const sections = mainContent.querySelectorAll('section, .shopify-section');
+        sections.forEach((section) => {
+          if (!section.contains(configuratorWrapper)) {
+            section.style.display = 'none';
+          }
+        });
+      }
+
+      if (configuratorWrapper) {
+        configuratorWrapper.style.display = 'block';
+        configuratorWrapper.style.minHeight = 'calc(100vh - 200px)';
+      }
+
+      sessionStorage.setItem(storageKey, 'configurator');
+      window.scrollTo(0, 0);
+
+      const wallpaperConfigurator = document.querySelector('wallpaper-configurator');
+      if (!wallpaperConfigurator.state.initialized) wallpaperConfigurator.init();
+      // Reinitialize configurator display to handle browser resize
+      setTimeout(() => {
+        if (window.reinitWallpaperConfigurator) {
+          window.reinitWallpaperConfigurator();
+        }
+      }, 100); // Small delay to ensure DOM is updated
+    }
+
+    if (launchBtn) {
+      launchBtn.addEventListener('click', function () {
+        showConfigurator();
+        console.log('Launching configurator for pattern:', this.dataset.patternName);
+      });
+    }
+  });
+</script>

@@ -1,0 +1,255 @@
+<!-- /sections/subfooter.liquid -->
+
+{%- assign socials_html = '' -%}
+
+{%- capture socials_html -%}
+  {%- assign social_accounts = 'Facebook, X, Tiktok, Pinterest, Instagram, Snapchat, Tumblr, Linkedin, YouTube, Vimeo, Medium, ' | split: ', ' -%}
+  {%- for social in social_accounts -%}
+    {%- assign social_handle = social | handleize -%}
+    {% capture social_link %}social_{{ social_handle }}_link{% endcapture %}
+
+    {%- if settings[social_link] != blank -%}
+      <a class="footer__icon footer__icon--social" href="{{ settings[social_link] }}" title="{{ social }}" target="_blank">
+        {% render 'social-icon' handle: social_handle %}
+        <span class="visually-hidden">{{ social }}</span>
+      </a>
+    {%- endif -%}
+  {%- endfor -%}
+
+  {% for custom_social_icon_idx in (1..3) %}
+    {% capture custom_social_icon_capture %}custom_social_icon_{{ custom_social_icon_idx }}{% endcapture %}
+    {% capture custom_social_link_capture %}custom_social_link_{{ custom_social_icon_idx }}{% endcapture %}
+    {%- assign custom_social_icon = settings[custom_social_icon_capture] -%}
+    {%- assign custom_social_link = settings[custom_social_link_capture] -%}
+    {%- if custom_social_icon != blank and custom_social_link != blank -%}
+      {%- assign custom_social_icon_title = custom_social_icon.alt | default: custom_social_link -%}
+      <a class="footer__icon footer__icon--social" href="{{ custom_social_link }}" title="{{ custom_social_icon_title }}" target="_blank">
+        {%- liquid
+          assign image = custom_social_icon
+          assign image_width = 18 | at_most: image.width
+          comment
+            18px because of the CSS
+          endcomment
+          assign image_width_2x = image_width | times: 2 | at_most: image.width
+          capture srcset
+            echo image | image_url: width: image_width_2x | append: ' 2x, '
+            echo image | image_url: width: image_width
+          endcapture
+
+          render 'image-tag', img_object: image, wh_ratio: image.aspect_ratio, width: image_width, srcset: srcset, placeholder: false, alt: custom_social_icon_title
+        -%}
+
+        <span class="visually-hidden">{{ custom_social_icon_title }}</span>
+      </a>
+    {%- endif -%}
+  {% endfor %}
+{%- endcapture -%}
+
+{%- assign socials_html = socials_html | strip -%}
+
+<section class="subfooter"
+  data-section-id="{{ section.id }}"
+  data-section-type="footer"
+  style="--PT: {{ section.settings.padding_top }}px; --PB: {{ section.settings.padding_bottom }}px;">
+  <div class="section-padding {{ section.settings.width }}">
+    {% assign footer_count = 0 %}
+    {% assign footer_locale = false %}
+    {% assign footer_currency = false %}
+    {%- if section.settings.show_locale_selector and localization.available_languages.size > 1 -%}
+      {% assign footer_locale = true %}
+    {%- endif -%}
+    {%- if section.settings.show_currency_selector and localization.available_countries.size > 1 -%}
+      {% assign footer_currency = true %}
+    {%- endif -%}
+
+    {%- if socials_html != '' and section.settings.footer_social_enable -%}{% assign footer_count = footer_count | plus: 1 %}{%- endif -%}
+    {%- if section.settings.footer_payment_enable -%}{% assign footer_count = footer_count | plus: 1 %}{%- endif -%}
+    {%- if footer_currency or footer_locale -%}{% assign footer_count = footer_count | plus: 1 %}{%- endif -%}
+    <div class="subfooter__items subfooter__items--{{ footer_count }}">
+      {%- if footer_currency or footer_locale -%}
+        <div class="subfooter__item subfooter__item--selects">
+          {%- form 'localization', class: 'popout--footer', id: 'localization-form-footer' -%}
+            {%- if footer_locale -%}
+              {%- render 'select-locale', form: form, unique: 'localization-form-footer', wrapper_class: 'subfooter__select subfooter__select--locale' -%}
+            {%- endif -%}
+            {%- if footer_currency -%}
+              {%- render 'select-currency', form: form, unique: 'localization-form-footer', select_type: settings.currency_select_type, wrapper_class: 'subfooter__select subfooter__select--currency' -%}
+            {%- endif -%}
+          {%- endform -%}
+
+          <noscript>
+            {%- assign localization_unique = 'localization-form-footer-noscript' -%}
+            {%- form 'localization', class: 'locale-footer-nojs', id: localization_unique -%}
+              {%- if footer_locale -%}
+                <h2 class="visually-hidden" id="{{ localization_unique }}-locale-heading">
+                  {{ 'layout.footer.language' | t }}
+                </h2>
+                <select name="locale_code" aria-labelledby="{{ localization_unique }}-locale-heading">
+                  {%- for language in localization.available_languages -%}
+                    <option
+                      value="{{ language.iso_code }}"
+                      lang="{{ language.iso_code }}"
+                      {%- if language.iso_code == localization.language.iso_code %}
+                        selected
+                      {% endif %}
+                    >
+                      {{ language.endonym_name | capitalize }}
+                    </option>
+                  {%- endfor -%}
+                </select>
+              {%- endif -%}
+              {%- if footer_currency -%}
+                <h2 class="visually-hidden" id="{{ localization_unique }}-locale-heading">
+                  {{ 'layout.footer.currency' | t }}
+                </h2>
+                <select name="country_code" aria-labelledby="{{ localization_unique }}-currency-heading">
+                  {%- for country in localization.available_countries -%}
+                    <option
+                      value="{{ country.iso_code }}"
+                      {%- if country.iso_code == localization.country.iso_code %}
+                        selected
+                      {% endif %}
+                    >
+                      {{ country.name }} ({{ country.currency.iso_code }}
+                      {{ country.currency.symbol }})
+                    </option>
+                  {%- endfor -%}
+                </select>
+              {%- endif -%}
+
+              <button class="btn btn--primary btn--full">{{ 'layout.footer.update' | t }}</button>
+            {%- endform -%}
+          </noscript>
+        </div>
+      {%- endif -%}
+
+      {% if section.settings.footer_payment_enable %}
+        {% unless shop.enabled_payment_types == empty %}
+          <div class="subfooter__item subfooter__item--payment">
+            {% for type in shop.enabled_payment_types %}
+              <span class="footer__icon footer__icon--payment">
+                {{ type | payment_type_svg_tag }}
+                <span class="visually-hidden">{{ type | capitalize | replace: '_', ' ' }}</span>
+              </span>
+            {% endfor %}
+          </div>
+        {% endunless %}
+      {% endif %}
+
+      <div class="subfooter__item subfooter__item--copyright">
+        <span class="subfooter__copyright"> &copy; {{ shop.name | link_to: routes.root_url }} {{ 'now' | date: "%Y" }} </span>
+
+        {% for link in linklists[section.settings.footer_secondary_linklist].links %}
+          <span class="subfooter__copyright"><a href="{{ link.url }}">{{ link.title }}</a></span>
+        {% endfor %}
+
+        <!-- The following lines fix Lighthouse security warnings on the Shopify link.-->
+        {%- assign powered_by_link_html = powered_by_link -%}
+        {%- if powered_by_link_html contains 'rel="' -%}
+          {%- assign powered_link_rel_text = powered_by_link_html | split: 'rel="' -%}
+          {%- assign powered_link_rel_text = powered_link_rel_text[1] | split: '"' | first -%}
+          {%- assign powered_link_rel = 'rel="' | append: powered_link_rel_text | append: '"' -%}
+          {%- assign powered_by_link_html = powered_by_link_html | replace_first: powered_link_rel, '' -%}
+        {%- endif -%}
+        {%- if powered_by_link_html contains '<a ' -%}
+          {%- assign powered_by_link_html = powered_by_link_html | replace: '<a ', '<a rel="noopener" ' -%}
+        {%- endif -%}
+        {%- assign powered_by_link = powered_by_link_html -%}
+
+        <!-- Remove the following line to delete Powered by Shopify from your footer -->
+        <span class="subfooter__copyright" data-powered-link>{{ powered_by_link }}</span>
+        <!-- Stop deleting here -->
+
+      </div>
+
+      {%- if socials_html != '' and section.settings.footer_social_enable -%}
+        <div class="subfooter__item subfooter__item--social">
+          {{ socials_html }}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+	"name": "Subfooter",
+	"settings": [
+		{
+			"type": "link_list",
+			"id": "footer_secondary_linklist",
+			"label": "Link List",
+			"info": "This menu won't show dropdown items"
+		},
+		{
+			"type": "checkbox",
+			"id": "footer_payment_enable",
+			"label": "Show payment types"
+		},
+		{
+			"type": "checkbox",
+			"id": "footer_social_enable",
+			"label": "Show social icons"
+		},
+		{
+			"type": "checkbox",
+			"id": "show_locale_selector",
+			"label": "Show language selector",
+			"info": "To add a language, go to your [language settings.](/admin/settings/languages)",
+			"default": true
+		},
+		{
+			"type": "checkbox",
+			"id": "show_currency_selector",
+			"label": "Show currency selector",
+			"info": "To add a currency, go to your [markets](/admin/settings/markets) or [payment settings.](/admin/settings/payments)",
+			"default": true
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper--full",
+			"options": [
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 36
+		}
+	],
+	"enabled_on": {
+		"groups": [
+			"footer"
+		]
+	}
+}
+{% endschema %}

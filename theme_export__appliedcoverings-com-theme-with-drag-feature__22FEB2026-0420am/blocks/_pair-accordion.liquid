@@ -1,0 +1,182 @@
+{% liquid
+  assign bg_color = block.settings.bg_color
+  assign transparent_spacing_class = ""
+  if bg_color == 'rgba(0,0,0,0)' or bg_color == blank
+    assign transparent_spacing_class = "brick__block__text--transparent"
+  endif
+%}
+
+{% capture content %}
+  {% content_for 'blocks' %}
+{% endcapture %}
+
+<div
+  class="brick__block" data-prevent-transparent-header {{ block.shopify_attributes }}
+  x-ensemble:slideshow.duration.{{ section.settings.duration | times: 1000 }}ms
+  x-ensemble:disclosure-group
+  x-data="{
+    ensembleId: 'accordion',
+    get ensemblePeerId() {
+      const peerIds = $ensemble.getPeerIds(this.ensembleId)
+      if (peerIds.length === 0) return null
+      return peerIds[0]
+    }
+  }"
+  x-init="$ensemble.registerMember(ensembleId, $el)"
+
+  {{ block.shopify_attributes }}
+>
+  <div class="brick__block__text {{ transparent_spacing_class }} {{ block.settings.text_color }}" data-overflow-frame style="--bg: {{ bg_color }};">
+    <div class="brick__block__text__inner">
+      <div class="text__standard" data-overflow-content>
+        {% content_for 'block', type: '_pair-title', id: 'title' %}
+
+        <div class="text-r{{ block.settings.text_size }} type-{{ block.settings.font_family }} font-{{ block.settings.font_weight }}">
+          {% comment %} Note: dont put anything else in here as it will break the usage of :first-child in accordion items {% endcomment %}
+          {{ content }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+	"name": "Accordion",
+	"tag": null,
+	"settings": [
+		{
+			"type": "header",
+			"content": "Colors"
+		},
+		{
+			"type": "select",
+			"id": "text_color",
+			"label": "Text color",
+			"default": "text--neutral",
+			"options": [
+				{
+					"value": "text--neutral",
+					"label": "Normal text"
+				},
+				{
+					"value": "text--white",
+					"label": "White"
+				},
+				{
+					"value": "text--primary",
+					"label": "Primary accent"
+				},
+				{
+					"value": "text--secondary",
+					"label": "Secondary accent"
+				},
+				{
+					"value": "text--black",
+					"label": "Black"
+				},
+				{
+					"value": "text--invert--primary",
+					"label": "Primary dark accent"
+				},
+				{
+					"value": "text--invert--secondary",
+					"label": "Secondary dark accent"
+				},
+				{
+					"value": "text--invert",
+					"label": "Inverted text color"
+				},
+				{
+					"value": "text--bright--primary",
+					"label": "Primary bright accent"
+				},
+				{
+					"value": "text--bright--secondary",
+					"label": "Secondary bright accent"
+				}
+			]
+		},
+		{
+			"type": "color",
+			"id": "bg_color",
+			"label": "Background"
+		},
+		{
+			"type": "header",
+			"content": "Font"
+		},
+		{
+			"type": "select",
+			"id": "font_family",
+			"label": "Font",
+			"default": "accent",
+			"options": [
+				{
+					"value": "heading",
+					"label": "Title"
+				},
+				{
+					"value": "body",
+					"label": "Body"
+				},
+				{
+					"value": "accent",
+					"label": "Accent"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "font_weight",
+			"label": "Weight",
+			"default": "normal",
+			"options": [
+				{
+					"value": "normal",
+					"label": "Normal"
+				},
+				{
+					"value": "bold",
+					"label": "Bold"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "text_size",
+			"label": "Size",
+			"min": 1,
+			"max": 15,
+			"step": 1,
+			"default": 4
+		}
+	],
+	"blocks": [
+		{
+			"type": "_pair-accordion-item"
+		}
+	],
+	"presets": [
+		{
+			"name": "Accordion",
+			"blocks": [
+				{
+					"type": "_pair-title",
+					"id": "title",
+					"static": true
+				},
+				{
+					"type": "_pair-accordion-item"
+				},
+				{
+					"type": "_pair-accordion-item"
+				},
+				{
+					"type": "_pair-accordion-item"
+				}
+			]
+		}
+	]
+}
+{% endschema %}

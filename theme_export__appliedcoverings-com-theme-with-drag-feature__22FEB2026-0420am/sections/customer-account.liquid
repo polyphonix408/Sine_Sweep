@@ -1,0 +1,172 @@
+<!-- /sections/customer-account.liquid -->
+{% comment %}
+
+  For all available customer liquid tags:
+    - http://docs.shopify.com/themes/liquid-variables/customer
+
+{% endcomment %}
+
+<div class="{{ section.settings.width }} section-padding"
+  style="--PT: {{ section.settings.padding_top }}px; --PB: {{ section.settings.padding_bottom }}px;">
+
+  {% paginate customer.orders by 50 %}
+
+    <header class="account-header pb-0">
+      <h1 class="account-header__left body-size-6 strong">{{ 'customer.account.title' | t }}</h1>
+      <div class="account-header__right">
+        {% if shop.metafields.sky_pilot.enabled %}
+          <a href="{% unless routes.root_url == '/' %}{{ routes.root_url }}{% endunless %}/apps/downloads/orders/{{ customer.id }}" class='btn--outline'>
+            {{ 'customer.account.digital_goods' | t }}
+          </a>
+        {% endif %}
+        <a href="{{ routes.account_logout_url }}" class="text-btn-arrow-right">{{ 'layout.customer.log_out' | t }}</a>
+      </div>
+    </header>
+
+    <hr class="hr--small">
+
+    <div class="float-grid mt-r12">
+
+      <div class="grid__item two-thirds medium-down--one-whole">
+
+        <p class="kicker-flourished text-left my-r8">{{ 'customer.orders.title' | t }}</p>
+
+        {% comment %}
+          If we have past orders, loop through each one
+        {% endcomment %}
+
+        {% if customer.orders.size != 0 %}
+
+          <div class="table-wrap">
+            <table class="table-full-width table--responsive">
+              <thead>
+                <tr>
+                  <th>{{ 'customer.orders.order_number' | t }}</th>
+                  <th>{{ 'customer.orders.date' | t }}</th>
+                  <th>{{ 'customer.orders.payment_status' | t }}</th>
+                  <th>{{ 'customer.orders.fulfillment_status' | t }}</th>
+                  <th>{{ 'customer.orders.total' | t }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for order in customer.orders %}
+                  <tr>
+                    <td data-label="{{ 'customer.orders.order_number' | t }}"><strong class="text-link-bare">{{ order.name | link_to: order.customer_url }}</strong></td>
+                    <td data-label="{{ 'customer.orders.date' | t }}">{{ order.created_at | date: format: 'month_day_year' }}</td>
+                    <td data-label="{{ 'customer.orders.payment_status' | t }}">{{ order.financial_status_label }}</td>
+                    <td data-label="{{ 'customer.orders.fulfillment_status' | t }}">{{ order.fulfillment_status_label }}</td>
+                    <td data-label="{{ 'customer.orders.total' | t }}">
+                      {% if settings.currency_code_enable %}
+                        {{ order.total_price | money_with_currency }}
+                      {% else %}
+                        {{ order.total_price | money }}
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+        {% else %}
+
+          <p>{{ 'customer.orders.none' | t }}</p>
+
+        {% endif %}
+      </div>
+
+      <div class="grid__item one-third medium-down--one-whole">
+        <p class="kicker-flourished text-left my-r8">{{ 'customer.account.details' | t }}</p>
+
+        <p>
+        <strong>{{ customer.name }}</strong><br>
+        {% if customer.default_address != nil %}
+
+          {{ customer.default_address.address1 }}<br>
+
+          {% if customer.default_address.address2 != "" %}
+            {{ customer.default_address.address2 }}<br>
+          {% endif %}
+
+          {% if customer.default_address.city != "" %}
+            {{ customer.default_address.city }}<br>
+          {% endif %}
+
+          {% if customer.default_address.province_code != "" %}
+            {{ customer.default_address.province_code | upcase }}<br>
+          {% endif %}
+
+          {% if customer.default_address.zip != "" %}
+            {{ customer.default_address.zip | upcase }}<br>
+          {% endif %}
+
+          {% if customer.default_address.country != "" %}
+            {{ customer.default_address.country }}<br>
+          {% endif %}
+
+          {% if customer.default_address.phone != "" %}
+            {{ customer.default_address.phone }}
+          {% endif %}
+        {% endif %}
+        </p>
+
+        <p><a class="text-btn-arrow-right mt-r6" href="{{ routes.account_addresses_url }}">{{ 'customer.account.view_addresses' | t }} ({{ customer.addresses_count }})</a></p>
+      </div>
+
+    </div>
+
+    {% if paginate.pages > 1 %}
+      <div class="text-center mt-r11">
+        {% render 'pagination-custom', paginate: paginate %}
+      </div>
+    {% endif %}
+  {% endpaginate %}
+
+</div>
+
+{% schema %}
+{
+	"settings": [
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper",
+			"options": [
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 36
+		}
+	]
+}
+{% endschema %}

@@ -1,0 +1,15 @@
+{% liquid
+  assign font_size_class = _settings.text_size | prepend: 'accent-size-'
+
+  assign flourish_class = ''
+
+  if _settings.enable_line
+    assign flourish_class = 'block__kicker--flourished'
+  endif
+
+  assign text = text | default: _settings.text | default: _settings.kicker
+%}
+
+<div class="hero__kicker {{ font_size_class }} {{ flourish_class }} {{ class }}" {{ attributes }}>
+  <p role='heading' aria-level='3'>{{ text }}</p>
+</div>

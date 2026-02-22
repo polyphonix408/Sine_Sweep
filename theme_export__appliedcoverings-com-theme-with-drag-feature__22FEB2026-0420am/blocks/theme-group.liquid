@@ -1,0 +1,91 @@
+{% capture blocks %}
+  {% content_for "blocks" %}
+{% endcapture %}
+
+{% render 'core-group', content: blocks, _settings: block.settings, attributes: block.shopify_attributes %}
+
+{% schema %}
+{
+	"name": "Group",
+	"tag": null,
+	"settings": [
+		{
+			"type": "select",
+			"id": "flow",
+			"label": "Flow",
+			"default": "row",
+			"options": [
+				{
+					"value": "row",
+					"label": "→"
+				},
+				{
+					"value": "column",
+					"label": "↓"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "alignment",
+			"label": "Alignment",
+			"default": "start",
+			"options": [
+				{
+					"value": "start",
+					"label": "⇤"
+				},
+				{
+					"value": "center",
+					"label": "|"
+				},
+				{
+					"value": "end",
+					"label": "⇥"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "gap",
+			"label": "Gap",
+			"default": "sm",
+			"options": [
+				{
+					"value": "0",
+					"label": "0"
+				},
+				{
+					"value": "sm",
+					"label": "S"
+				},
+				{
+					"value": "md",
+					"label": "M"
+				},
+				{
+					"value": "lg",
+					"label": "L"
+				},
+				{
+					"value": "xl",
+					"label": "XL"
+				}
+			]
+		},
+	],
+	"blocks": [
+		{
+			"type": "@theme"
+		},
+		{
+			"type": "@app"
+		}
+	],
+	"presets": [
+		{
+			"name": "Group"
+		}
+	]
+}
+{% endschema %}

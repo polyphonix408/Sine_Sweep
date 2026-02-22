@@ -1,0 +1,258 @@
+<!-- /sections/page.liquid -->
+{%- liquid
+  assign kicker_line_class = ''
+  if section.settings.title == blank
+    assign kicker_line_class = 'kicker__line'
+  endif
+
+  assign animation_anchor = "[data-section-id='" | append: section.id | append: "']"
+-%}
+
+{% if section.settings.show_content or section.settings.kicker != blank or section.settings.show_title %}
+  <section class="page__template section-padding {{ section.settings.text_color }} {{ section.settings.bg }}"
+    data-section-id="{{ section.id }}"
+    data-section-type="page"
+    style="--PT: {{ section.settings.padding_top }}px; --PB: {{ section.settings.padding_bottom }}px;">
+    <div class="{{ section.settings.width }}">
+      <div class="text__standard {{ section.settings.align_text }}">
+        {% if section.settings.kicker != blank %}
+          {% assign accent_size_class = section.settings.kicker_size | prepend: 'accent-size-' %}
+          <p class="standard__kicker {{ kicker_line_class }} {{ accent_size_class }}"
+            data-aos="hero"
+            data-aos-anchor="{{ animation_anchor }}"
+            data-aos-order="1">
+            {{ section.settings.kicker }}
+          </p>
+        {% endif %}
+        {%- if section.settings.show_title -%}
+          {% assign heading_size_class = section.settings.title_size | prepend: 'heading-size-' %}
+          <h2 class="standard__heading {{ heading_size_class }}"
+            data-aos="hero"
+            data-aos-anchor="{{ animation_anchor }}"
+            data-aos-order="2">
+            {{ page.title }}
+          </h2>
+        {% endif %}
+        {% if section.settings.show_content %}
+          {% assign font_size_class = section.settings.content_size | prepend: 'body-size-' %}
+          <div
+            data-aos="hero"
+            data-aos-anchor="{{ animation_anchor }}"
+            data-aos-order="3">
+            <div class="rte {{ font_size_class }}">
+              {{ page.content }}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+{% endif %}
+
+{% schema %}
+{
+	"name": "Page",
+	"settings": [
+		{
+			"type": "text",
+			"id": "kicker",
+			"label": "Kicker"
+		},
+		{
+			"type": "range",
+			"id": "kicker_size",
+			"label": "Kicker font size",
+			"min": 1,
+			"max": 15,
+			"step": 1,
+			"default": 3
+		},
+		{
+			"type": "checkbox",
+			"id": "show_title",
+			"label": "Show title",
+			"default": true
+		},
+		{
+			"type": "range",
+			"id": "title_size",
+			"label": "Title font size",
+			"min": 1,
+			"max": 15,
+			"step": 1,
+			"default": 8
+		},
+		{
+			"type": "checkbox",
+			"id": "show_content",
+			"label": "Show content",
+			"default": true
+		},
+		{
+			"type": "range",
+			"id": "content_size",
+			"label": "Content font size",
+			"min": 1,
+			"max": 15,
+			"step": 1,
+			"default": 5
+		},
+		{
+			"type": "select",
+			"id": "align_text",
+			"label": "Text alignment",
+			"default": "text-left",
+			"options": [
+				{
+					"value": "text-left",
+					"label": "Left"
+				},
+				{
+					"value": "text-center",
+					"label": "Centered"
+				},
+				{
+					"value": "text-right",
+					"label": "Right"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Colors"
+		},
+		{
+			"type": "select",
+			"id": "text_color",
+			"label": "Text",
+			"default": "text--neutral",
+			"options": [
+				{
+					"value": "text--neutral",
+					"label": "Normal text"
+				},
+				{
+					"value": "text--white",
+					"label": "White"
+				},
+				{
+					"value": "text--primary",
+					"label": "Primary accent"
+				},
+				{
+					"value": "text--secondary",
+					"label": "Secondary accent"
+				},
+				{
+					"value": "text--black",
+					"label": "Black"
+				},
+				{
+					"value": "text--invert--primary",
+					"label": "Primary dark accent"
+				},
+				{
+					"value": "text--invert--secondary",
+					"label": "Secondary dark accent"
+				},
+				{
+					"value": "text--invert",
+					"label": "Inverted text color"
+				},
+				{
+					"value": "text--bright--primary",
+					"label": "Primary bright accent"
+				},
+				{
+					"value": "text--bright--secondary",
+					"label": "Secondary bright accent"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "bg",
+			"label": "Background",
+			"default": "palette--light bg--neutral",
+			"options": [
+				{
+					"value": "palette--light bg--neutral",
+					"label": "Default"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper",
+			"options": [
+				{
+					"value": "wrapper--none",
+					"label": "Full width"
+				},
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				},
+				{
+					"value": "wrapper--narrow",
+					"label": "Page width narrow"
+				},
+				{
+					"value": "wrapper--tiny",
+					"label": "Page width extra narrow"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 36
+		}
+	]
+}
+{% endschema %}

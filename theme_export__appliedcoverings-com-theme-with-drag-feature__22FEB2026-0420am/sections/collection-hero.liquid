@@ -1,0 +1,425 @@
+<!-- /sections/collection-hero.liquid -->
+{%- liquid
+  assign show_image = false
+  if collection.image and section.settings.show_image
+    assign show_image = true
+  endif
+
+  assign title_below = false
+  if show_image == false or section.settings.show_title_below
+    assign title_below = true
+  endif
+
+  assign description_below = false
+  if show_image == false or section.settings.show_description_below
+    assign description_below = true
+  endif
+-%}
+
+
+<section class="{{ section.settings.color_bg }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="hero">
+  {% if show_image %}
+    <div style="--PT: {{ section.settings.padding_top }}px; --PB: {{ section.settings.padding_bottom }}px;">
+      <div class="collection__hero {{ section.settings.width }} section-padding">
+        <div class="section--image fade-in-child js-overflow-container {{ section.settings.text_color }}"
+          {% if section.settings.width == "wrapper--none" and section.settings.padding_top == 0 %} data-overlay-header {% endif %}>
+          <div class="hero__content__wrapper {{ section.settings.text_align }}">
+            <div class="hero__content js-overflow-content {% if section.settings.enable_overlay_text %} backdrop--hero{% endif %}" {% if section.settings.enable_overlay_text %} style="--bg: {{ section.settings.overlay_color }}; --opacity: {{ section.settings.overlay_opacity | times: 0.01 }};"{% endif %}>
+
+              {%- if section.settings.show_title and section.settings.show_title_below == false -%}
+                <h1 class="hero__title heading-size-9">
+                  {{ collection.title }}
+                </h1>
+              {%- endif -%}
+              {%- if collection.description.size != blank and section.settings.show_description and section.settings.show_description_below == false -%}
+                <div class="hero__description rte body-size-6">
+                  {{ collection.description }}
+                </div>
+              {%- endif -%}
+            </div>
+          </div>
+          {%- unless section.settings.enable_overlay_text -%}
+            <div class="image-overlay" style="--bg:{{ section.settings.overlay_color }}; opacity:{{ section.settings.overlay_opacity | times: 0.01 }};"></div>
+          {%- endunless -%}
+
+          {% render 'image-parallax', img_object: collection.image, frame_height_class: section.settings.image_height, bg_position: section.settings.bg_position, preload: true, loading: 'eager', fetchpriority: 'high' %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {%- if show_image == false or title_below or description_below -%}
+    {% unless title_below == false and description_below and section.settings.show_description and collection.description == blank %}
+      <div style="--PT: {{ section.settings.padding_top_text }}px; --PB: {{ section.settings.padding_bottom_text }}px;">
+        <div class="collection__text-content {{ section.settings.width_text }} section-padding">
+          <div class="collection__heading {{ section.settings.text_align }}">
+            {%- if title_below and section.settings.show_title -%}
+              <h1 class="standard__heading heading-size-8 collection__heading__text">
+                {{ collection.title }}
+              </h1>
+            {%- endif -%}
+            {%- if description_below and section.settings.show_description and collection.description != blank -%}
+              <div class="rte standard__rte collection__heading__text">
+                {{ collection.description }}
+              </div>
+            {%- endif -%}
+          </div>
+        </div>
+      </div>
+    {% endunless %}
+  {% endif %}
+</section>
+
+{% schema %}
+{
+	"name": "Collection title",
+	"settings": [
+		{
+			"type": "header",
+			"content": "Layout"
+		},
+		{
+			"type": "select",
+			"id": "text_align",
+			"label": "Text alignment",
+			"default": "align--middle-center",
+			"options": [
+				{
+					"value": "align--top-left",
+					"label": "Top left"
+				},
+				{
+					"value": "align--top-center",
+					"label": "Top center"
+				},
+				{
+					"value": "align--top-right",
+					"label": "Top right"
+				},
+				{
+					"value": "align--middle-left",
+					"label": "Middle left"
+				},
+				{
+					"value": "align--middle-center",
+					"label": "Absolute center"
+				},
+				{
+					"value": "align--middle-right",
+					"label": "Middle right"
+				},
+				{
+					"value": "align--bottom-left",
+					"label": "Bottom left"
+				},
+				{
+					"value": "align--bottom-center",
+					"label": "Bottom center"
+				},
+				{
+					"value": "align--bottom-right",
+					"label": "Bottom right"
+				}
+			]
+		},
+		{
+			"type": "checkbox",
+			"id": "show_title",
+			"label": "Show collection title",
+			"default": true
+		},
+		{
+			"type": "checkbox",
+			"id": "show_title_below",
+			"label": "Title below image",
+			"default": false
+		},
+		{
+			"type": "checkbox",
+			"id": "show_description",
+			"label": "Show collection description",
+			"default": true
+		},
+		{
+			"type": "checkbox",
+			"id": "show_description_below",
+			"label": "Description below image",
+			"default": false
+		},
+		{
+			"type": "select",
+			"id": "color_bg",
+			"label": "Background color",
+			"default": "palette--light bg--neutral",
+			"options": [
+				{
+					"value": "palette--light bg--neutral",
+					"label": "Default"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Feature image"
+		},
+		{
+			"type": "checkbox",
+			"id": "show_image",
+			"label": "Show feature image",
+			"default": true
+		},
+		{
+			"type": "select",
+			"id": "bg_position",
+			"label": "Image position",
+			"default": "center-center",
+			"options": [
+				{
+					"label": "Top",
+					"value": "center-top"
+				},
+				{
+					"label": "Right",
+					"value": "right-center"
+				},
+				{
+					"label": "Center",
+					"value": "center-center"
+				},
+				{
+					"label": "Left",
+					"value": "left-center"
+				},
+				{
+					"label": "Bottom",
+					"value": "center-bottom"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "image_height",
+			"label": "Image height",
+			"default": "use_screen_one_third",
+			"options": [
+				{
+					"value": "use_screen_full",
+					"label": "Full screen height"
+				},
+				{
+					"value": "use_screen_three_quarters",
+					"label": "Three quarters of screen height"
+				},
+				{
+					"value": "use_screen_two_thirds",
+					"label": "Two thirds of screen height"
+				},
+				{
+					"value": "use_screen_one_half",
+					"label": "One half of screen height"
+				},
+				{
+					"value": "use_screen_one_third",
+					"label": "One third of screen height"
+				},
+				{
+					"value": "use_screen_one_fifth",
+					"label": "One fifth of screen height"
+				},
+				{
+					"value": "use_pixels_800",
+					"label": "800px"
+				},
+				{
+					"value": "use_pixels_650",
+					"label": "650px"
+				},
+				{
+					"value": "use_pixels_500",
+					"label": "500px"
+				},
+				{
+					"value": "use_image",
+					"label": "Image height"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "overlay_opacity",
+			"min": 0,
+			"max": 100,
+			"step": 5,
+			"label": "Image overlay opacity",
+			"info": "Increase contrast for legible text.",
+			"default": 20
+		},
+		{
+			"type": "color",
+			"id": "overlay_color",
+			"label": "Overlay color",
+			"default": "#000"
+		},
+		{
+			"type": "checkbox",
+			"id": "enable_overlay_text",
+			"label": "Overlay behind text only",
+			"default": false
+		},
+		{
+			"type": "select",
+			"id": "text_color",
+			"label": "Text color",
+			"default": "text--white",
+			"options": [
+				{
+					"value": "text--neutral",
+					"label": "Normal text"
+				},
+				{
+					"value": "text--white",
+					"label": "White"
+				},
+				{
+					"value": "text--primary",
+					"label": "Primary accent"
+				},
+				{
+					"value": "text--secondary",
+					"label": "Secondary accent"
+				},
+				{
+					"value": "text--black",
+					"label": "Black"
+				},
+				{
+					"value": "text--invert--primary",
+					"label": "Primary dark accent"
+				},
+				{
+					"value": "text--invert--secondary",
+					"label": "Secondary dark accent"
+				},
+				{
+					"value": "text--invert",
+					"label": "Inverted text color"
+				},
+				{
+					"value": "text--bright--primary",
+					"label": "Primary bright accent"
+				},
+				{
+					"value": "text--bright--secondary",
+					"label": "Secondary bright accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Section spacing (with image)"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper--none",
+			"options": [
+				{
+					"value": "wrapper--none",
+					"label": "Full width"
+				},
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 0
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 0
+		},
+		{
+			"type": "header",
+			"content": "Section spacing (no image)"
+		},
+		{
+			"type": "select",
+			"id": "width_text",
+			"label": "Width",
+			"default": "wrapper",
+			"options": [
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top_text",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom_text",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 0
+		}
+	]
+}
+{% endschema %}

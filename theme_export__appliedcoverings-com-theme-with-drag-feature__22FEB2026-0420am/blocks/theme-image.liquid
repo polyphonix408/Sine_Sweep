@@ -1,0 +1,93 @@
+{% liquid
+  assign image = block.settings.image
+  assign wh_ratio = block.settings.image.aspect_ratio | default: 1
+
+  assign wrapper_class = 'h-fit w-fit'
+
+  case block.settings.width_mode
+  when 'full'
+    assign image_class = 'h-full w-full'
+    assign wrapper_class = 'h-full w-full'
+  when 'custom'
+    assign image_width = block.settings.image.width | default: block.settings.image_max_limit | at_most: block.settings.image_max_limit
+    assign image_class = 'w-[--width] h-[--wh-ratio]'
+  endcase
+%}
+
+{% capture image_style %}
+  --width: {{ image_width }}px;
+  --wh-ratio: {{ wh_ratio }};
+{% endcapture %}
+
+<div {{ block.shopify_attributes }} class="{{ wrapper_class }}">
+  {%- if block.settings.href != blank -%}
+    <a
+      href="{{ block.settings.href }}"
+      {% if block.settings.open_in_new_window %}
+        target="_blank"
+      {% endif %}
+    >
+  {%- endif -%}
+  {%- render 'image-tag', img_object: image, width: image_width, class: image_class, style: image_style, placeholder: 'image' -%}
+
+  {%- if block.settings.href != blank -%}
+    </a>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+	"name": "Image",
+	"tag": null,
+	"settings": [
+		{
+			"type": "image_picker",
+			"id": "image",
+			"label": "Image"
+		},
+		{
+			"type": "select",
+			"id": "width_mode",
+			"label": "Width",
+			"default": "custom",
+			"options": [
+				{
+					"value": "full",
+					"label": "Full"
+				},
+				{
+					"value": "custom",
+					"label": "Custom"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "image_max_limit",
+			"min": 5,
+			"max": 500,
+			"step": 5,
+			"unit": "px",
+			"label": "Custom width",
+			"default": 120
+		},
+		{
+			"type": "url",
+			"id": "href",
+			"label": "Link"
+		},
+		{
+			"type": "checkbox",
+			"id": "new_window",
+			"label": "Open link in new window",
+			"default": false
+		},
+	],
+	"presets": [
+		{
+			"name": "Image",
+			"blocks": []
+		}
+	]
+}
+{% endschema %}

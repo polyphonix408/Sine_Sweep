@@ -1,0 +1,26 @@
+{% comment %}
+  common srcset values
+  image {object} - the image object (not a url)
+  {% render 'image-default-srcset', image: img_object %}
+{% endcomment %}
+
+{%- comment -%} image.preview_image.width handles the 3D models because they lack the image.width property {%- endcomment -%}
+{%- assign image_width = image.width | default: image.preview_image.width -%}
+
+{%- if image_width != blank -%}
+  {%- liquid
+    assign widths = widths | default: "352,400,768,932,1024,1200,1920" | split: ","
+    assign srcs = ""
+  -%}
+  {%- for string_width in widths -%}
+    {% assign width = string_width | times: 1 %}
+    {% if image_width >= width %}
+      {% capture src %} {{ image | image_url: width: width }} {{ width }}w{% endcapture %}
+      {% assign srcs = srcs | append: src | append: ", " %}
+    {% endif %}
+  {%- endfor -%}
+  {{ srcs }}
+  {{ image | image_url: width: image_width }} {{ image_width }}w
+{%- else -%}
+  {{ image }}
+{%- endif -%}

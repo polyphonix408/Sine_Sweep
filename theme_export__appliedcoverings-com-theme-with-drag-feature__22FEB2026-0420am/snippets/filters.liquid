@@ -1,0 +1,311 @@
+<!-- /snippets/filters.liquid -->
+{% comment %}
+  Snippet for rendering a single filter inside of an accordion
+
+  {% render 'filters',
+    section: section,
+    block: block,
+    filter: filter,
+    forloop: forloop,
+    accordion_open_boolean: accordion_open_boolean,
+    accordion_initial_state: accordion_initial_state
+  %}
+{% endcomment %}
+
+{%- liquid
+  assign limit = 10
+  assign is_swatch_option = false
+  assign is_image_option = false
+
+  if settings.swatches_enable
+    capture swatch_translation
+      echo 'general.swatches.color' | t
+    endcapture
+    assign translation_array = swatch_translation | append: ',' | split: "," | uniq
+    assign option_handle = filter.label | downcase | lstrip | rstrip | escape_once
+    for translation in translation_array
+      assign translation_handle = translation | downcase | lstrip | rstrip | escape_once
+      if translation_handle == option_handle
+        assign is_swatch_option = true
+        break
+      endif
+    endfor
+  endif
+
+  if filter.presentation == 'swatch'
+    assign is_swatch_option = true
+  endif
+
+  # Image options are larger than swatch options and the image is uncropped
+  if filter.presentation == 'image'
+    assign is_swatch_option = false
+    assign is_image_option = true
+  endif
+
+
+  # Swatch options show more items because each item takes up less space
+  if is_swatch_option
+    assign limit = 25
+  endif
+
+  if filter.active_values.size > 0
+    assign accordion_initial_state = 'accordion-is-open'
+    assign accordion_open_boolean = true
+  endif
+
+  if filter.max_value.value < filter.range_max or filter.min_value.value > 0
+    assign accordion_initial_state = 'accordion-is-open'
+    assign accordion_open_boolean = true
+  endif
+-%}
+
+<div class="sidebar__filter__group"{% if is_swatch_option or is_image_option %} data-swapper-wrapper{% endif %} {% if block %}{{ block.shopify_attributes }}{% endif %}>
+  <button class="sidebar__heading js {{ accordion_initial_state }}"
+    data-accordion-trigger="accordion-{{ filter.label | handle }}-{{ forloop.index }}"
+    aria-controls="accordion-{{ filter.label | handle }}-{{ forloop.index }}"
+    aria-haspopup="true"
+    aria-expanded="{{ accordion_open_boolean }}">
+    <span>{{ filter.label }}</span>
+
+    {%- if is_swatch_option or is_image_option -%}
+      <span data-swapper-target class="sidebar__heading__color"></span>
+    {%- endif -%}
+
+    {%- if filter.active_values.size > 0 -%}
+      <span>({{ filter.active_values.size }})</span>
+    {%- endif -%}
+
+    <span class="sidebar__heading-chevron">
+      {% render 'icon-core-chevron-right' %}
+      <span class="a11y__show visually-hidden">{{ 'general.accessibility.expand_menu' | t }}</span>
+      <span class="a11y__hide visually-hidden">{{ 'general.accessibility.hide_menu' | t }}</span>
+    </span>
+  </button>
+
+  <input
+    type="checkbox"
+    name="accordion-{{ filter.label | handle }}"
+    id="accordion-{{ filter.label | handle }}-checkbox"
+    class="no-js no-js-checkbox" checked>
+
+  <label for="accordion-{{ filter.label | handle }}-checkbox" class="sidebar__heading no-js">
+    <span>{{ filter.label }}</span>
+
+    {%- if is_swatch_option -%}
+      <span data-swapper-target class="sidebar__heading__color"></span>
+    {%- endif -%}
+
+    {%- if filter.active_values.size > 0 -%}
+      <span>({{ filter.active_values.size }})</span>
+    {%- endif -%}
+
+    <span class="sidebar__heading-chevron">
+      {% render 'icon-core-chevron-right' %}
+      <span class="a11y__show visually-hidden">{{ 'general.accessibility.expand_menu' | t }}</span>
+      <span class="a11y__hide visually-hidden">{{ 'general.accessibility.hide_menu' | t }}</span>
+    </span>
+  </label>
+
+  {%- case filter.type -%}
+    {%- when 'list' or 'boolean' -%}
+      <ul
+        class="sidebar__navigation__list"
+        id="accordion-{{ filter.label | handle }}-{{ forloop.index }}"
+        data-accordion-body
+        aria-label="{{ 'collections.sidebar.filter' | t }}"
+        {% if accordion_open_boolean == false %} style="display: none;" {% endif %}
+      >
+        {%- for filter_value in filter.values -%}
+          {%- capture input_id -%}filter-{{ filter.label | handleize }}-{{ forloop.index }}{%- endcapture -%}
+
+          {%- if is_image_option -%}
+            {% comment %} Image display type renders the image with a checkbox using the natural ratio of the image and no cropping {% endcomment %}
+            <li class="filter__button {% if forloop.index > limit %} is-hidden{% endif %}" data-option-holder>
+              <input type="checkbox"
+                name="{{ filter_value.param_name }}"
+                value="{{ filter_value.value }}"
+                id="{{ input_id }}"
+                {% if filter_value.active -%}checked{%- endif %}
+                {% if filter_value.count == 0 and filter_value.active == false -%}disabled{%- endif %}>
+              <label
+                class="stateful-filter-icons"
+                data-swapper-hover="{{ filter_value.label | escape_once }}"
+                for="{{ input_id }}"
+                aria-label="{{ filter_value.label }}"
+              >
+                <span class="flex justify-start items-center">
+                  {%- if filter_value.image -%}
+                    <span class="max-w-[140px]">
+                      {%- render 'image' img_object: filter_value.image, width: 140, wh_ratio: filter_value.image.aspect_ratio -%}
+                    </span>
+                  {%- else -%}
+                    {{ filter_value.label | escape_once }}
+                  {%- endif -%}
+                  {% render 'icon-stateful-box' %}
+                  {% render 'icon-core-refresh' %}
+                </span>
+              </label>
+            </li>
+
+          {%- elsif is_swatch_option -%}
+            {%- if filter_value.swatch.image -%}
+              {%- capture label -%}
+                <label
+                  for="{{ input_id }}"
+                  data-swapper-hover="{{ filter_value.label | escape_once }}"
+                  data-swatch="{{ filter_value.label | escape_once }}"
+                  aria-label="{{ filter_value.label }}"
+                >
+                  {%- render 'image' img_object: filter_value.swatch.image, width: 34, wh_ratio: 1  -%}
+                  <span class="visually-hidden">{{ filter_value.label }}</span>
+                </label>
+              {%- endcapture -%}
+            {%- elsif filter_value.swatch.color -%}
+              {%- capture label -%}
+                <label
+                  for="{{ input_id }}"
+                  data-swatch="{{ filter_value.label | escape_once }}"
+                  data-swapper-hover="{{ filter_value.label | escape_once }}"
+                  style="background-color: {{ filter_value.swatch.color }};"
+                  aria-label="{{ filter_value.label }}"
+                >
+                  <span class="visually-hidden">{{ filter_value.label }}</span>
+                </label>
+              {%- endcapture -%}
+            {%- else -%}
+              {% comment %} Theme swatches based on translation mating "color" {% endcomment %}
+              {%- capture label -%}
+                <label
+                  for="{{ input_id }}"
+                  data-swatch="{{ filter_value.label | escape_once }}"
+                  data-swapper-hover="{{ filter_value.label | escape_once }}"
+                  aria-label="{{ filter_value.label }}"
+                >
+                  <span class="visually-hidden">{{ filter_value.label }}</span>
+                </label>
+              {%- endcapture -%}
+            {%- endif -%}
+            {% comment %} Swatch item {% endcomment %}
+            <li class="sidebar__navigation__list__item {% if forloop.index > limit %} is-hidden{% endif %}" data-option-holder>
+              <radio-swatch class="swatch__button{% if settings.swatches_squares %} swatch__button--square{% endif %}">
+                <input type="checkbox"
+                  name="{{ filter_value.param_name }}"
+                  value="{{ filter_value.value }}"
+                  id="{{ input_id }}"
+                  {% if filter_value.active -%}checked{%- endif %}
+                  {% if filter_value.count == 0 and filter_value.active == false -%}disabled{%- endif %}>
+                {{ label }}
+              </radio-swatch>
+            </li>
+          {%- else -%}
+            {% comment %} Checkbox item {% endcomment %}
+            <li class="filter__button {% if forloop.index > limit %} is-hidden{% endif %}" data-option-holder>
+              <input type="checkbox"
+                name="{{ filter_value.param_name }}"
+                value="{{ filter_value.value }}"
+                id="{{ input_id }}"
+                {% if filter_value.active -%}checked{%- endif %}
+                {% if filter_value.count == 0 and filter_value.active == false -%}disabled{%- endif %}>
+              <label class="stateful-filter-icons" for="{{ input_id }}" aria-label="{{ filter_value.label }}">
+                {{ filter_value.label | escape }}
+                {% render 'icon-stateful-box' %}{% render 'icon-core-refresh' %}
+              </label>
+            </li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+
+      {% if filter.values.size > limit %}
+        <button type="button" data-show-more>{{ 'collections.sidebar.show_more' | t }}</button>
+      {% endif %}
+
+    {%- when 'price_range' -%}
+      <div
+        class="sidebar__navigation__list filter__price"
+        id="accordion-{{ filter.label | handle }}-{{ forloop.index }}"
+        data-accordion-body
+        data-range-holder
+        {% if accordion_open_boolean == false %} style="display: none;" {% endif %}>
+        {%- if shop.money_format contains "comma_separator" -%}
+          {%- assign filter_max_money = filter.range_max | money_without_currency | replace: '.', '' | replace: ',', '.' -%}
+        {%- elsif shop.money_format contains "space_separator" -%}
+          {%- assign filter_max_money = filter.range_max | money_without_currency | replace: ' ', '' | replace: ',', '.' -%}
+        {%- else -%}
+          {%- assign filter_max_money = filter.range_max | money_without_currency | replace: ',', '' -%}
+        {%- endif -%}
+
+        {%- assign filter_max_money_ceil = filter_max_money | ceil -%}
+        {%- assign filter_min_value = 0 -%}
+        {%- assign filter_max_value = filter_max_money_ceil -%}
+
+        {%- if filter.min_value.value -%}
+          {%- if shop.money_format contains "comma_separator" -%}
+            {%- assign filter_min_value = filter.min_value.value | money_without_currency | replace: '.', '' | replace: ',', '.' | floor -%}
+          {%- elsif shop.money_format contains "space_separator" -%}
+            {%- assign filter_max_money = filter.range_max | money_without_currency | replace: ' ', '' | replace: ',', '.' -%}
+          {%- else -%}
+            {%- assign filter_min_value = filter.min_value.value | money_without_currency | replace: ',', '' | floor -%}
+          {%- endif -%}
+        {%- endif -%}
+
+        {%- if filter.max_value.value -%}
+          {%- if shop.money_format contains "comma_separator" -%}
+            {%- assign filter_max_value = filter.max_value.value | money_without_currency | replace: '.', '' | replace: ',', '.' | floor -%}
+          {%- elsif shop.money_format contains "space_separator" -%}
+            {%- assign filter_max_money = filter.range_max | money_without_currency | replace: ' ', '' | replace: ',', '.' -%}
+          {%- else -%}
+            {%- assign filter_max_value = filter.max_value.value | money_without_currency | replace: ',', '' | floor -%}
+          {%- endif -%}
+        {%- endif -%}
+
+        <div class="filter__price__range collection-range-filter" data-range-slider data-range-filter-update data-se-min="0" data-se-step="1" data-se-min-value="{{ filter_min_value }}" data-se-max-value="{{ filter_max_value }}" data-se-max="{{ filter_max_money_ceil }}">
+          <div class="range__dot range__dot--left" data-range-left>
+            <span>&nbsp;</span>
+          </div>
+          <div class="range__dot range__dot--right" data-range-right>
+            <span>&nbsp;</span>
+          </div>
+          <div class="range__line">
+            <span data-range-line>&nbsp;</span>
+          </div>
+        </div>
+
+        <div class="filter__price__fields">
+          <div class="filter__price__field filter__price__from">
+            <span>{{ cart.currency.symbol }}</span>
+
+            <input
+              data-field-price-min
+              class="filter__price__input"
+              name="{{ filter.min_value.param_name }}"
+              id="filter-price-from-{{ filter.label }}-{{ forloop.index }}"
+              {% if filter.min_value.value %}value="{{ filter_min_value }}"{% endif %}
+              type="number"
+              placeholder="{{ filter_min_value }}"
+              min="0"
+              max="{{ filter_max_money_ceil }}">
+
+            <label for="filter-price-from-{{ filter.label }}-{{ forloop.index }}">{{ 'products.general.from' | t }}</label>
+          </div>
+          <div class="filter__price__spacer">-</div>
+          <div class="filter__price__field filter__price__to">
+            <span>{{ cart.currency.symbol }}</span>
+
+            <input
+              data-field-price-max
+              class="filter__price__input"
+              name="{{ filter.max_value.param_name }}"
+              id="filter-price-to-{{ filter.label }}-{{ forloop.index }}"
+              {% if filter.max_value.value %}value="{{ filter_max_value }}"{% endif %}
+              type="number"
+              placeholder="{{ filter_max_value }}"
+              min="0"
+              max="{{ filter_max_money_ceil }}">
+
+            <label for="filter-price-to-{{ filter.label }}-{{ forloop.index }}">To</label>
+          </div>
+        </div>
+      </div>
+  {%- endcase -%}
+
+</div>

@@ -1,0 +1,116 @@
+{% comment %}
+  Renders gift card recipient form.
+  Accepts:
+  - product: {Object} product object.
+  - form: {Object} the product form object.
+  - section: {Object} section to which this snippet belongs.
+  Usage:
+  {% render 'gift-card-recipient-form', product: product, form: form, section: section %}
+{% endcomment %}
+
+<div class="recipient-form mb-r6"
+  role="group"
+  id="Recipient-form-{{ section.id }}"
+  aria-labelledby="Recipient-checkbox-{{ section.id }}"
+  x-data="{
+    isActive: false,
+    includeDate: false,
+  }">
+  <input
+    id="Recipient-checkbox-{{ section.id }}"
+    type="checkbox"
+    name="properties[__shopify_send_gift_card_to_recipient]"
+    x-model="isActive"
+  >
+  <label for="Recipient-checkbox-{{ section.id }}">
+    <span>{{ 'recipient.form.checkbox' | t }}</span>
+  </label>
+
+  <div class="recipient-fields mt-r5">
+    <div class="float__wrapper">
+      <label for="Recipient-email-{{ section.id }}">
+        <span class="required">{{ 'recipient.form.email_label' | t }}</span>
+      </label>
+      <input
+        id="Recipient-email-{{ section.id }}"
+        type="email"
+        placeholder="{{ 'recipient.form.email' | t }}"
+        name="properties[Recipient email]"
+        value="{{ form.email }}"
+        :disabled="!isActive"
+      >
+    </div>
+
+    <div class="float__wrapper">
+      <label for="Recipient-name-{{ section.id }}">
+        {{ 'recipient.form.name_label' | t }}
+      </label>
+
+      <input
+        autocomplete="name"
+        type="text"
+        id="Recipient-name-{{ section.id }}"
+        name="properties[Recipient name]"
+        placeholder="{{ 'recipient.form.name' | t }}"
+        value="{{ form.name }}"
+        :disabled="!isActive"
+      >
+    </div>
+
+    <div>
+      {%- assign max_chars_message = 200 -%}
+      {%- assign max_chars_message_rendered = 'recipient.form.max_characters' | t: max_chars: max_chars_message -%}
+      {%- assign message_label_rendered = 'recipient.form.message_label' | t -%}
+      <div class="float__wrapper">
+        <label for="Recipient-message-{{ section.id }}">
+          {{ message_label_rendered }}
+        </label>
+        <textarea
+          rows="10"
+          class="mb-r2"
+          id="Recipient-message-{{ section.id }}"
+          name="properties[Message]"
+          maxlength="{{ max_chars_message }}"
+          placeholder="{{ 'recipient.form.message' | t }}"
+          aria-label="{{ message_label_rendered }} {{ max_chars_message_rendered }}"
+          :disabled="!isActive"
+        >{{ form.message }}</textarea>
+      </div>
+      <label class="text-right">
+        <small>{{ max_chars_message_rendered }}</small>
+      </label>
+    </div>
+
+
+    <input
+      id="Recipient-activate-date-{{ section.id }}"
+      type="checkbox"
+      x-model="includeDate"
+    >
+    <label for="Recipient-activate-date-{{ section.id }}">
+      <span>{{ 'recipient.form.send_later' | t }}</span>
+    </label>
+    <template x-if="includeDate">
+      <div>
+        <label for="Recipient-send-on-{{ section.id }}">
+          {{ 'recipient.form.send_on' | t }}
+        </label>
+        <input
+          autocomplete="send_on"
+          type="date"
+          id="Recipient-send-on-{{ section.id }}"
+          name="properties[Send on]"
+          placeholder="{{ 'recipient.form.send_on' | t }}"
+          pattern="\d{4}-\d{2}-\d{2}"
+          value="{{ form.send_on }}"
+        >
+        <input
+          type="hidden"
+          name="properties[__shopify_offset]"
+          :value="new Date().getTimezoneOffset();"
+        >
+      </div>
+    </template>
+
+  </div>
+</div>

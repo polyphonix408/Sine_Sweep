@@ -1,0 +1,55 @@
+{% capture content %}
+  {% content_for 'blocks' %}
+{% endcapture %}
+
+{% liquid
+  assign pause_text = 'general.accessibility.slideshow.pause' | t
+  assign play_text = 'general.accessibility.slideshow.play' | t
+%}
+
+<div
+  class="relative brick__block" data-overflow-frame {{ block.shopify_attributes }}
+  x-ensemble:slideshow.duration.{{ section.settings.duration | times: 1000 }}ms
+  x-data="{
+    ensembleId: 'slideshow'
+  }"
+  x-init="$ensemble.registerMember(ensembleId, $el)"
+>
+  <div role='toolbar'>
+    <button class="sr-only" x-slideshow:toggle x-text="$slideshow.state == 'playing' ? '{{ pause_text }}' : '{{ play_text }}'">
+      {{ pause_text }}
+    </button>
+  </div>
+  <div x-slideshow:viewport class="brick__block__image {{ block.settings.text_color }}">
+    {{ content }}
+  </div>
+</div>
+
+{% schema %}
+{
+	"name": "Slideshow",
+	"tag": null,
+	"settings": [],
+	"blocks": [
+		{
+			"type": "_pair-slideshow-slide"
+		}
+	],
+	"presets": [
+		{
+			"name": "Slideshow",
+			"blocks": [
+				{
+					"type": "_pair-slideshow-slide"
+				},
+				{
+					"type": "_pair-slideshow-slide"
+				},
+				{
+					"type": "_pair-slideshow-slide"
+				}
+			]
+		}
+	]
+}
+{% endschema %}

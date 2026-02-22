@@ -1,0 +1,103 @@
+<!-- /snippets/article-grid-item.liquid -->
+
+{% comment %}
+  * An article block that fills the container with an image with overlayed title
+  * section_width {number} - section width setting (e.g. 'wrapper', 'wrapper--full')
+  * section_columns {number} - number of columns in the section this article is a part of
+
+  {% render 'article-grid-item', article: article, wh_ratio: section.settings.wh_ratio, show_author: section.settings.show_author, show_preview: section.settings.show_preview, show_link: section.settings.show_link %}
+{% endcomment %}
+
+<div class="article__item">
+  <div class="article__item-image" data-grid-slide>
+    <a href="{{ article.url }}">
+      {%- capture sizes -%}
+        {%- render 'image-grid-sizes',
+          columns_desktop: section_columns,
+          columns_tablet: section_columns,
+          columns_mobile: 1.0,
+          section_width: section_width
+        %}
+      {%- endcapture -%}
+
+      {%- capture srcset -%}
+        {%- render 'image-grid-srcset',
+          image: article.image,
+          columns_desktop: section_columns,
+          columns_tablet: section_columns,
+          columns_mobile: 1.0,
+          section_width: section_width
+        %}
+      {%- endcapture -%}
+
+      {%- render 'image', cover: true, img_object: article.image, wh_ratio: wh_ratio, alt_default: article.title, sizes: sizes, srcset: srcset, loading: 'lazy' -%}
+    </a>
+  </div>
+
+  <div class="article__item-content">
+    {% assign has_tags = false %}
+    {% if article.tags.size > 0 and show_tags %}
+      {% assign has_tags = true %}
+    {% endif %}
+
+    {% if has_tags or show_date %}
+      <div class="article__item-meta">
+        {% if has_tags %}
+          {% for tag in article.tags %}
+            <span class="article__item-tag">{{tag}}</span>
+          {% endfor %}
+        {% endif %}
+
+        {% if show_date %}
+          <span class="article__item-date">
+            <time>{{ article.published_at | date: format: 'month_day_year' }}</time>
+          </span>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <h3 class="article__item-title heading-size-6 mb-0">
+      <a href="{{ article.url }}">{{ article.title }}</a>
+    </h3>
+
+    {% if show_author %}
+      <div class="article__item-author">
+        {% if article.user.image %}
+          <span class="article__item-avatar">
+            {% assign image = article.user.image %}
+            {% assign image_width = 25 | at_most: image.width %}
+            {% assign image_width_2x = image_width | times: 2 | at_most: image.width %}
+            {% assign alt = article.author %}
+
+            {% capture srcset %}
+              {{ image | image_url: width: image_width_2x }} 2x,
+              {{ image | image_url: width: image_width }}
+            {% endcapture %}
+
+            {%- render 'image',
+              img_object: image,
+              wh_ratio: image.aspect_ratio,
+              width: image_width,
+              srcset: srcset,
+              alt: alt
+            -%}
+          </span>
+        {% endif %}
+
+        <span>
+          {{ 'blogs.article.by' | t }} {{ article.author }}
+        </span>
+      </div>
+    {% endif %}
+
+    {% if show_preview and article.excerpt_or_content != blank %}
+      <div class="rte body-size-4">
+        <p>{{ article.excerpt_or_content | strip_html | truncatewords: 25 }}</p>
+      </div>
+    {% endif %}
+
+    {% if show_link %}
+      <a href="{{ article.url }}" class="text-link-bare">{{ 'blogs.article.read_more' | t }}</a>
+    {% endif %}
+  </div>
+</div>

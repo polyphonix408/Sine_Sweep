@@ -1,0 +1,52 @@
+{% liquid
+  assign z_index = z_index | default: _settings.z_index
+  assign top = top | default: _settings.top | default: 50
+  assign top_mobile = top_mobile | default: _settings.top_mobile
+  assign left = left | default: _settings.left | default: 50
+  assign left_mobile = left_mobile | default: _settings.left_mobile
+  assign rotation = rotation | default: _settings.rotation | default: 0
+%}
+<div
+  class="
+    absolute -translate-x-1/2 -translate-y-1/2 rotate-[--float-rotation] origin-center
+
+    {% if top_mobile %}
+      top-[--float-top-mobile]
+      md:top-[--float-top]
+    {% else %}
+      top-[--float-top]
+    {% endif %}
+
+    {% if left_mobile %}
+      left-[--float-left-mobile]
+      md:left-[--float-left]
+    {% else %}
+      left-[--float-left]
+    {% endif %}
+
+    {{ class }}
+  "
+  style="
+    {% if z_index %}
+      z-index: {{ z_index }};
+    {% endif %}
+
+    --float-top: {{ top }}%;
+    --float-left: {{ left }}%;
+
+    {% if top_mobile %}
+      --float-top-mobile: {{ top_mobile }}%;
+    {% endif %}
+    {% if left_mobile %}
+      --float-left-mobile: {{ left_mobile }}%;
+    {% endif %}
+
+    {% if rotation %}
+      --float-rotation: {{ rotation | times: 1.0 | divided_by: 100 | divided_by: 2 }}turn;
+    {% endif %}
+    {{ style }}
+  "
+  {{ attributes }}
+>
+  {{ content }}
+</div>

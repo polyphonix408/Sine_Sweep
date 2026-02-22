@@ -1,0 +1,179 @@
+<!-- /snippets/countdown-timer.liquid -->
+
+{% comment %}
+    Renders a countdown timer used on Countdown timer section
+
+    Accepts:
+    - end_date: {Datetime} Expiration date (required)
+    - end_time: {Datetime} Expiration time of day (required)
+    - period: {Datetime} am/pm (required)
+    - digit_size: {Integer} Text size (optional)
+    - digit_size_mobile: {Integer} Text size on Mobile (optional)
+    - end_message: {String} End of timer message (Optional)
+    - hide_on_complete: {Boolean} Otherwise the end of timer message appears in place of the countdown timer. (Default: false)
+    - animation: {Boolean} Defaults to true. If false, no AOS animation is applied
+    - animation_order: {Integer} Animation order
+    - animation_anchor: {String} ID of the current section
+
+    Usage:
+    {% render 'countdown-timer',
+      end_date: block.settings.end_date,
+      end_time: block.settings.end_time,
+      period: block.settings.period,
+      digit_size: block.settings.digit_size,
+      digit_size_mobile: block.settings.digit_size_mobile,
+      end_message: block.settings.end_message,
+      hide_on_complete: block.settings.hide_on_complete
+    %}
+{% endcomment %}
+
+{%- liquid
+  assign animation = animation | default: true, allow_false: true
+  assign end_time_split = end_time | split: ':'
+  assign end_time_hour = end_time_split | first | strip | abs
+  assign end_time_minute = end_time_split | last | strip
+
+  capture expiration_date
+    echo end_date
+    echo ' '
+    case period
+      when 'am'
+        case end_time_hour
+          when 0 or 12
+            echo '00' | append: ':' | append: end_time_minute
+          else
+            echo end_time
+        endcase
+
+      when 'pm'
+        capture hour
+          case end_time_hour
+            when 0 or 12
+              echo '12'
+            else
+              if end_time_hour < 12
+                echo end_time_hour | plus: 12
+              else
+                echo end_time_hour
+              endif
+          endcase
+        endcapture
+
+        echo hour | append: ':' | append: end_time_minute
+    endcase
+  endcapture
+-%}
+
+{%- liquid
+  assign digit_size = digit_size | default: 8
+  assign digit_size_mobile = digit_size_mobile | default: 6
+  assign expiration_date = expiration_date | default: 'now' | date: '%s'
+  assign end_message = end_message | default: ''
+  assign hide_on_complete = hide_on_complete | default: false
+  assign current_date = 'now' | date: '%s'
+  assign time_difference = expiration_date | minus: current_date
+  assign days = time_difference | divided_by: 86400 | at_least: 0
+  assign remaining_seconds = time_difference | modulo: 86400
+  assign hours = remaining_seconds | divided_by: 3600 | at_least: 0
+  assign remaining_seconds = remaining_seconds | modulo: 3600
+  assign minutes = remaining_seconds | divided_by: 60 | at_least: 0
+  assign seconds = remaining_seconds | modulo: 60 | at_least: 0
+  assign default_anchor = 'Countdown--' | append: section.id
+  assign animation_anchor = animation_anchor | default: default_anchor
+  assign animation_order = animation_order | default: 1
+  assign message_animation_order = animation_order | plus: 1
+
+  if days < 10
+    assign days = days | prepend: '0'
+  endif
+
+  if hours < 10
+    assign hours = hours | prepend: '0'
+  endif
+
+  if minutes < 10
+    assign minutes = minutes | prepend: '0'
+  endif
+
+  if seconds < 10
+    assign seconds = seconds | prepend: '0'
+  endif
+
+  assign expiration_behaviour = 'show-message'
+  if hide_on_complete
+    assign expiration_behaviour = 'hide-section'
+  endif
+
+  assign timer_class = 'timer'
+-%}
+<countdown-timer
+  data-expiration-behavior="{{ expiration_behaviour }}"
+  style="--DIGIT-SIZE-MOBILE: var(--font-{{ digit_size_mobile }});"
+>
+  <div class="countdown__timer">
+    <time class="countdown__datetime" datetime="{{ expiration_date | date: '%Y-%m-%dT%H:%M:%S.%3N%z' }}">
+      <div class="{{ timer_class }}"
+        {% if animation != false %}
+          {% assign animation_order = animation_order | plus: 1 %}
+          data-aos="hero"
+          data-aos-anchor="{{ animation_anchor }}"
+          data-aos-order="{{ animation_order }}"
+        {% endif %}
+      >
+        <strong class="timer__digit accent-size-{{ digit_size }}" data-days>{{ days }}</strong>
+        <p class="timer__unit accent-size-1">{{ 'countdown.days' | t }}</p>
+      </div>
+
+      <div class="{{ timer_class }}"
+        {% if animation != false %}
+          {% assign animation_order = animation_order | plus: 1 %}
+          data-aos="hero"
+          data-aos-anchor="{{ animation_anchor }}"
+          data-aos-order="{{ animation_order }}"
+        {% endif %}
+      >
+        <strong class="timer__digit accent-size-{{ digit_size }}" data-hours>{{ hours }}</strong>
+        <p class="timer__unit accent-size-1">{{ 'countdown.hours' | t }}</p>
+      </div>
+
+      <div class="{{ timer_class }}"
+        {% if animation != false %}
+          {% assign animation_order = animation_order | plus: 1 %}
+          data-aos="hero"
+          data-aos-anchor="{{ animation_anchor }}"
+          data-aos-order="{{ animation_order }}"
+        {% endif %}
+      >
+        <strong class="timer__digit accent-size-{{ digit_size }}" data-minutes>{{ minutes }}</strong>
+        <p class="timer__unit accent-size-1">{{ 'countdown.minutes' | t }}</p>
+      </div>
+
+      <div class="{{ timer_class }}"
+        {% if animation != false %}
+          {% assign animation_order = animation_order | plus: 1 %}
+          data-aos="hero"
+          data-aos-anchor="{{ animation_anchor }}"
+          data-aos-order="{{ animation_order }}"
+        {% endif %}
+      >
+        <strong class="timer__digit accent-size-{{ digit_size }}" data-seconds>{{ seconds }}</strong>
+        <p class="timer__unit accent-size-1">{{ 'countdown.seconds' | t }}</p>
+      </div>
+    </time>
+  </div>
+
+  {%- if hide_on_complete == false and end_message != '' -%}
+    <div class="countdown__message accent-size-{{ digit_size }}">
+      <div
+        {% if animation != false %}
+          {% assign animation_order = message_animation_order %}
+          data-aos="hero"
+          data-aos-anchor="{{ animation_anchor }}"
+          data-aos-order="{{ animation_order }}"
+        {% endif %}
+      >
+        {{ end_message }}
+      </div>
+    </div>
+  {%- endif -%}
+</countdown-timer>

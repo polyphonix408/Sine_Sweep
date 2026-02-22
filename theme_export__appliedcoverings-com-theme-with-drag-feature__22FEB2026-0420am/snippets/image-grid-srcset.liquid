@@ -1,0 +1,137 @@
+{%- comment -%}
+* Generate a string of image sources for use in srcset img tag attribute
+
+  *  section_width {string} - Section width setting: wrapper--none, wrapper--full, wrapper, wrapper--narrow, wrapper--tiny
+  *  columns_desktop {number} - Number of columns on desktop
+  *  columns_tablet {number} - Number of columns on tablet
+  *  columns_mobile {number} - Number of columns on mobile
+
+{%- capture sizes -%}
+  {% render 'image-grid-srcset', columns: columns, section_width: section_width  %}
+{%- endcapture -%}
+{%- endcomment -%}
+
+{% comment %}
+  Generate widths
+{% endcomment %}
+{%- liquid
+  assign page_gutter_width = settings.layout_outer
+
+  assign desktop_ultrawide_page_width = 1400
+  assign desktop_wide_page_width = 1100
+  assign desktop_page_width = 1024
+  assign tablet_page_width = 768
+  assign mobile_page_width = 400
+
+  assign columns_desktop = columns_desktop | at_least: 1 | default: 1
+  assign columns_tablet = columns_tablet | at_least: 1 | default: 1
+  assign columns_mobile = columns_mobile | at_least: 1.0 | default: 1.0
+
+  assign widths = ""
+  assign total_page_gutter_width = page_gutter_width | times: 2
+  assign layout_max_width = desktop_ultrawide_page_width
+  assign layout_adjustment_factor = 1.0
+
+  case section_width
+    when 'wrapper--none'
+      assign layout_max_width = false
+      assign total_page_gutter_width = 0
+    when 'wrapper--full'
+      assign layout_max_width = false
+    when 'wrapper'
+      assign layout_max_width = layout_site_width | default: settings.layout_site_width
+    when 'wrapper--narrow'
+      assign layout_max_width = layout_site_width | default: settings.layout_site_width
+      assign layout_adjustment_factor = 0.66
+    when 'wrapper--tiny'
+      assign layout_max_width = layout_site_width | default: settings.layout_site_width
+      assign layout_adjustment_factor = 0.4
+  endcase
+
+  assign desktop_ultrawide_page_width = desktop_ultrawide_page_width | times: layout_adjustment_factor
+  assign desktop_wide_page_width = desktop_wide_page_width | times: layout_adjustment_factor
+  assign desktop_page_width = desktop_page_width | times: layout_adjustment_factor
+  assign tablet_page_width = tablet_page_width | times: layout_adjustment_factor
+  assign mobile_page_width = mobile_page_width | times: layout_adjustment_factor
+
+  assign desktop_ultrawide_grid_width = desktop_ultrawide_page_width | minus: total_page_gutter_width
+  assign desktop_wide_grid_width = desktop_wide_page_width | minus: total_page_gutter_width
+  assign desktop_grid_width = desktop_page_width | minus: total_page_gutter_width
+  assign tablet_grid_width = tablet_page_width | minus: total_page_gutter_width
+  assign mobile_grid_width = mobile_page_width | minus: total_page_gutter_width
+
+  if layout_max_width
+    assign desktop_ultrawide_grid_width = desktop_ultrawide_grid_width | at_most: layout_max_width
+    assign desktop_wide_grid_width = desktop_wide_grid_width | at_most: layout_max_width
+    assign desktop_grid_width = desktop_grid_width | at_most: layout_max_width
+    assign tablet_grid_width = tablet_grid_width | at_most: layout_max_width
+    assign mobile_grid_width = mobile_grid_width | at_most: layout_max_width
+  endif
+
+  assign desktop_ultrawide_grid_item_width = desktop_ultrawide_grid_width | divided_by: columns_desktop | round
+  assign desktop_wide_grid_item_width = desktop_wide_grid_width | divided_by: columns_desktop | round
+  assign desktop_grid_item_width = desktop_grid_width | divided_by: columns_desktop | round
+  assign tablet_grid_item_width = tablet_grid_width | divided_by: columns_tablet | round
+  assign mobile_grid_item_width = mobile_grid_width | divided_by: columns_mobile | round
+
+  assign widths = desktop_ultrawide_grid_item_width
+  assign widths = widths | append: "," | append: desktop_wide_grid_item_width
+  assign widths = widths | append: "," | append: desktop_grid_item_width
+  assign widths = widths | append: "," | append: tablet_grid_item_width
+  assign widths = widths | append: "," | append: mobile_grid_item_width
+
+  assign widths = widths | split: ',' | uniq | sort
+-%}
+
+{% comment %}
+  Generate srcset
+{% endcomment %}
+
+{%- liquid
+  assign max_width = 5760
+  assign wh_ratio = wh_ratio | default: image.aspect_ratio
+  assign image_width = image.width | at_most: max_width
+  assign image_height = image_width | divided_by: wh_ratio
+  assign srcset = image | image_url: width: image_width, height: image_height, crop: crop
+  assign srcset = srcset | append: ' ' | append: image_width | append: 'w'
+-%}
+
+{% if image_width > 0 %}
+  {%- for string_width in widths -%}
+    {%- assign width = string_width | strip | times: 1 | at_most: image_width -%}
+    {% comment %}
+      You can adjust the width_2x value down towards 1 until photos become noticibly blurry
+      detailed photos with natural grain hide compression better than simple gradients.
+    {% endcomment %}
+    {%- assign width_2x = width | times: 2 -%}
+
+    {% if width > 0 %}
+      {%- capture src -%}
+        {% assign height = width | divided_by: wh_ratio %}
+        {{ image | image_url: width: width, height: height, crop: crop }} {{width}}w
+      {%- endcapture -%}
+      {%- assign srcset = srcset | append: "," | append: src -%}
+
+      {% if width_2x <= image_width %}
+        {%- capture src_2x -%}
+          {% assign height_2x = width_2x | divided_by: wh_ratio %}
+          {{ image | image_url: width: width_2x, height: height_2x, crop: crop }} {{width_2x}}w
+        {%- endcapture -%}
+
+        {%- assign srcset = srcset | append: "," | append: src_2x -%}
+      {%- endif -%}
+
+      {% comment %} Uncomment to support 3x resolutions {% endcomment %}
+      {% comment %}
+        {%- assign width_3x = width | times: 3 -%}
+          {%- capture src_3x -%}
+            {{ image | image_url: width: width_3x }} {{width_3x}}w
+          {%- endcapture -%}
+
+          {%- assign srcset = srcset | append: "," | append: src_3x -%}
+        {% endif %}
+      {% endcomment %}
+    {% endif %}
+  {%- endfor -%}
+{% endif %}
+{{ srcset }}

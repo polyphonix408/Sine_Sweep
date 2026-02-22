@@ -1,0 +1,264 @@
+
+{% liquid
+  assign border_class = ''
+  if section.settings.borders
+    assign border_class = 'brick--border'
+  endif
+
+  assign margin_class = ''
+  if section.settings.brick_gutter > 0
+    assign margin_class = 'brick--margin'
+  endif
+%}
+
+<section
+  data-section-id="{{ section.id }}"
+  {% comment %} Don't change this. Needs to be 'custom-content' instead of the actual name of this section to hook up various web component stuff which relies on this selector {% endcomment %}
+  data-section-type="custom-content"
+
+  style="
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+    --BRICK-GUTTER: {{ section.settings.brick_gutter }}px;
+    {% if section.settings.bg_color != blank %}background-color: {{ section.settings.bg_color }};{% endif %}
+  "
+
+  x-data
+  x-ensemble
+
+  {% if request.design_mode %}
+    @shopify:section:select.window='if ($isSelectedSection) { isPlaying = false }'
+    @shopify:section:deselect.window='if ($wasSelectedSection) { isPlaying = true }'
+  {% endif %}
+>
+  <div class="section-padding {{ section.settings.width }}" data-wrapper>
+    <div
+      class="
+        brick__section brick--2
+        {{ margin_class }} {{ border_class }} {{ section.settings.height }}
+
+        {% if section.settings.order == 'text-first' %}
+          brick__section--reverse
+        {% endif %}
+      "
+      data-overflow-wrapper
+    >
+      {% # theme-check-disable UniqueStaticBlockId %}
+      {% if section.settings.order == 'before-after-first' %}
+        {% content_for 'block', type: '_pair-before-after', id: 'before-after' %}
+        {% content_for 'block', type: '_pair-content', id: 'text' %}
+      {% else %}
+        {% content_for 'block', type: '_pair-content', id: 'text' %}
+        {% content_for 'block', type: '_pair-before-after', id: 'before-after' %}
+      {% endif %}
+      {% # theme-check-enable UniqueStaticBlockId %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+	"name": "Pair: Before/After & Text",
+	"tag": "div",
+	"settings": [
+		{
+			"type": "select",
+			"id": "order",
+			"label": "Order",
+			"default": "before-after-first",
+			"options": [
+				{
+					"value": "before-after-first",
+					"label": "Before/After first"
+				},
+				{
+					"value": "text-first",
+					"label": "Text first"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Section layout"
+		},
+		{
+			"type": "select",
+			"id": "height",
+			"label": "Section height",
+			"default": "use_screen_one_half",
+			"options": [
+				{
+					"value": "use_screen_full",
+					"label": "Full screen height"
+				},
+				{
+					"value": "use_screen_three_quarters",
+					"label": "Three quarters of screen height"
+				},
+				{
+					"value": "use_screen_two_thirds",
+					"label": "Two thirds of screen height"
+				},
+				{
+					"value": "use_screen_one_half",
+					"label": "One half of screen height"
+				},
+				{
+					"value": "use_screen_one_third",
+					"label": "One third of screen height"
+				},
+				{
+					"value": "use_screen_one_fifth",
+					"label": "One fifth of screen height"
+				},
+				{
+					"value": "use_pixels_800",
+					"label": "800px"
+				},
+				{
+					"value": "use_pixels_650",
+					"label": "650px"
+				},
+				{
+					"value": "use_pixels_500",
+					"label": "500px"
+				},
+				{
+					"value": "use_image",
+					"label": "Image height"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "brick_gutter",
+			"min": 0,
+			"max": 50,
+			"step": 2,
+			"unit": "px",
+			"label": "Block spacing",
+			"default": 0
+		},
+		{
+			"type": "checkbox",
+			"id": "borders",
+			"label": "Add borders",
+			"default": false
+		},
+		{
+			"type": "color",
+			"id": "bg_color",
+			"label": "Background"
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper",
+			"options": [
+				{
+					"value": "wrapper--none",
+					"label": "Full width"
+				},
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				},
+				{
+					"value": "wrapper--narrow",
+					"label": "Page width narrow"
+				},
+				{
+					"value": "wrapper--tiny",
+					"label": "Page width extra narrow"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 36
+		}
+	],
+	"blocks": [
+		{
+			"type": "_pair-before-after"
+		},
+		{
+			"type": "_pair-content"
+		}
+	],
+	"presets": [
+		{
+			"name": "Pair: Before/After & Text",
+			"blocks": [
+				{
+					"type": "_pair-before-after",
+					"id": "before-after",
+					"static": true,
+					"blocks": []
+				},
+				{
+					"type": "_pair-content",
+					"id": "text",
+					"static": true,
+					"blocks": [
+						{
+							"type": "theme-group",
+							"settings": {
+								"flow": "row",
+								"alignment": "start",
+								"gap": "sm"
+							},
+							"blocks": [
+								{
+									"type": "theme-kicker",
+									"settings": {
+										"kicker": "Before / After"
+									}
+								}
+							]
+						},
+						{
+							"type": "theme-text",
+							"settings": {
+								"text": "Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store."
+							}
+						}
+					]
+				}
+			]
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"custom.overlays"
+		]
+	}
+}
+{% endschema %}
+

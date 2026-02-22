@@ -1,0 +1,134 @@
+<!-- /sections/section-video-player.liquid -->
+
+{%- assign layout_spacing = settings.layout_outer | times: 2 -%}
+{%- assign image_size = settings.layout_site_width | minus: layout_spacing | append: 'x' -%}
+{%- assign html_video = section.settings.video -%}
+{%- assign video_link = section.settings.video_link -%}
+
+{%- if video_link contains 'youtube.com/watch' -%}
+  {%- assign video_id = video_link | split: 'v=' -%}
+  {%- assign video_id = video_id[1] | split: '&' | first -%}
+  {%- assign video_url = 'https://www.youtube.com/embed/' | append: video_id -%}
+  {%- assign external_video = true -%}
+{%- elsif video_link contains 'youtu.be/' -%}
+  {%- assign video_id = video_link | split: '.be/' -%}
+  {%- assign video_id = video_id[1] | split: '&' | first -%}
+  {%- assign video_url = 'https://www.youtube.com/embed/' | append: video_id -%}
+  {%- assign external_video = true -%}
+{%- elsif video_link contains 'vimeo.com/' -%}
+  {%- assign video_id = video_link | split: 'vimeo.com/' -%}
+  {%- assign video_id = video_id[1] | split: '?' | first -%}
+  {%- assign video_url = 'https://player.vimeo.com/video/' | append: video_id -%}
+  {%- assign external_video = true -%}
+{%- endif -%}
+
+<section
+  class="{{ section.settings.color_bg }}"
+  style="
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="{{ section.settings.width }} section-padding">
+    <div class="aspect-video relative">
+      {%- if external_video -%}
+        <iframe
+          class="block absolute top-0 right-0 bottom-0 left-0 w-full h-full"
+          src="{{ video_url }}"
+          frameborder="0"
+          allow="fullscreen"
+          allowfullscreen>
+        </iframe>
+      {%- elsif html_video != blank -%}
+        {{ html_video | video_tag: controls: true, preload: 'none', image_size: image_size, class: 'block absolute top-0 right-0 bottom-0 left-0 w-full h-full' }}
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+	"name": "Video",
+	"settings": [
+		{
+			"type": "video",
+			"id": "video",
+			"label": "Video"
+		},
+		{
+			"type": "video_url",
+			"id": "video_link",
+			"label": "Video link",
+			"accept": [
+				"youtube",
+				"vimeo"
+			],
+			"info": "Streaming video source from YouTube or Vimeo.",
+			"default": "https://www.youtube.com/watch?v=_9VUPq3SxOc"
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper",
+			"options": [
+				{
+					"value": "wrapper--none",
+					"label": "Full width"
+				},
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				},
+				{
+					"value": "wrapper--narrow",
+					"label": "Page width narrow"
+				},
+				{
+					"value": "wrapper--tiny",
+					"label": "Page width extra narrow"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 36
+		}
+	],
+	"presets": [
+		{
+			"name": "Video"
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"aside"
+		]
+	}
+}
+{% endschema %}

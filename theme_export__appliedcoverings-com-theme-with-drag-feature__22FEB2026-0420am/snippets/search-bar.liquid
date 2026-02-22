@@ -1,0 +1,26 @@
+<!-- /snippets/search-bar.liquid -->
+
+<main-search>
+  <form action="{{ routes.search_url }}" method="get" class="search-bar" role="search">
+    <div class="input-group input-group--inner-button">
+      <input class="input-group-field"
+      type="search"
+      name="q"
+      value="{{ search.terms | escape }}"
+      placeholder="{{ 'general.search.placeholder' | t }}"
+      aria-label="{{ 'general.search.placeholder' | t }}">
+
+      <span class="input-group-button">
+        <div class="input-group-button__group">
+          <button type="reset" class="search-reset{% if search.terms == blank %} is-hidden{% endif %}" aria-label="{{ 'general.search.reset' | t }}">
+            {% render 'icon-core-x' %}
+          </button>
+
+          <button type="submit" class="btn btn--soft">
+            {{ 'general.search.submit' | t }}
+          </button>
+        </div>
+      </span>
+    </div>
+  </form>
+</main-search>

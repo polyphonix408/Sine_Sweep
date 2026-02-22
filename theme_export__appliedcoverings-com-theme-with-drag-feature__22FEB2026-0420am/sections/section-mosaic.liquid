@@ -1,0 +1,1027 @@
+<!-- /sections/section-mosaic.liquid -->
+
+<div class="section-mosaic {{ section.settings.color_bg }} section-{{ section.id }}"
+data-section-id="{{ section.id }}"
+data-section-type="mosaic"
+style="--PT: {{ section.settings.padding_top }}px; --PB: {{ section.settings.padding_bottom }}px;">
+  <div class="{{ section.settings.width }} section-padding">
+    {% if section.blocks.size == 0 %}
+      <div class="text-center">{{ 'home_page.onboarding.no_content' | t }}</div>
+    {% else %}
+      {% assign wh_ratio = section.settings.wh_ratio | default: 0.6 %}
+
+      <div class="grid--mosaic grid--{{ section.settings.first_block_height }} grid--split-{{ section.settings.split }} grid--mosaic-{{ section.blocks.size }}" style="--scale: {{ wh_ratio }};">
+
+        {% for block in section.blocks %}
+          {% assign block_height = 'short' %}
+          {% assign block_width = 'sm' %}
+
+          {% case section.settings.first_block_height %}
+            {% when 'short' %}
+              {% if forloop.index == section.blocks.size %}
+                {% assign block_height = 'tall' %}
+                {% assign block_width = 'lg' %}
+              {% endif %}
+
+              {% if section.settings.split == 'center' %}
+                {% assign block_height = 'short' %}
+                {% assign block_width = 'md' %}
+
+                {% if forloop.index == section.blocks.size %}
+                  {% assign block_height = 'tall' %}
+                  {% assign block_width = 'md' %}
+                {% endif %}
+              {% endif %}
+
+            {% when 'tall' %}
+              {% assign block_height = 'short' %}
+              {% assign block_width = 'xl' %}
+
+              {% if forloop.index == 1 %}
+                {% assign block_height = 'tall' %}
+                {% assign block_width = 'xs' %}
+              {% endif %}
+
+              {% if section.settings.split == 'center' %}
+                {% assign block_height = 'short' %}
+                {% assign block_width = 'md' %}
+
+                {% if forloop.index == 1 %}
+                  {% assign block_height = 'tall' %}
+                  {% assign block_width = 'md' %}
+                {% endif %}
+              {% endif %}
+          {% endcase %}
+
+          {% assign columns = 1 %}
+
+          {% case block_width %}
+            {% when 'xl' %}
+            {% when 'lg' %}
+              {% assign columns = 1 %}
+            {% when 'md' %}
+              {% assign columns = 2 %}
+            {% when 'xs' %}
+              {% assign columns = 3 %}
+          {% endcase %}
+
+          {% capture grid_item_class %}
+            grid__item--{{ block_height }} grid__item--{{ block_width }}
+          {% endcapture %}
+
+          {%- capture sizes -%}
+            {%- render 'image-grid-sizes',
+              columns_desktop: columns,
+              columns_tablet: columns,
+              columns_mobile: 1.0,
+              section_width: 'wrapper'
+            %}
+          {%- endcapture -%}
+
+          {% assign img_object = '' %}
+
+          <div class="grid__item grid__item--{{ forloop.index }} {{ grid_item_class }}" {{ block.shopify_attributes }}>
+            <div class="tile tile--{{ block.type }} {{ block.settings.text_align }} text--white">
+              {% case block.type %}
+                {% when 'collection' %}
+                  {% liquid
+                    assign collection = block.settings.collection
+                    assign img_object = block.settings.image | default: collection.image | default: collection.products.first.featured_media.preview_image
+                  %}
+
+                  {%- capture srcset -%}
+                    {%- render 'image-grid-srcset',
+                      image: img_object,
+                      columns_desktop: columns,
+                      columns_tablet: columns,
+                      columns_mobile: 1.0,
+                      section_width: 'wrapper'
+                    %}
+                  {%- endcapture -%}
+
+                  {%- capture placeholder -%}
+                    collection-{%- cycle '1', '2', '3', '4', '5', '6' -%}
+                  {%- endcapture -%}
+
+                  <div class="tile__image">
+                    <div class="tile__overlay image-overlay" style="--bg: {{ block.settings.overlay_color }}; --overlay-opacity: {{ block.settings.overlay_opacity | times: 0.01 }};"></div>
+
+                    {% render 'image', cover: true, img_object: img_object, wh_ratio: 0, sizes: sizes, srcset: srcset, placeholder: placeholder %}
+                  </div>
+
+                  <div class="tile__inner">
+                    {% if block.settings.kicker != '' %}
+                      {% assign kicker_size_class = block.settings.kicker_size | prepend: 'accent-size-' %}
+                      <div class="tile__kicker {{ kicker_size_class }}">
+                        <p>{{ block.settings.kicker }}</p>
+                      </div>
+                    {% endif %}
+
+                    <div class="tile__content">
+                      {%- if block.settings.show_title -%}
+                        {%- assign heading_size_class = block.settings.title_size | prepend: 'heading-size-' -%}
+                        <div class="tile__title {{ heading_size_class }}">
+                          {% if block.settings.title != '' %}
+                            {{ block.settings.title }}
+                          {% elsif collection != blank %}
+                            {{ collection.title }}
+                          {% else %}
+                            {{ 'general.onboarding.collection' | t }}
+                          {% endif %}
+                        </div>
+                      {% endif %}
+                    </div>
+
+                    {% assign link_size_class = block.settings.link_size | prepend: 'accent-size-' %}
+                    {% if block.settings.link_text != '' and collection.url != blank %}
+                      <div class="tile__link {{ link_size_class }}">
+                        <a href="{{ collection.url }}">{{ block.settings.link_text }}</a>
+                      </div>
+                    {% elsif collection.url != blank %}
+                      <a href="{{ collection.url }}" class="link-over-image" aria-label="{{ article.url.title | strip_html | escape }}"></a>
+                    {% elsif block.settings.link_text != '' and collection.url == blank %}
+                      <div class="tile__link {{ link_size_class }}">
+                        <span>{{ block.settings.link_text }}</span>
+                      </div>
+                    {% endif %}
+                  </div>
+                {% when 'product' %}
+                  {% liquid
+                    assign product = all_products[block.settings.product]
+                    assign price = product.price | default: 1999
+                    assign img_object = block.settings.image | default: product.images[0]
+                  %}
+
+                  {%- capture srcset -%}
+                    {%- render 'image-grid-srcset',
+                      image: img_object,
+                      columns_desktop: columns,
+                      columns_tablet: columns,
+                      columns_mobile: 1.0,
+                      section_width: 'wrapper'
+                    %}
+                  {%- endcapture -%}
+
+                  <div class="tile__image">
+                    <div class="tile__overlay image-overlay" style="--bg: {{ block.settings.overlay_color }}; --overlay-opacity: {{ block.settings.overlay_opacity | times: 0.01 }};"></div>
+
+                    {%- capture placeholder -%}
+                      product-{%- cycle '1', '2', '3', '4', '5', '6' -%}
+                    {%- endcapture -%}
+
+                    {% render 'image', cover: true, img_object: img_object, wh_ratio: 0, sizes: sizes, srcset: srcset, placeholder: placeholder %}
+                  </div>
+
+                  <div class="tile__inner">
+
+                    {% if block.settings.kicker_text != '' %}
+                      {% assign kicker_size_class = block.settings.kicker_size | prepend: 'accent-size-' %}
+                      <div class="tile__kicker {{ kicker_size_class }}">
+                        {{ block.settings.kicker_text }}
+                      </div>
+                    {% endif %}
+
+                    <div class="tile__content">
+                      {%- assign block_title = block.settings.custom_title | default: product.title -%}
+                      {%- if block.settings.show_title -%}
+                        {%- assign heading_size_class = block.settings.title_size | prepend: 'heading-size-' -%}
+                        <div class="tile__title {{ heading_size_class }}">
+                          {% if block_title != '' %}
+                            {{ block_title }}
+                          {% else %}
+                            {{ 'general.onboarding.product' | t }}
+                          {% endif %}
+                        </div>
+                      {%- endif -%}
+                    </div>
+
+                    {%- if block.settings.show_price -%}
+                      {% assign accent_size_class = block.settings.price_size | prepend: 'accent-size-' %}
+                      <span class="tile__link {{ accent_size_class }}">
+                        {% if product.price_varies and product.price_varies != '' %}
+                          {{ 'products.general.from' | t }}
+                        {% endif %}
+                        {% if settings.currency_code_enable %}
+                          {{ price | money_with_currency }}
+                        {% else %}
+                          {{ price | money }}
+                        {% endif %}
+                      </span>
+                    {%- endif -%}
+
+                    {% if product.url != blank %}
+                      <a href="{{ product.url }}" class="link-over-image" aria-label="{{ block_title | strip_html | escape }}"></a>
+                    {% endif %}
+
+                  </div>
+                {% when 'image' %}
+                  {% assign img_object = block.settings.image %}
+
+                  {%- capture srcset -%}
+                    {%- render 'image-grid-srcset',
+                      image: img_object,
+                      columns_desktop: columns,
+                      columns_tablet: columns,
+                      columns_mobile: 1.0,
+                      section_width: 'wrapper'
+                    %}
+                  {%- endcapture -%}
+
+                  <div class="tile__image">
+                    <div class="tile__overlay image-overlay" style="--bg: {{ block.settings.overlay_color }}; --overlay-opacity: {{ block.settings.overlay_opacity | times: 0.01 }};"></div>
+
+                    {% render 'image', cover: true, img_object: img_object, wh_ratio: 0, sizes: sizes, srcset: srcset, placeholder: 'image' %}
+                  </div>
+
+                  {% if block.settings.title != '' or block.settings.link_text != '' or block.settings.link_url != blank %}
+                    <div class="tile__inner">
+
+                      {% if block.settings.kicker_text != '' %}
+                        {% assign kicker_size_class = block.settings.kicker_size | prepend: 'accent-size-' %}
+                        <div class="tile__kicker {{ kicker_size_class }}">
+                          <p>{{ block.settings.kicker_text }}</p>
+                        </div>
+                      {% endif %}
+
+                      {% unless block.settings.title_text == '' %}
+                        <div class="tile__content">
+                          {%- assign heading_size_class = block.settings.title_size | prepend: 'heading-size-' -%}
+                          <div class="tile__title {{ heading_size_class }}">
+                            {{ block.settings.title_text }}
+                          </div>
+                        </div>
+                      {% endunless %}
+
+                      {% assign accent_size_class = block.settings.link_size | prepend: 'accent-size-' %}
+                      {% if block.settings.link_text != '' and block.settings.link_url != blank %}
+                        <div class="tile__link {{ accent_size_class }}">
+                          <a href="{{ block.settings.link_url }}">{{ block.settings.link_text }}</a>
+                        </div>
+                      {% elsif block.settings.link_url != blank and block.settings.link_url != '#' %}
+                        <a href="{{ block.settings.link_url }}" class="link-over-image" aria-label="{{ block.settings.link_url.object.title | strip_html | escape }}"></a>
+                      {% elsif block.settings.link_text != '' and block.settings.link_url == blank %}
+                        <div class="tile__link {{ accent_size_class }}">
+                          <span>{{ block.settings.link_text }}</span>
+                        </div>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+
+                {% when 'post' %}
+                  {% liquid
+                    assign article = articles[block.settings.article]
+                    assign img_object = block.settings.image | default: article.image
+                  %}
+
+                  {%- capture srcset -%}
+                    {%- render 'image-grid-srcset',
+                      image: img_object,
+                      columns_desktop: columns,
+                      columns_tablet: columns,
+                      columns_mobile: 1.0,
+                      section_width: 'wrapper'
+                    %}
+                  {%- endcapture -%}
+
+                  <div class="tile__image">
+                    <div class="tile__overlay image-overlay" style="--bg: {{ block.settings.overlay_color }}; --overlay-opacity: {{ block.settings.overlay_opacity | times: 0.01 }};"></div>
+
+                    {% render 'image', cover: true, img_object: img_object, wh_ratio: 0, sizes: sizes, srcset: srcset, placeholder: 'lifestyle-2' %}
+                  </div>
+
+                  <div class="tile__inner">
+                    {% if block.settings.show_tag and article.tags.size > 0 %}
+                      {% assign accent_size_class = block.settings.tag_size | prepend: 'accent-size-' %}
+                      <div class="tile__tags {{ accent_size_class }}">
+                        {% for tag in article.tags limit: 2 %}
+                          <span>{{ tag }}</span>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+
+                    <div class="tile__content">
+                      {%- if block.settings.show_title -%}
+                        {%- assign heading_size_class = block.settings.title_size | prepend: 'heading-size-' -%}
+                        <div class="tile__title {{ heading_size_class }}">
+                          {% if article != blank %}
+                            {{ block.settings.custom_title | default: article.title }}
+                          {% else %}
+                            {{ 'general.onboarding.article' | t }}
+                          {% endif %}
+                        </div>
+                      {%- endif -%}
+                      {% if block.settings.show_description %}
+                        {%- assign body_size_class = block.settings.description_size | prepend: 'body-size-' -%}
+                        <div class="tile__excerpt {{ body_size_class }}">
+                          {% if article != blank %}
+                            {%- assign excerpt = article.excerpt_or_content | strip_html | truncatewords: 30 -%}
+                            {{ block.settings.custom_description | default: excerpt }}
+                          {% else %}
+                            {{ 'home_page.onboarding.blog_excerpt' | t }}
+                          {% endif %}
+                        </div>
+                      {% endif %}
+                    </div>
+
+                  {% assign accent_size_class = block.settings.link_size | prepend: 'accent-size-' %}
+                  {% if block.settings.link_text != '' and article.url != blank %}
+                    <div class="tile__link {{ accent_size_class }}">
+                      <a href="{{ article.url }}">{{ block.settings.link_text }}</a>
+                    </div>
+                  {% elsif article.url != blank %}
+                    <a href="{{ article.url }}" class="link-over-image" aria-label="{{ article.title | strip_html | escape }}"></a>
+                  {% elsif block.settings.link_text != '' and article.url == blank %}
+                    <div class="tile__link {{ accent_size_class }}">
+                      <span>{{ block.settings.link_text }}</span>
+                    </div>
+                  {% endif %}
+                </div>
+              {% endcase %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% schema %}
+{
+	"name": "Mosaic",
+	"max_blocks": 3,
+	"settings": [
+		{
+			"type": "header",
+			"content": "Layout"
+		},
+		{
+			"type": "select",
+			"id": "first_block_height",
+			"label": "First block height",
+			"default": "short",
+			"options": [
+				{
+					"value": "short",
+					"label": "Short"
+				},
+				{
+					"value": "tall",
+					"label": "Tall"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "wh_ratio",
+			"min": 0.5,
+			"max": 3,
+			"step": 0.1,
+			"unit": ":1",
+			"label": "Section scaling ratio",
+			"default": 1.3
+		},
+		{
+			"type": "select",
+			"id": "split",
+			"label": "Split",
+			"default": "center",
+			"options": [
+				{
+					"value": "left",
+					"label": "Left"
+				},
+				{
+					"value": "center",
+					"label": "Center"
+				},
+				{
+					"value": "right",
+					"label": "Right"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "color_bg",
+			"label": "Background color",
+			"default": "palette--light bg--neutral",
+			"options": [
+				{
+					"value": "palette--light bg--neutral",
+					"label": "Default"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper",
+			"options": [
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				},
+				{
+					"value": "wrapper--narrow",
+					"label": "Page width narrow"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 36
+		}
+	],
+	"blocks": [
+		{
+			"type": "collection",
+			"name": "Collection",
+			"settings": [
+				{
+					"label": "Collection",
+					"id": "collection",
+					"type": "collection"
+				},
+				{
+					"type": "header",
+					"content": "Kicker"
+				},
+				{
+					"type": "text",
+					"id": "kicker",
+					"label": "Kicker"
+				},
+				{
+					"type": "range",
+					"id": "kicker_size",
+					"label": "Kicker size",
+					"min": 1,
+					"max": 12,
+					"step": 1,
+					"default": 3
+				},
+				{
+					"type": "header",
+					"content": "Title"
+				},
+				{
+					"type": "checkbox",
+					"id": "show_title",
+					"label": "Show title",
+					"default": true
+				},
+				{
+					"type": "select",
+					"id": "text_align",
+					"label": "Title placement",
+					"default": "text-left tile--bottom",
+					"options": [
+						{
+							"value": "text-left",
+							"label": "Left"
+						},
+						{
+							"value": "text-center",
+							"label": "Center"
+						},
+						{
+							"value": "text-left tile--bottom",
+							"label": "Bottom left"
+						},
+						{
+							"value": "text-center tile--bottom",
+							"label": "Botttom center"
+						}
+					]
+				},
+				{
+					"type": "text",
+					"id": "title",
+					"label": "Custom title"
+				},
+				{
+					"type": "range",
+					"id": "title_size",
+					"label": "Title size",
+					"min": 1,
+					"max": 12,
+					"step": 1,
+					"default": 8
+				},
+				{
+					"type": "header",
+					"content": "Link"
+				},
+				{
+					"type": "text",
+					"id": "link_text",
+					"label": "Link text",
+					"info": "Leave blank to link entire image"
+				},
+				{
+					"type": "range",
+					"id": "link_size",
+					"label": "Title size",
+					"min": 1,
+					"max": 12,
+					"step": 1,
+					"default": 3
+				},
+				{
+					"type": "header",
+					"content": "Image"
+				},
+				{
+					"type": "image_picker",
+					"id": "image",
+					"label": "Image"
+				},
+				{
+					"type": "header",
+					"content": "Overlay"
+				},
+				{
+					"type": "range",
+					"id": "overlay_opacity",
+					"unit": "%",
+					"min": 0,
+					"max": 100,
+					"step": 5,
+					"label": "Image overlay opacity",
+					"info": "Increase contrast for legible text.",
+					"default": 20
+				},
+				{
+					"type": "color",
+					"id": "overlay_color",
+					"label": "Overlay color",
+					"default": "#000000"
+				}
+			]
+		},
+		{
+			"type": "product",
+			"name": "Product",
+			"settings": [
+				{
+					"type": "product",
+					"id": "product",
+					"label": "Product"
+				},
+				{
+					"type": "header",
+					"content": "Title"
+				},
+				{
+					"type": "checkbox",
+					"id": "show_title",
+					"label": "Show title",
+					"default": true
+				},
+				{
+					"type": "select",
+					"id": "text_align",
+					"label": "Title placement",
+					"default": "text-left tile--bottom",
+					"options": [
+						{
+							"value": "text-left",
+							"label": "Left"
+						},
+						{
+							"value": "text-center",
+							"label": "Center"
+						},
+						{
+							"value": "text-left tile--bottom",
+							"label": "Bottom left"
+						},
+						{
+							"value": "text-center tile--bottom",
+							"label": "Botttom center"
+						}
+					]
+				},
+				{
+					"type": "text",
+					"id": "custom_title",
+					"label": "Custom title"
+				},
+				{
+					"type": "range",
+					"id": "title_size",
+					"label": "Title size",
+					"min": 1,
+					"max": 12,
+					"step": 1,
+					"default": 8
+				},
+				{
+					"type": "header",
+					"content": "Kicker"
+				},
+				{
+					"type": "text",
+					"id": "kicker_text",
+					"label": "Kicker"
+				},
+				{
+					"type": "range",
+					"id": "kicker_size",
+					"label": "Kicker size",
+					"min": 1,
+					"max": 12,
+					"step": 1,
+					"default": 3
+				},
+				{
+					"type": "header",
+					"content": "Price"
+				},
+				{
+					"type": "checkbox",
+					"id": "show_price",
+					"label": "Show price",
+					"default": false
+				},
+				{
+					"type": "range",
+					"id": "price_size",
+					"label": "Price size",
+					"min": 1,
+					"max": 12,
+					"step": 1,
+					"default": 3
+				},
+				{
+					"type": "header",
+					"content": "Image"
+				},
+				{
+					"type": "image_picker",
+					"id": "image",
+					"label": "Image",
+					"info": "Override product image"
+				},
+				{
+					"type": "header",
+					"content": "Overlay"
+				},
+				{
+					"type": "range",
+					"id": "overlay_opacity",
+					"unit": "%",
+					"min": 0,
+					"max": 100,
+					"step": 5,
+					"label": "Image overlay opacity",
+					"info": "Increase contrast for legible text.",
+					"default": 20
+				},
+				{
+					"type": "color",
+					"id": "overlay_color",
+					"label": "Overlay color",
+					"default": "#000000"
+				}
+			]
+		},
+		{
+			"type": "image",
+			"name": "Image",
+			"settings": [
+				{
+					"type": "image_picker",
+					"id": "image",
+					"label": "Image"
+				},
+				{
+					"type": "header",
+					"content": "Overlay"
+				},
+				{
+					"type": "range",
+					"id": "overlay_opacity",
+					"unit": "%",
+					"min": 0,
+					"max": 100,
+					"step": 5,
+					"label": "Image overlay opacity",
+					"info": "Increase contrast for legible text.",
+					"default": 20
+				},
+				{
+					"type": "color",
+					"id": "overlay_color",
+					"label": "Overlay color",
+					"default": "#000000"
+				},
+				{
+					"type": "header",
+					"content": "Title"
+				},
+				{
+					"type": "text",
+					"id": "title_text",
+					"label": "Title",
+					"default": "Image"
+				},
+				{
+					"type": "range",
+					"id": "title_size",
+					"label": "Title size",
+					"min": 1,
+					"max": 12,
+					"step": 1,
+					"default": 8
+				},
+				{
+					"type": "select",
+					"id": "text_align",
+					"label": "Title placement",
+					"default": "text-left tile--bottom",
+					"options": [
+						{
+							"value": "text-left",
+							"label": "Left"
+						},
+						{
+							"value": "text-center",
+							"label": "Center"
+						},
+						{
+							"value": "text-left tile--bottom",
+							"label": "Bottom left"
+						},
+						{
+							"value": "text-center tile--bottom",
+							"label": "Botttom center"
+						}
+					]
+				},
+				{
+					"type": "header",
+					"content": "Kicker"
+				},
+				{
+					"type": "text",
+					"id": "kicker_text",
+					"label": "Kicker"
+				},
+				{
+					"type": "range",
+					"id": "kicker_size",
+					"label": "Kicker size",
+					"min": 1,
+					"max": 12,
+					"step": 1,
+					"default": 3
+				},
+				{
+					"type": "header",
+					"content": "Link"
+				},
+				{
+					"type": "text",
+					"id": "link_text",
+					"label": "Link Text",
+					"info": "Leave blank to link entire image"
+				},
+				{
+					"type": "url",
+					"id": "link_url",
+					"label": "Link url"
+				},
+				{
+					"type": "range",
+					"id": "link_size",
+					"label": "Link size",
+					"min": 1,
+					"max": 12,
+					"step": 1,
+					"default": 3
+				}
+			]
+		},
+		{
+			"type": "post",
+			"name": "Article",
+			"settings": [
+				{
+					"type": "article",
+					"id": "article",
+					"label": "Article"
+				},
+				{
+					"type": "header",
+					"content": "Tag"
+				},
+				{
+					"type": "checkbox",
+					"id": "show_tag",
+					"label": "Show tags",
+					"default": false
+				},
+				{
+					"type": "range",
+					"id": "tag_size",
+					"label": "Tag size",
+					"min": 1,
+					"max": 12,
+					"step": 1,
+					"default": 3
+				},
+				{
+					"type": "header",
+					"content": "Title"
+				},
+				{
+					"type": "checkbox",
+					"id": "show_title",
+					"label": "Show title",
+					"default": true
+				},
+				{
+					"type": "select",
+					"id": "text_align",
+					"label": "Title placement",
+					"default": "text-left tile--bottom",
+					"options": [
+						{
+							"value": "text-left",
+							"label": "Left"
+						},
+						{
+							"value": "text-center",
+							"label": "Center"
+						},
+						{
+							"value": "text-left tile--bottom",
+							"label": "Bottom left"
+						},
+						{
+							"value": "text-center tile--bottom",
+							"label": "Botttom center"
+						}
+					]
+				},
+				{
+					"type": "text",
+					"id": "custom_title",
+					"label": "Custom title"
+				},
+				{
+					"type": "range",
+					"id": "title_size",
+					"label": "Title size",
+					"min": 1,
+					"max": 12,
+					"step": 1,
+					"default": 8
+				},
+				{
+					"type": "header",
+					"content": "Description"
+				},
+				{
+					"type": "checkbox",
+					"id": "show_description",
+					"label": "Show description",
+					"default": false
+				},
+				{
+					"type": "text",
+					"id": "custom_description",
+					"label": "Custom description"
+				},
+				{
+					"type": "range",
+					"id": "description_size",
+					"label": "Description size",
+					"min": 1,
+					"max": 12,
+					"step": 1,
+					"default": 4
+				},
+				{
+					"type": "header",
+					"content": "Link"
+				},
+				{
+					"type": "text",
+					"id": "link_text",
+					"label": "Link text",
+					"info": "Leave blank to link entire image"
+				},
+				{
+					"type": "range",
+					"id": "link_size",
+					"label": "Link size",
+					"min": 1,
+					"max": 12,
+					"step": 1,
+					"default": 3
+				},
+				{
+					"type": "header",
+					"content": "Image"
+				},
+				{
+					"type": "image_picker",
+					"id": "image",
+					"label": "Custom image"
+				},
+				{
+					"type": "header",
+					"content": "Overlay"
+				},
+				{
+					"type": "range",
+					"id": "overlay_opacity",
+					"unit": "%",
+					"min": 0,
+					"max": 100,
+					"step": 5,
+					"label": "Image overlay opacity",
+					"info": "Increase contrast for legible text.",
+					"default": 20
+				},
+				{
+					"type": "color",
+					"id": "overlay_color",
+					"label": "Overlay color",
+					"default": "#000000"
+				}
+			]
+		}
+	],
+	"presets": [
+		{
+			"name": "Mosaic",
+			"blocks": [
+				{
+					"type": "product"
+				},
+				{
+					"type": "image"
+				},
+				{
+					"type": "post"
+				}
+			]
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"footer",
+			"aside"
+		]
+	}
+}
+{% endschema %}

@@ -1,0 +1,181 @@
+<!-- /sections/section-image.liquid -->
+
+{%- liquid
+  assign page_gutter_width = settings.layout_outer
+  assign layout_max_width = settings.layout_site_width
+  assign total_page_gutter_width = page_gutter_width | times: 2
+  assign calculated_width = layout_max_width | minus: total_page_gutter_width | times: section.settings.max_width | divided_by: 100
+  assign sizes = 'min(100vw, ' | append: calculated_width | append: 'px)'
+
+  if section.settings.x_align == 'center'
+    assign x_align = 'mx-auto'
+  elsif section.settings.x_align == 'right'
+    assign x_align = 'ml-auto'
+  endif
+-%}
+
+<section
+  class="{{ section.settings.color_bg }}"
+  style="
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="{{ section.settings.width }} section-padding">
+    <div
+      class="
+        {{ x_align }}
+        relative
+        max-w-[--max-width]
+      "
+      style="--max-width: {{ section.settings.max_width }}%;"
+    >
+
+    {%- render 'image', img_object: section.settings.image, img_object_mobile: section.settings.mobile_image, height: 'use_image', sizes: sizes, placeholder: 'lifestyle-1' -%}
+
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+	"name": "Image",
+	"settings": [
+		{
+			"type": "image_picker",
+			"id": "image",
+			"label": "Image"
+		},
+		{
+			"type": "image_picker",
+			"id": "mobile_image",
+			"label": "Mobile image"
+		},
+		{
+			"type": "range",
+			"id": "max_width",
+			"min": 1,
+			"max": 100,
+			"step": 1,
+			"unit": "%",
+			"label": "Max width of the image",
+			"default": 100
+		},
+		{
+			"type": "select",
+			"id": "x_align",
+			"label": "Alignment",
+			"default": "center",
+			"options": [
+				{
+					"value": "left",
+					"label": "Left"
+				},
+				{
+					"value": "center",
+					"label": "Center"
+				},
+				{
+					"value": "right",
+					"label": "Right"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "color_bg",
+			"label": "Background color",
+			"default": "palette--light bg--neutral",
+			"options": [
+				{
+					"value": "palette--light bg--neutral",
+					"label": "Default"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper",
+			"options": [
+				{
+					"value": "wrapper--none",
+					"label": "Full width"
+				},
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				},
+				{
+					"value": "wrapper--narrow",
+					"label": "Page width narrow"
+				},
+				{
+					"value": "wrapper--tiny",
+					"label": "Page width extra narrow"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 36
+		}
+	],
+	"presets": [
+		{
+			"name": "Image"
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"aside"
+		]
+	}
+}
+{% endschema %}

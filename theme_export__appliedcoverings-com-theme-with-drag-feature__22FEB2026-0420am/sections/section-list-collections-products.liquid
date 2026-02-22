@@ -1,0 +1,456 @@
+<!-- /sections/section-list-collections-products.liquid -->
+{%- assign product_limit = section.settings.grid | times: section.settings.rows -%}
+{%- assign has_custom_blocks = false -%}
+{%- assign excluded_collections_strict = settings.exclude_collections_strict | split: ',' -%}
+{%- assign excluded_collections = settings.exclude_collections_contain | split: ',' -%}
+
+{%- for block in section.blocks -%}
+  {%- if block.type == 'all_collections' -%}
+    {%- assign block_all = block -%}
+  {%- endif -%}
+
+  {%- if block.type == 'collection' -%}
+    {%- assign has_custom_blocks = true -%}
+  {%- endif -%}
+{%- endfor -%}
+
+<div class="section-list-collections-products section-padding list__collections {{ section.settings.bg }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="collection-row"
+  style="--PT: {{ section.settings.padding_top }}px; --PB: {{ section.settings.padding_bottom }}px;">
+  <div class="{{ section.settings.width }}">
+    {%- if section.settings.title != blank -%}
+      <h2 class="kicker-flourished mb-r11">{{ section.settings.title }}</h2>
+    {%- endif -%}
+
+    {% unless has_custom_blocks %}
+      {% for collection in collections %}
+        {%- assign skip_collection = false -%}
+
+        {%- for exclude in excluded_collections_strict -%}
+          {%- assign exclude_handle = exclude | handle -%}
+
+          {%- if exclude_handle == collection.handle -%}
+            {%- assign skip_collection = true -%}
+          {%- endif -%}
+        {%- endfor -%}
+
+        {%- for exclude in excluded_collections -%}
+          {%- assign exclude_handle = exclude | handle -%}
+
+          {%- if collection.handle contains exclude_handle -%}
+            {%- assign skip_collection = true -%}
+          {%- endif -%}
+        {%- endfor -%}
+
+        {%- unless skip_collection or collection.all_products_count == 0 -%}
+          {% render 'collection-row',
+            collection: collection,
+            product_limit: product_limit,
+            grid: section.settings.grid,
+            enable_scroll_mobile: section.settings.enable_scroll_mobile,
+            grid_small: section.settings.grid_small,
+            collection_title_override: block_all.settings.title,
+            link_text: block_all.settings.link_text,
+            enable_item: block_all.settings.enable_item,
+            item_height: block_all.settings.item_link_height,
+            item_background: block_all.settings.background_color,
+            item_text: block_all.settings.item_link_text,
+            item_link_size: block_all.settings.link_size,
+            item_text_color: block_all.settings.text_color %}
+        {% endunless %}
+      {% endfor %}
+    {% else %}
+      {% for block in section.blocks %}
+        {%- if block.type == 'collection' -%}
+          {%- assign collection = collections[block.settings.collection] -%}
+          {%- assign link_text = block.settings.link_text | default: block_all.settings.link_text -%}
+          {%- assign text = block.settings.text | default: block_all.settings.text -%}
+
+          {% render 'collection-row',
+            collection: collection,
+            product_limit: product_limit,
+            grid: section.settings.grid,
+            enable_scroll_mobile: section.settings.enable_scroll_mobile,
+            grid_small: section.settings.grid_small,
+            collection_title_override: block.settings.title,
+            link_text: link_text,
+            enable_item: block.settings.enable_item,
+            item_height: block.settings.item_link_height,
+            item_background: block.settings.background_color,
+            item_text: text,
+            item_link_size: block.settings.link_size,
+            item_text_color: block.settings.text_color %}
+        {%- endif -%}
+      {% endfor %}
+    {% endunless %}
+  </div>
+</div>
+
+{% schema %}
+{
+	"name": "Collection product grid",
+	"settings": [
+		{
+			"type": "paragraph",
+			"content": "All of your collections are listed by default. To customize your list, add specific collections."
+		},
+		{
+			"type": "text",
+			"id": "title",
+			"label": "Title",
+			"default": "Catalog"
+		},
+		{
+			"type": "select",
+			"id": "bg",
+			"label": "Background color",
+			"default": "palette--light bg--neutral",
+			"options": [
+				{
+					"value": "palette--light bg--neutral",
+					"label": "Default"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Grid"
+		},
+		{
+			"type": "range",
+			"id": "grid",
+			"min": 1,
+			"max": 6,
+			"step": 1,
+			"label": "Products per row",
+			"default": 4
+		},
+		{
+			"type": "range",
+			"id": "rows",
+			"min": 1,
+			"max": 8,
+			"step": 1,
+			"label": "Number of rows",
+			"default": 1
+		},
+		{
+			"type": "checkbox",
+			"id": "enable_scroll_mobile",
+			"label": "Enable horizontal scroll on Mobile",
+			"default": true
+		},
+		{
+			"type": "range",
+			"id": "grid_small",
+			"min": 1,
+			"max": 2,
+			"step": 0.1,
+			"label": "Product width on Mobile",
+			"default": 1.2
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper",
+			"options": [
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 36
+		}
+	],
+	"blocks": [
+		{
+			"type": "all_collections",
+			"name": "All collections",
+			"limit": 1,
+			"settings": [
+				{
+					"type": "paragraph",
+					"content": "Use [name] to display the collection name"
+				},
+				{
+					"type": "text",
+					"id": "title",
+					"label": "Override collection name"
+				},
+				{
+					"type": "text",
+					"id": "link_text",
+					"label": "Top link text"
+				},
+				{
+					"type": "header",
+					"content": "Link item"
+				},
+				{
+					"type": "checkbox",
+					"id": "enable_item",
+					"label": "Enable",
+					"default": true
+				},
+				{
+					"type": "select",
+					"id": "item_link_height",
+					"label": "Height",
+					"default": "image",
+					"options": [
+						{
+							"value": "image",
+							"label": "Image"
+						},
+						{
+							"value": "full",
+							"label": "Full"
+						}
+					]
+				},
+				{
+					"type": "text",
+					"id": "item_link_text",
+					"label": "Text",
+					"default": "Shop all [name]"
+				},
+				{
+					"type": "color",
+					"id": "background_color",
+					"label": "Background color",
+					"default": "#fcfaf7"
+				},
+				{
+					"type": "select",
+					"id": "text_color",
+					"label": "Text color",
+					"default": "text--neutral",
+					"options": [
+						{
+							"value": "text--neutral",
+							"label": "Normal text"
+						},
+						{
+							"value": "text--white",
+							"label": "White"
+						},
+						{
+							"value": "text--primary",
+							"label": "Primary accent"
+						},
+						{
+							"value": "text--secondary",
+							"label": "Secondary accent"
+						},
+						{
+							"value": "text--black",
+							"label": "Black"
+						},
+						{
+							"value": "text--invert--primary",
+							"label": "Primary dark accent"
+						},
+						{
+							"value": "text--invert--secondary",
+							"label": "Secondary dark accent"
+						},
+						{
+							"value": "text--invert",
+							"label": "Inverted text color"
+						}
+					]
+				},
+				{
+					"type": "range",
+					"id": "link_size",
+					"label": "Link text size",
+					"min": 1,
+					"max": 12,
+					"step": 1,
+					"default": 3
+				}
+			]
+		},
+		{
+			"type": "collection",
+			"name": "Collection",
+			"settings": [
+				{
+					"type": "header",
+					"content": "Collection"
+				},
+				{
+					"label": "Collection",
+					"id": "collection",
+					"type": "collection"
+				},
+				{
+					"type": "text",
+					"id": "title",
+					"label": "Override collection name"
+				},
+				{
+					"type": "text",
+					"id": "link_text",
+					"label": "Top link text"
+				},
+				{
+					"type": "header",
+					"content": "Link item"
+				},
+				{
+					"type": "checkbox",
+					"id": "enable_item",
+					"label": "Enable",
+					"default": true
+				},
+				{
+					"type": "select",
+					"id": "item_link_height",
+					"label": "Height",
+					"default": "full",
+					"options": [
+						{
+							"value": "image",
+							"label": "Image"
+						},
+						{
+							"value": "full",
+							"label": "Full"
+						}
+					]
+				},
+				{
+					"type": "text",
+					"id": "text",
+					"label": "Override text"
+				},
+				{
+					"type": "color",
+					"id": "background_color",
+					"label": "Background color",
+					"default": "#fcfaf7"
+				},
+				{
+					"type": "select",
+					"id": "text_color",
+					"label": "Text color",
+					"default": "text--neutral",
+					"options": [
+						{
+							"value": "text--neutral",
+							"label": "Normal text"
+						},
+						{
+							"value": "text--white",
+							"label": "White"
+						},
+						{
+							"value": "text--primary",
+							"label": "Primary accent"
+						},
+						{
+							"value": "text--secondary",
+							"label": "Secondary accent"
+						},
+						{
+							"value": "text--black",
+							"label": "Black"
+						},
+						{
+							"value": "text--invert--primary",
+							"label": "Primary dark accent"
+						},
+						{
+							"value": "text--invert--secondary",
+							"label": "Secondary dark accent"
+						},
+						{
+							"value": "text--invert",
+							"label": "Inverted text color"
+						}
+					]
+				},
+				{
+					"type": "range",
+					"id": "link_size",
+					"label": "Link text size",
+					"min": 1,
+					"max": 12,
+					"step": 1,
+					"default": 3
+				}
+			]
+		}
+	],
+	"presets": [
+		{
+			"name": "Collection product grid",
+			"blocks": [
+				{
+					"type": "collection"
+				},
+				{
+					"type": "collection"
+				}
+			]
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"footer",
+			"aside"
+		]
+	}
+}
+{% endschema %}

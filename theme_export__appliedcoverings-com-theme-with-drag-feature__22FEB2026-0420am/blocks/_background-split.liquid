@@ -1,0 +1,49 @@
+<div class="flex flex-{{ block.settings.flow }} h-full w-full" {{ block.shopify_attributes }}>
+  {% content_for "blocks" %}
+</div>
+
+{% schema %}
+{
+	"name": "Split images",
+	"tag": null,
+	"settings": [
+		{
+			"type": "select",
+			"id": "flow",
+			"label": "Flow",
+			"default": "row",
+			"options": [
+				{
+					"value": "row",
+					"label": "→"
+				},
+				{
+					"value": "col",
+					"label": "↓"
+				}
+			]
+		}
+	],
+	"presets": [
+		{
+			"name": "Split images",
+			"blocks": [
+				{
+					"type": "_split-image"
+				},
+				{
+					"type": "_split-image",
+					"settings": {
+						"show_mobile": false
+					}
+				}
+			]
+		}
+	],
+	"blocks": [
+		{
+			"type": "_split-image"
+		}
+	]
+}
+{% endschema %}

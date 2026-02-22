@@ -1,0 +1,69 @@
+<!-- /snippets/image-tag.liquid -->
+
+{% comment %}
+  * A plain image using Shopify's image_tag filter. Doesn't handle aspect ratios, loading states, placeholders, etc
+
+  *  img_object {object}- The Image we will use
+  *  class {string} - CSS classes to add to <img> tag
+  *  alt {string} - Default alt text to use if no alt text is provided. Default: img_object.alt
+  *  srcset {string} - Source set for <img> tag. Default: image-default-srcset.liquid
+  *  sizes {string} - Sizes for <img> tag
+  *  loading {string, false} - Image loading attribute. Default: 'lazy'
+  *  placeholder {string, false} - Which placeholder to use if img is blank (see https://shopify.dev/api/liquid/filters/placeholder_svg_tag for options). Default: 'image'
+
+  {% render 'image-tag', img_object: section.settings.image %}
+{% endcomment %}
+
+{%- liquid
+  assign image = img_object
+
+  # removing a focal point does not reset the value to nil, so we need to check for the default value
+  assign focal = image.presentation.focal_point | default: '50.0% 50.0%'
+  if focal == '50.0% 50.0%'
+    assign focal = nil
+  endif
+  assign bg_position_setting = bg_position | replace: '-', ' ' | default: 'center center'
+  assign focal_or_setting =  focal | default: bg_position_setting
+
+  assign width = width | default: image.width
+  assign loading = loading | default: 'lazy'
+  assign fetchpriority = fetchpriority | default: 'auto'
+  assign alt = alt | default: image.alt | strip_html | escape
+
+  if srcset == blank
+    capture srcset
+      render 'image-default-srcset', image: image
+    endcapture
+  endif
+
+  assign class = class | default: ''
+  assign style = style | default: ''
+  capture style
+    echo 'object-position: ' | append: focal_or_setting | append: '; '
+    unless style == ''
+      echo style
+    endunless
+  endcapture
+-%}
+
+{% if image != blank %}
+  {{ image | image_url: width: width | image_tag:
+    class: class,
+    alt: alt,
+    preload: preload,
+    srcset: srcset,
+    sizes: sizes,
+    loading: loading,
+    fetchpriority: fetchpriority,
+    style: style
+  }}
+{% elsif placeholder != false %}
+  {% assign placeholder = placeholder | default: 'image' %}
+
+  {% render 'image-placeholder',
+    placeholder: placeholder,
+    alt: alt,
+    class: class,
+    style: style
+  %}
+{% endif %}

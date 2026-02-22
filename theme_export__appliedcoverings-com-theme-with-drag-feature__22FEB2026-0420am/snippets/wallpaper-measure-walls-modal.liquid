@@ -1,0 +1,109 @@
+{% comment %}
+  How to Measure Your Walls Modal
+  Usage: {% render 'wallpaper-measure-walls-modal' %}
+{% endcomment %}
+
+<!-- Modal HTML -->
+<div id="measure-walls-modal" class="wallpaper-modal" style="display: none;">
+  <div class="modal-overlay"></div>
+  <div class="modal-content">
+    <button type="button" class="modal-close" aria-label="Close modal">&times;</button>
+    <h2 class="modal-title">How to Measure Your Walls</h2>
+
+    <div class="measure-instructions">
+      <div class="instruction-step">
+        <h3>Step 1: Measure Wall Width</h3>
+        <p>Use a tape measure to measure the entire width of your wall from corner to corner. Record the measurement in feet and inches.</p>
+      </div>
+
+      <div class="instruction-step">
+        <h3>Step 2: Measure Wall Height</h3>
+        <p>Measure from the floor to the ceiling (or to where you want the wallpaper to end). Record the measurement in feet and inches.</p>
+      </div>
+
+      <div class="instruction-step">
+        <h3>Step 3: Account for Obstacles</h3>
+        <p>If your wall has windows, doors, or other obstacles, you can either:</p>
+        <ul>
+          <li>Order the full wall size (recommended for pattern matching)</li>
+          <li>Subtract the area of obstacles from your total</li>
+        </ul>
+      </div>
+
+      <div class="instruction-tip">
+        <strong>Pro Tip:</strong> Always add 2-3 inches to both width and height for trimming and adjustment during installation.
+      </div>
+    </div>
+
+    <button type="button" class="btn btn--primary modal-done">Got it!</button>
+  </div>
+</div>
+
+<script>
+// Measure Walls Modal JavaScript
+(function() {
+  function initMeasureModal() {
+    const modal = document.getElementById('measure-walls-modal');
+    const openBtn = document.getElementById('measure-modal-btn');
+    const closeBtn = modal?.querySelector('.modal-close');
+    const doneBtn = modal?.querySelector('.modal-done');
+    const overlay = modal?.querySelector('.modal-overlay');
+
+    console.log('Measure modal init:', { modal: !!modal, openBtn: !!openBtn });
+
+    if (!modal) {
+      console.error('Measure walls modal element not found');
+      return;
+    }
+    if (!openBtn) {
+      console.error('Measure modal button not found');
+      return;
+    }
+
+    // Open modal
+    openBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      modal.style.display = 'flex';
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    });
+
+    // Close modal function
+    function closeModal() {
+      modal.classList.remove('active');
+      setTimeout(() => {
+        modal.style.display = 'none';
+      }, 300);
+      document.body.style.overflow = '';
+    }
+
+    // Close button
+    closeBtn?.addEventListener('click', closeModal);
+
+    // Done button
+    doneBtn?.addEventListener('click', closeModal);
+
+    // Overlay click
+    overlay?.addEventListener('click', closeModal);
+
+    // ESC key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        closeModal();
+      }
+    });
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMeasureModal);
+  } else {
+    initMeasureModal();
+  }
+
+  // Also try after a delay in case elements are added dynamically
+  setTimeout(initMeasureModal, 500);
+  setTimeout(initMeasureModal, 1500);
+})();
+</script>

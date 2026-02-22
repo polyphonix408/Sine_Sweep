@@ -1,0 +1,272 @@
+<!-- /sections/section-collection-slider.liquid -->
+
+{%- liquid
+  assign collection = collections[section.settings.collection]
+  assign product_limit = section.settings.product_limit
+
+  assign show_mobile_bar = false
+  assign show_desktop_bar = false
+  if section.settings.progress_bar == 'mobile'
+    assign show_mobile_bar = true
+  endif
+  if section.settings.progress_bar == 'desktop'
+    assign show_desktop_bar = true
+  endif
+  if section.settings.progress_bar == 'both'
+    assign show_mobile_bar = true
+    assign show_desktop_bar = true
+  endif
+
+  assign section_no_title_class = ''
+  if section.settings.title == blank
+    assign section_no_title_class = 'section-without-title'
+
+    if section.settings.width == 'wrapper--narrow'
+      assign section_no_title_class = section_no_title_class | append: ' not-moved-arrows'
+    endif
+  endif
+-%}
+
+<section class="section-carousel {{ section.settings.bg }} {{ section_no_title_class }} {% if show_mobile_bar %} section-without-padding-mobile{% endif %}"
+  data-section-id="{{ section.id }}"
+  data-section-type="section-carousel"
+  style="
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;">
+  <div class="{{ section.settings.width }} {{ section.settings.align_text }} section-padding" data-wrapper>
+    <flickity-carousel>
+      {% if section.settings.title != blank %}
+        <div class="section-carousel__header">
+          <p class="kicker-flourished">{{ section.settings.title | escape }}</p>
+        </div>
+      {% endif %}
+
+      <div
+        data-carousel
+        data-grid
+        data-grid-large
+        data-grid-medium
+        data-grid-small
+        {% if show_desktop_bar %}data-carousel-progress{% endif %}
+        {% if show_mobile_bar %}data-custom-scrollbar-items class="flickity-disabled-mobile"{% endif %}
+        style="
+          --grid-large-items: {{ section.settings.grid_large }};
+          --grid-medium-items: {{ section.settings.grid_medium }};
+          --grid-small-items: {{ section.settings.grid_mobile }};"
+        data-options='{"watchCSS": {{ show_mobile_bar }}}'>
+        {% for product in collection.products limit: product_limit %}
+          <div
+            class="slide-item"
+            data-carousel-slide
+            data-item>
+            {% render 'product-grid-item', product: product %}
+          </div>
+        {% else %}
+          {% render 'onboarding-product-grid-item', limit: product_limit, wrap: 'slide-item' %}
+        {% endfor %}
+      </div>
+
+      {% if show_desktop_bar %}
+        <div class="custom-scrollbar{% if show_mobile_bar %} medium-up--show{% else %} large-up--show{% endif %}">
+          <div class="custom-scrollbar__track" data-carousel-track></div>
+        </div>
+      {% endif %}
+
+      {% if show_mobile_bar %}
+        <div class="custom-scrollbar small-down--show" data-custom-scrollbar>
+          <div class="custom-scrollbar__track" data-custom-scrollbar-track></div>
+        </div>
+      {% endif %}
+    </flickity-carousel>
+  </div>
+</section>
+
+{% schema %}
+{
+	"name": "Product slider",
+	"settings": [
+		{
+			"id": "collection",
+			"type": "collection",
+			"label": "Collection"
+		},
+		{
+			"type": "range",
+			"id": "product_limit",
+			"min": 1,
+			"max": 20,
+			"step": 1,
+			"label": "Product limit",
+			"default": 12
+		},
+		{
+			"type": "text",
+			"id": "title",
+			"label": "Title",
+			"default": "Featured Products"
+		},
+		{
+			"type": "select",
+			"id": "align_text",
+			"label": "Heading alignment",
+			"default": "title-center",
+			"options": [
+				{
+					"value": "title-left",
+					"label": "Left"
+				},
+				{
+					"value": "title-center",
+					"label": "Centered"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "progress_bar",
+			"label": "Progress bar style",
+			"default": "mobile",
+			"options": [
+				{
+					"value": "hidden",
+					"label": "Hidden"
+				},
+				{
+					"value": "mobile",
+					"label": "Mobile only"
+				},
+				{
+					"value": "desktop",
+					"label": "Desktop only"
+				},
+				{
+					"value": "both",
+					"label": "Mobile and desktop"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Products per row"
+		},
+		{
+			"type": "range",
+			"id": "grid_large",
+			"min": 3,
+			"max": 6,
+			"step": 1,
+			"label": "Desktop",
+			"default": 4
+		},
+		{
+			"type": "range",
+			"id": "grid_medium",
+			"min": 1,
+			"max": 4,
+			"step": 1,
+			"label": "Tablet",
+			"default": 3
+		},
+		{
+			"type": "range",
+			"id": "grid_mobile",
+			"min": 1,
+			"max": 3,
+			"step": 0.1,
+			"label": "Mobile",
+			"default": 1.2
+		},
+		{
+			"type": "select",
+			"id": "bg",
+			"label": "Background color",
+			"default": "palette--light bg--neutral",
+			"options": [
+				{
+					"value": "palette--light bg--neutral",
+					"label": "Default"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper",
+			"options": [
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				},
+				{
+					"value": "wrapper--narrow",
+					"label": "Page width narrow"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 36
+		}
+	],
+	"presets": [
+		{
+			"name": "Product slider",
+			"settings": {
+				"collection": ""
+			}
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"footer",
+			"aside"
+		]
+	}
+}
+{% endschema %}

@@ -1,0 +1,189 @@
+{% capture blocks %}
+  {% content_for "blocks" %}
+{% endcapture %}
+
+{% render 'core-frame', _settings: block.settings, content: blocks, attributes: block.shopify_attributes %}
+
+{% schema %}
+{
+	"name": "Group: Frame",
+	"tag": null,
+	"settings": [
+		{
+			"type": "select",
+			"id": "padding",
+			"label": "Padding",
+			"default": "lg",
+			"options": [
+				{
+					"value": "0",
+					"label": "0"
+				},
+				{
+					"value": "sm",
+					"label": "S"
+				},
+				{
+					"value": "md",
+					"label": "M"
+				},
+				{
+					"value": "lg",
+					"label": "L"
+				},
+				{
+					"value": "xl",
+					"label": "XL"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "width_limit",
+			"label": "Width limit",
+			"unit": "px",
+			"min": 100,
+			"max": 2000,
+			"step": 20,
+			"default": 2000
+		},
+		{
+			"type": "header",
+			"content": "Colors"
+		},
+		{
+			"type": "select",
+			"id": "color_group",
+			"label": "Scheme",
+			"default": "palette--light",
+			"options": [
+				{
+					"value": "palette--light",
+					"label": "Normal"
+				},
+				{
+					"value": "palette--dark",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--bright",
+					"label": "Bright"
+				},
+			]
+		},
+		{
+			"type": "select",
+			"id": "color_background",
+			"label": "Background",
+			"default": "default",
+			"options": [
+				{
+					"value": "default",
+					"label": "Bg"
+				},
+				{
+					"value": "accent",
+					"label": "Light"
+				},
+				{
+					"value": "transparent",
+					"label": "Clear"
+				},
+				{
+					"value": "blur",
+					"label": "Blur"
+				},
+			]
+		},
+		{
+			"type": "select",
+			"id": "color_text",
+			"label": "Text",
+			"default": "default",
+			"options": [
+				{
+					"value": "default",
+					"label": "Default"
+				},
+				{
+					"value": "white",
+					"label": "White"
+				},
+				{
+					"value": "black",
+					"label": "Black"
+				},
+				{
+					"value": "primary",
+					"label": "Primary accent"
+				},
+				{
+					"value": "secondary",
+					"label": "Secondary accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Border"
+		},
+		{
+			"type": "range",
+			"id": "border_width",
+			"label": "Width",
+			"unit": "px",
+			"min": 0,
+			"max": 10,
+			"step": 0.5,
+			"default": 0
+		},
+		{
+			"type": "select",
+			"id": "inset",
+			"label": "Inset",
+			"default": "0",
+			"options": [
+				{
+					"value": "0",
+					"label": "0"
+				},
+				{
+					"value": "sm",
+					"label": "S"
+				},
+				{
+					"value": "md",
+					"label": "M"
+				},
+				{
+					"value": "lg",
+					"label": "L"
+				},
+				{
+					"value": "xl",
+					"label": "XL"
+				}
+			]
+		},
+		{
+			"type": "color",
+			"id": "border_color",
+			"label": "Color",
+			"default": "#000000"
+		},
+	],
+	"blocks": [
+		{
+			"type": "@theme"
+		},
+		{
+			"type": "@app"
+		}
+	],
+	"presets": [
+		{
+			"name": "Group: Frame"
+		}
+	]
+}
+{% endschema %}

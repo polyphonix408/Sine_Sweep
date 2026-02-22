@@ -1,0 +1,204 @@
+<!-- /snippets/product-clip.liquid -->
+
+{% comment %}
+  *  Mini card, used by upsell in cart, product page, and complimentary products.
+
+  *  card_product {product}- The product we will use
+
+  {% render 'product-clip', card_product: product %}
+{% endcomment %}
+
+{%- assign card_product = card_product | default: product -%}
+{%- assign card_variant = card_product.selected_or_first_available_variant -%}
+{%- assign image = card_product.featured_media.preview_image -%}
+
+<div class="quickview" x-data="productQuickViewButton({{ card_product.id }}, '{{ card_product.handle }}')">
+  <div data-quickview-holder="{{ card_product.id }}" data-add-action-wrapper data-error-boundary>
+    <div class="product-clip">
+      <div class="product-clip__image{% unless image %} product-no-image{% endunless %}">
+        <a href="{{ card_product.url }}">
+          {%- if image -%}
+            {% assign image_width = 90 | at_most: image.width %}
+            {% assign image_width_2x = image_width | times: 2 | at_most: image.width %}
+            {% assign alt = image.alt | default: card_product.title %}
+
+            {% capture srcset %}
+              {{ image | image_url: width: image_width_2x }} 2x,
+              {{ image | image_url: width: image_width }}
+            {% endcapture %}
+
+            {%- render 'image',
+              img_object: image,
+              wh_ratio: image.aspect_ratio,
+              width: image_width,
+              srcset: srcset,
+              alt: alt,
+              class: 'product-clip__image__inner'
+            -%}
+          {%- endif -%}
+        </a>
+      </div>
+
+      <div class="product-clip__content">
+        <a href="{{ card_product.url }}">
+          <h3 class="product-clip__title">{{ card_product.title | strip_html }}</h3>
+
+          {%- unless card_product.has_only_default_variant -%}
+            <p class="product-clip__variant-title">{{ card_variant.title | replace: '/', '<span>&nbsp;</span>' }}</p>
+          {%- endunless -%}
+
+          <p class="product-clip__price {% if card_variant.compare_at_price > card_variant.price %} sale{% endif %}">
+            <span class="new-price">
+              {% if settings.currency_code_enable %}
+                {{ card_variant.price | money_with_currency }}
+              {% else %}
+                {{ card_variant.price | money }}
+              {% endif %}
+            </span>
+
+            {%- if card_variant.compare_at_price > card_variant.price -%}
+              <span class="old-price">
+                {% if settings.currency_code_enable %}
+                  {{ card_variant.compare_at_price | money_with_currency }}
+                {% else %}
+                  {{ card_variant.compare_at_price | money }}
+                {% endif %}
+              </span>
+            {%- endif -%}
+
+            {%- if card_variant.unit_price -%}
+              {%- capture unit_price_separator -%}
+                <span aria-hidden="true">/</span>
+                <span class="visually-hidden">{{ 'general.accessibility.unit_price_separator' | t }}&nbsp;</span>
+              {%- endcapture -%}
+
+              {%- capture unit_price_base_unit -%}
+                {%- if card_variant.unit_price_measurement.reference_value != 1 -%}
+                  {{ card_variant.unit_price_measurement.reference_value }}
+                {%- endif -%}
+                {{ card_variant.unit_price_measurement.reference_unit }}
+              {%- endcapture -%}
+
+              <br />
+
+              <span class="visually-hidden visually-hidden--inline">{{ 'products.product.unit_price_label' | t }}</span>
+
+              <span class="unit">
+                {% if settings.currency_code_enable %}
+                  {{ card_variant.unit_price | money_with_currency }}
+                {% else %}
+                  {{ card_variant.unit_price | money }}
+                {% endif %}
+                {{ unit_price_separator }}{{ unit_price_base_unit }}
+              </span>
+            {% endif -%}
+          </p>
+        </a>
+
+        {%- liquid
+          assign button_class = 'product-clip__btn btn--soft btn--small btn--primary'
+
+          # One-click add products must have no additional choices.
+          # 1. Product must have one variant
+          # 2. A product can have
+          #   a. No selling plan groups
+          #   b. 1 selling plan with subscriptions required
+          assign can_one_click = false
+          assign simple_selling_plan = nil
+
+          if card_product.has_only_default_variant
+            if card_product.selling_plan_groups.size == 0
+              # one variant, no subscriptions
+              assign can_one_click = true
+            endif
+            if card_product.requires_selling_plan and card_product.selling_plan_groups.size == 1 and card_product.selling_plan_groups[0].selling_plans.size == 1
+              # one variant, one required subscription
+              assign simple_selling_plan = card_product.selected_or_first_available_selling_plan_allocation.selling_plan
+              assign can_one_click = true
+            endif
+          endif
+        -%}
+
+        {%- if can_one_click -%}
+          {%- if card_variant.available -%}
+            {% liquid
+              if card_product.metafields.theme.preorder.value == true
+                assign button_text = 'products.general.clip_pre_order' | t
+              else
+                assign button_text = 'products.general.clip_add_to_cart' | t
+              endif
+              unless card_variant.available
+                assign button_class = button_class | append: ' sold-out'
+              endunless
+            %}
+
+            {% capture button %}
+              <button
+                data-add-to-cart
+                type="submit"
+                name="add"
+                class="{{ button_class }}"
+                :class="{
+                  'has-success': isSuccess,
+                  'loading': isLoading
+                }"
+                :disabled="isDisabled"
+                :aria-busy="isLoading"
+                {% unless card_variant.available %} disabled="disabled" {% endunless %}
+              >
+                <span class="btn-state-ready">{{ button_text }}</span>
+                <span class="btn-state-loading">
+                  <svg height="18" width="18" class="svg-loader">
+                    <circle r="7" cx="9" cy="9" />
+                    <circle stroke-dasharray="87.96459430051421 87.96459430051421" r="7" cx="9" cy="9" />
+                  </svg>
+                </span>
+                <span class="btn-state-complete">&nbsp;</span>
+              </button>
+            {% endcapture %}
+
+            {% render 'product-add-button-form', variant: card_variant, selling_plan: simple_selling_plan, button: button %}
+          {%- else -%}
+            <p class="product-clip__out-of-stock {% if card_variant.available %} is-hidden{% endif %}">{{ 'products.general.clip_out_of_stock' | t }}</p>
+          {%- endif -%}
+        {%- endif -%}
+
+        {%- unless can_one_click -%}
+          <button
+            class="{{ button_class }}"
+            type="button"
+            @click.prevent="clickQuickviewButton"
+            :class="{
+              'loading': isLoading
+            }"
+            :disabled="isDisabled"
+            :aria-busy="isLoading"
+          >
+            <span class="btn-state-ready">{{ 'products.general.quick_view' | t }}</span>
+            <span class="btn-state-loading">
+              <svg height="18" width="18" class="svg-loader">
+                <circle r="7" cx="9" cy="9" />
+                <circle stroke-dasharray="87.96459430051421 87.96459430051421" r="7" cx="9" cy="9" />
+              </svg>
+            </span>
+          </button>
+        {%- endunless -%}
+      </div>
+    </div>
+
+    <div data-error-display class="add-action-errors">&nbsp;</div>
+
+    {%- unless can_one_click -%}
+      <script data-quickview-modal-template type="text/x-template">
+        <div class="drawer drawer--right quickview__modal" data-quickview-modal data-form-holder id="{{ card_product.id }}" aria-hidden="true">
+          <div class="drawer__content" data-product-quickview-ajax></div>
+
+          <span class="drawer__underlay" data-micromodal-close tabindex="-1">
+            <span class="drawer__underlay__fill"></span>
+            <span class="drawer__underlay__blur"></span>
+          </span>
+        </div>
+      </script>
+    {%- endunless -%}
+  </div>
+</div>

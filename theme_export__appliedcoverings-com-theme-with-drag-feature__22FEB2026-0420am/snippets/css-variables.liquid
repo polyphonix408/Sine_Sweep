@@ -1,0 +1,511 @@
+<!-- /snippets/css-variables.liquid -->
+
+{% comment %}
+  This is where CSS Variables are set with values from your theme settings.
+  These values are created in settings_schema.json and stored in settings_data.json.
+  CSS variables are used to remove liquid code from your CSS file, allowing CSS to load faster.
+{% endcomment %}
+
+{%- liquid
+
+  assign body_font = settings.font_body_family
+  assign body_font_bold = body_font | font_modify: 'weight', 'bolder'
+
+  assign heading_font = settings.font_heading_family
+  assign heading_font_bold = heading_font | font_modify: 'weight', 'bolder'
+
+  assign accent_font = settings.font_accent_family
+  assign accent_font_bold = accent_font | font_modify: 'weight', 'bolder'
+
+  assign body_font_100 = body_font | font_modify: 'weight', '+100'
+  assign body_font_200 = body_font | font_modify: 'weight', '+200'
+  assign body_font_300 = body_font | font_modify: 'weight', '+300'
+  assign body_font_400 = body_font | font_modify: 'weight', '+400'
+  if body_font_100 and body_font_100.weight > body_font.weight
+    assign body_font_bold = body_font_100
+  elsif body_font_200 and body_font_200.weight > body_font.weight
+    assign body_font_bold = body_font_200
+  elsif body_font_300 and body_font_300.weight > body_font.weight
+    assign body_font_bold = body_font_300
+  elsif body_font_400 and body_font_400.weight > body_font.weight
+    assign body_font_bold = body_font_400
+  endif
+
+  assign heading_font_100 = heading_font | font_modify: 'weight', '+100'
+  assign heading_font_200 = heading_font | font_modify: 'weight', '+200'
+  assign heading_font_300 = heading_font | font_modify: 'weight', '+300'
+  assign heading_font_400 = heading_font | font_modify: 'weight', '+400'
+  if heading_font_100 and heading_font_100.weight > heading_font.weight
+    assign heading_font_bold = heading_font_100
+  elsif heading_font_200 and heading_font_200.weight > heading_font.weight
+    assign heading_font_bold = heading_font_200
+  elsif heading_font_300 and heading_font_300.weight > heading_font.weight
+    assign heading_font_bold = heading_font_300
+  elsif heading_font_400 and heading_font_400.weight > heading_font.weight
+    assign heading_font_bold = heading_font_400
+  endif
+
+  assign accent_font_100 = accent_font | font_modify: 'weight', '+100'
+  assign accent_font_200 = accent_font | font_modify: 'weight', '+200'
+  assign accent_font_300 = accent_font | font_modify: 'weight', '+300'
+  assign accent_font_400 = accent_font | font_modify: 'weight', '+400'
+  if accent_font_100 and accent_font_100.weight > accent_font.weight
+    assign accent_font_bold = accent_font_100
+  elsif accent_font_200 and accent_font_200.weight > accent_font.weight
+    assign accent_font_bold = accent_font_200
+  elsif accent_font_300 and accent_font_300.weight > accent_font.weight
+    assign accent_font_bold = accent_font_300
+  elsif accent_font_400 and accent_font_400.weight > accent_font.weight
+    assign accent_font_bold = accent_font_400
+  endif
+
+  assign nav_font_string = settings.type_nav_font | split: "_" | first
+  assign nav_font_embolden = settings.type_nav_font | split: "_" | last
+  assign type_nav_size = 100
+  if nav_font_string == 'heading'
+    assign type_nav_size = settings.font_heading_size
+    if nav_font_embolden == 'bold'
+      assign nav_font_drop = heading_font_bold
+    else
+      assign nav_font_drop = heading_font
+    endif
+  elsif nav_font_string == 'accent'
+    assign type_nav_size = settings.font_accent_size
+    if nav_font_embolden == 'bold'
+      assign nav_font_drop = accent_font_bold
+    else
+      assign nav_font_drop = accent_font
+    endif
+  else
+    assign type_nav_size = settings.font_body_size
+    if nav_font_embolden == 'bold'
+      assign nav_font_drop = body_font_bold
+    else
+      assign nav_font_drop = body_font
+    endif
+  endif
+
+  assign button_font_string = settings.type_button_font | split: "_" | first
+  assign button_font_embolden = settings.type_button_font | split: "_" | last
+  assign type_button_size = 100
+  if button_font_string == 'heading'
+    assign type_button_size = settings.font_heading_size
+    if button_font_embolden == 'bold'
+      assign button_font_drop = heading_font_bold
+    else
+      assign button_font_drop = heading_font
+    endif
+  elsif button_font_string == 'accent'
+    assign type_button_size = settings.font_accent_size
+    if button_font_embolden == 'bold'
+      assign button_font_drop = accent_font_bold
+    else
+      assign button_font_drop = accent_font
+    endif
+  else
+    assign type_button_size = settings.font_body_size
+    if button_font_embolden == 'bold'
+      assign button_font_drop = body_font_bold
+    else
+      assign button_font_drop = body_font
+    endif
+  endif
+
+  assign kicker_font_string = settings.type_kicker_font | split: "_" | first
+  assign kicker_font_embolden = settings.type_kicker_font | split: "_" | last
+  assign type_kicker_size = 100
+  if kicker_font_string == 'heading'
+    assign type_kicker_size = settings.font_heading_size
+    if kicker_font_embolden == 'bold'
+      assign kicker_font_drop = heading_font_bold
+    else
+      assign kicker_font_drop = heading_font
+    endif
+  elsif kicker_font_string == 'accent'
+    assign type_kicker_size = settings.font_accent_size
+    if kicker_font_embolden == 'bold'
+      assign kicker_font_drop = accent_font_bold
+    else
+      assign kicker_font_drop = accent_font
+    endif
+  else
+    assign type_kicker_size = settings.font_body_size
+    if kicker_font_embolden == 'bold'
+      assign kicker_font_drop = body_font_bold
+    else
+      assign kicker_font_drop = body_font
+    endif
+  endif
+
+
+-%}
+{% style %}
+
+:root {
+/* ================ Layout Variables ================ */
+{% assign layout_gutter = settings.layout_gutter %}
+{% if settings.layout_gutter > settings.layout_outer %}
+  {% assign layout_gutter = settings.layout_outer %}
+{% endif %}
+
+{% assign nav_gutter = 15 %}
+{% if layout_gutter < 15 %}
+  {% assign nav_gutter = layout_gutter %}
+{% endif %}
+
+--LAYOUT-WIDTH: {{ settings.layout_site_width }}px;
+--LAYOUT-GUTTER: {{ settings.layout_gutter }}px;
+--LAYOUT-GUTTER-OFFSET: -{{ layout_gutter }}px;
+--NAV-GUTTER: {{ nav_gutter }}px;
+--LAYOUT-OUTER: {{ settings.layout_outer }}px;
+
+/* ================ Product video ================ */
+{% comment %}
+  Create an appropriate poster background color
+  based on background color and brightness
+{% endcomment %}
+{%- assign color_body_bg = settings.color_body_bg -%}
+{%- assign color_body_bg_brightness = color_body_bg | color_brightness -%}
+{%- if color_body_bg_brightness <= 26 -%}
+  {%- assign background_color_poster = color_body_bg | color_lighten: 10 -%}
+{%- elsif color_body_bg_brightness <= 65 -%}
+  {%- assign background_color_poster = color_body_bg | color_lighten: 5 -%}
+{%- else -%}
+  {%- assign background_color_poster = color_body_bg | color_darken: 5 -%}
+{%- endif -%}
+
+--COLOR-VIDEO-BG: {{ background_color_poster }};
+
+
+/* ================ Color Variables ================ */
+
+/* === Backgrounds ===*/
+--COLOR-BG: {{ settings.color_body_bg }};
+--COLOR-BG-ACCENT: {{ settings.color_bg_light }};
+
+/* === Text colors ===*/
+--COLOR-TEXT-DARK: {{ settings.color_body_text | color_saturate: 10 | color_darken: 15 }};
+--COLOR-TEXT: {{ settings.color_body_text }};
+--COLOR-TEXT-LIGHT: {{ settings.color_body_text | color_mix: settings.color_body_bg, 70 }};
+
+/* === Bright color ===*/
+--COLOR-PRIMARY: {{ settings.color_primary }};
+--COLOR-PRIMARY-HOVER: {{ settings.color_primary | color_saturate: 15 | color_darken: 15 }};
+--COLOR-PRIMARY-FADE: {{ settings.color_primary | color_modify: 'alpha', 0.05 }};
+--COLOR-PRIMARY-FADE-HOVER: {{ settings.color_primary | color_modify: 'alpha', 0.1 }};
+{%- assign primary_opposite = settings.color_primary | color_lighten: 100 -%}
+{%- assign contrast = settings.color_primary | color_contrast: primary_opposite -%}
+{%- if contrast < 2 -%}
+  {%- assign primary_opposite = settings.color_primary | color_darken: 95 -%}
+{%- endif -%}
+--COLOR-PRIMARY-OPPOSITE: {{ primary_opposite }};
+
+/* === Secondary/link Color ===*/
+--COLOR-SECONDARY: {{ settings.color_secondary }};
+--COLOR-SECONDARY-HOVER: {{ settings.color_secondary | color_saturate: 15 | color_darken: 15 }};
+--COLOR-SECONDARY-FADE: {{ settings.color_secondary | color_modify: 'alpha', 0.05 }};
+--COLOR-SECONDARY-FADE-HOVER: {{ settings.color_secondary | color_modify: 'alpha', 0.1 }};
+{%- assign secondary_opposite = settings.color_secondary | color_lighten: 100 -%}
+{%- assign contrast = settings.color_secondary | color_contrast: secondary_opposite -%}
+{%- if contrast < 3.5 -%}
+  {%- assign secondary_opposite = settings.color_secondary | color_darken: 95 -%}
+{%- endif -%}
+--COLOR-SECONDARY-OPPOSITE: {{ secondary_opposite }};
+
+/* === Shades of grey ===*/
+--COLOR-A5:  {{ settings.color_body_text | color_modify: 'alpha', 0.05 }};
+--COLOR-A10: {{ settings.color_body_text | color_modify: 'alpha', 0.10 }};
+--COLOR-A20: {{ settings.color_body_text | color_modify: 'alpha', 0.20 }};
+--COLOR-A35: {{ settings.color_body_text | color_modify: 'alpha', 0.35 }};
+--COLOR-A50: {{ settings.color_body_text | color_modify: 'alpha', 0.50 }};
+--COLOR-A80: {{ settings.color_body_text | color_modify: 'alpha', 0.80 }};
+--COLOR-A90: {{ settings.color_body_text | color_modify: 'alpha', 0.90 }};
+--COLOR-A95: {{ settings.color_body_text | color_modify: 'alpha', 0.95 }};
+
+
+/* ================ Inverted Color Variables ================ */
+
+--INVERSE-BG: {{ settings.color_bg_inverse }};
+--INVERSE-BG-ACCENT: {{ settings.color_bg_accent_inverse }};
+
+/* === Text colors ===*/
+--INVERSE-TEXT-DARK: {{ settings.color_text_inverse | color_lighten: 25 }};
+--INVERSE-TEXT: {{ settings.color_text_inverse }};
+--INVERSE-TEXT-LIGHT: {{ settings.color_text_inverse | color_mix: settings.color_bg_inverse, 70 }};
+
+/* === Bright color ===*/
+--INVERSE-PRIMARY: {{ settings.color_primary_inverse }};
+--INVERSE-PRIMARY-HOVER: {{ settings.color_primary_inverse | color_saturate: 15 | color_darken: 15 }};
+--INVERSE-PRIMARY-FADE: {{ settings.color_primary_inverse | color_modify: 'alpha', 0.05 }};
+--INVERSE-PRIMARY-FADE-HOVER: {{ settings.color_primary_inverse | color_modify: 'alpha', 0.1 }};
+{%- assign primary_dark_opposite = settings.color_primary_inverse | color_lighten: 100 -%}
+{%- assign contrast = settings.color_primary_inverse | color_contrast: primary_dark_opposite -%}
+{%- if contrast < 3.5 -%}
+  {%- assign primary_dark_opposite = settings.color_primary_inverse | color_darken: 95 -%}
+{%- endif -%}
+--INVERSE-PRIMARY-OPPOSITE: {{ primary_dark_opposite }};
+
+
+/* === Second Color ===*/
+--INVERSE-SECONDARY: {{ settings.color_secondary_inverse }};
+--INVERSE-SECONDARY-HOVER: {{ settings.color_secondary_inverse | color_saturate: 15 | color_darken: 15 }};
+--INVERSE-SECONDARY-FADE: {{ settings.color_secondary_inverse | color_modify: 'alpha', 0.05 }};
+--INVERSE-SECONDARY-FADE-HOVER: {{ settings.color_secondary_inverse | color_modify: 'alpha', 0.1 }};
+{%- assign secondary_dark_opposite = settings.color_secondary_inverse | color_lighten: 100 -%}
+{%- assign contrast = settings.color_secondary_inverse | color_contrast: secondary_dark_opposite -%}
+{%- if contrast < 3.5 -%}
+  {%- assign secondary_dark_opposite = settings.color_secondary_inverse | color_darken: 95 -%}
+{%- endif -%}
+--INVERSE-SECONDARY-OPPOSITE: {{ secondary_dark_opposite }};
+
+
+/* === Shades of grey ===*/
+--INVERSE-A5:  {{ settings.color_text_inverse | color_modify: 'alpha', 0.05 }};
+--INVERSE-A10: {{ settings.color_text_inverse | color_modify: 'alpha', 0.10 }};
+--INVERSE-A20: {{ settings.color_text_inverse | color_modify: 'alpha', 0.20 }};
+--INVERSE-A35: {{ settings.color_text_inverse | color_modify: 'alpha', 0.30 }};
+--INVERSE-A80: {{ settings.color_text_inverse | color_modify: 'alpha', 0.80 }};
+--INVERSE-A90: {{ settings.color_text_inverse | color_modify: 'alpha', 0.90 }};
+--INVERSE-A95: {{ settings.color_text_inverse | color_modify: 'alpha', 0.95 }};
+
+
+/* ================ Bright Color Variables ================ */
+
+--BRIGHT-BG: {{ settings.color_bg_bright }};
+--BRIGHT-BG-ACCENT: {{ settings.color_bg_accent_bright }};
+
+/* === Text colors ===*/
+--BRIGHT-TEXT-DARK: {{ settings.color_text_bright | color_lighten: 25 }};
+--BRIGHT-TEXT: {{ settings.color_text_bright }};
+--BRIGHT-TEXT-LIGHT: {{ settings.color_text_bright | color_mix: settings.color_bg_bright, 70 }};
+
+/* === Bright color ===*/
+--BRIGHT-PRIMARY: {{ settings.color_primary_bright }};
+--BRIGHT-PRIMARY-HOVER: {{ settings.color_primary_bright | color_saturate: 15 | color_darken: 15 }};
+--BRIGHT-PRIMARY-FADE: {{ settings.color_primary_bright | color_modify: 'alpha', 0.05 }};
+--BRIGHT-PRIMARY-FADE-HOVER: {{ settings.color_primary_bright | color_modify: 'alpha', 0.1 }};
+{%- assign primary_bright_opposite = settings.color_primary_bright | color_lighten: 100 -%}
+{%- assign contrast = settings.color_primary_bright | color_contrast: primary_bright_opposite -%}
+{%- if contrast < 3.5 -%}
+  {%- assign primary_bright_opposite = settings.color_primary_bright | color_darken: 95 -%}
+{%- endif -%}
+--BRIGHT-PRIMARY-OPPOSITE: {{ primary_bright_opposite }};
+
+
+/* === Second Color ===*/
+--BRIGHT-SECONDARY: {{ settings.color_secondary_bright }};
+--BRIGHT-SECONDARY-HOVER: {{ settings.color_secondary_bright | color_saturate: 15 | color_darken: 15 }};
+--BRIGHT-SECONDARY-FADE: {{ settings.color_secondary_bright | color_modify: 'alpha', 0.05 }};
+--BRIGHT-SECONDARY-FADE-HOVER: {{ settings.color_secondary_bright | color_modify: 'alpha', 0.1 }};
+{%- assign secondary_bright_opposite = settings.color_secondary_bright | color_lighten: 100 -%}
+{%- assign contrast = settings.color_secondary_bright | color_contrast: secondary_bright_opposite -%}
+{%- if contrast < 3.5 -%}
+  {%- assign secondary_bright_opposite = settings.color_secondary_bright | color_darken: 95 -%}
+{%- endif -%}
+--BRIGHT-SECONDARY-OPPOSITE: {{ secondary_bright_opposite }};
+
+
+/* === Shades of grey ===*/
+--BRIGHT-A5:  {{ settings.color_text_bright | color_modify: 'alpha', 0.05 }};
+--BRIGHT-A10: {{ settings.color_text_bright | color_modify: 'alpha', 0.10 }};
+--BRIGHT-A20: {{ settings.color_text_bright | color_modify: 'alpha', 0.20 }};
+--BRIGHT-A35: {{ settings.color_text_bright | color_modify: 'alpha', 0.30 }};
+--BRIGHT-A80: {{ settings.color_text_bright | color_modify: 'alpha', 0.80 }};
+--BRIGHT-A90: {{ settings.color_text_bright | color_modify: 'alpha', 0.90 }};
+--BRIGHT-A95: {{ settings.color_text_bright | color_modify: 'alpha', 0.95 }};
+
+
+/* === Account Bar ===*/
+--COLOR-ANNOUNCEMENT-BG: {{ settings.color_announcement_bg }};
+--COLOR-ANNOUNCEMENT-TEXT: {{ settings.color_announcement_text }};
+
+/* === Nav and dropdown link background ===*/
+--COLOR-NAV: {{ settings.color_header_bg }};
+--COLOR-NAV-TEXT: {{ settings.color_header_text }};
+--COLOR-NAV-TEXT-DARK: {{ settings.color_header_text | color_saturate: 10 | color_darken: 15 }};
+--COLOR-NAV-TEXT-LIGHT: {{ settings.color_header_text | color_mix: settings.color_header_bg, 70 }};
+--COLOR-NAV-BORDER: {{ settings.color_nav_border }};
+--COLOR-NAV-A10: {{ settings.color_header_text | color_modify: 'alpha', 0.10 }};
+--COLOR-NAV-A50: {{ settings.color_header_text | color_modify: 'alpha', 0.50 }};
+--COLOR-HIGHLIGHT-LINK: {{ settings.color_highlight_link }};
+
+/* === Site Footer ===*/
+--COLOR-FOOTER-BG: {{ settings.color_footer_bg }};
+--COLOR-FOOTER-TEXT: {{ settings.color_footer_text }};
+--COLOR-FOOTER-A5: {{ settings.color_footer_text | color_modify: 'alpha', 0.05 }};
+--COLOR-FOOTER-A15: {{ settings.color_footer_text | color_modify: 'alpha', 0.15 }};
+--COLOR-FOOTER-A90: {{ settings.color_footer_text | color_modify: 'alpha', 0.90 }};
+
+/* === Sub-Footer ===*/
+--COLOR-SUB-FOOTER-BG: {{ settings.color_sub_footer_bg }};
+--COLOR-SUB-FOOTER-TEXT: {{ settings.color_sub_footer_text }};
+--COLOR-SUB-FOOTER-A5: {{ settings.color_sub_footer_text | color_modify: 'alpha', 0.05 }};
+--COLOR-SUB-FOOTER-A15: {{ settings.color_sub_footer_text | color_modify: 'alpha', 0.15 }};
+--COLOR-SUB-FOOTER-A90: {{ settings.color_sub_footer_text | color_modify: 'alpha', 0.90 }};
+
+/* === Products ===*/
+--PRODUCT-GRID-ASPECT-RATIO: {{ settings.product_card_wh_ratio | times: 100 }}%;
+
+/* === Product badges ===*/
+--COLOR-BADGE: {{ settings.color_badge }};
+--COLOR-BADGE-TEXT: {{ settings.color_badge_text }};
+--COLOR-BADGE-TEXT-DARK: {{ settings.color_badge_text | color_saturate: 10 | color_darken: 15 }};
+--COLOR-BADGE-TEXT-HOVER: {{ settings.color_badge_text | color_lighten: 15 }};
+--COLOR-BADGE-HAIRLINE: {{ settings.color_badge | color_mix: settings.color_badge_text, 95 }};
+
+/* === Product item slider ===*/
+{%- assign color_badge_stripped = settings.color_badge | strip -%}
+{%- if color_badge_stripped == 'rgba(0,0,0,0)' -%}
+  --COLOR-PRODUCT-SLIDER: #ffffff;
+  --COLOR-PRODUCT-SLIDER-OPPOSITE: rgba(0, 0, 0, 0.06);
+{%- else -%}
+  --COLOR-PRODUCT-SLIDER: {{ color_badge_stripped }};
+  {%- assign opposite_badge = color_badge_stripped | color_lighten: 100 -%}
+  {%- assign contrast_badge = color_badge_stripped | color_contrast: opposite_badge -%}
+  {%- if contrast_badge < 2 -%}
+    {%- assign opposite_badge = color_badge_stripped | color_darken: 95 -%}
+  {%- endif -%}
+  {%- assign opposite_badge_rgba = opposite_badge | color_to_rgb | replace: 'rgb(', 'rgba(' | replace: ')', ', 0.06)' -%}
+  --COLOR-PRODUCT-SLIDER-OPPOSITE: {{ opposite_badge_rgba }};
+{%- endif -%}
+
+/* === disabled form colors ===*/
+--COLOR-DISABLED-BG: {{ settings.color_body_text | color_mix: settings.color_body_bg, 10 }};
+--COLOR-DISABLED-TEXT: {{ settings.color_body_text | color_mix: settings.color_body_bg, 35 }};
+
+--INVERSE-DISABLED-BG: {{ settings.color_text_inverse | color_mix: settings.color_bg_inverse, 10 }};
+--INVERSE-DISABLED-TEXT: {{ settings.color_text_inverse | color_mix: settings.color_bg_inverse, 35 }};
+
+
+/* === Tailwind RGBA Palette ===*/
+--RGB-CANVAS: {{ settings.color_body_bg.rgb }};
+--RGB-CONTENT: {{ settings.color_body_text.rgb }};
+--RGB-PRIMARY: {{ settings.color_primary.rgb }};
+--RGB-SECONDARY: {{ settings.color_secondary.rgb }};
+
+--RGB-DARK-CANVAS: {{ settings.color_bg_inverse.rgb }};
+--RGB-DARK-CONTENT: {{ settings.color_text_inverse.rgb }};
+--RGB-DARK-PRIMARY: {{ settings.color_primary_inverse.rgb }};
+--RGB-DARK-SECONDARY: {{ settings.color_secondary_inverse.rgb }};
+
+--RGB-BRIGHT-CANVAS: {{ settings.color_bg_bright.rgb }};
+--RGB-BRIGHT-CONTENT: {{ settings.color_text_bright.rgb }};
+--RGB-BRIGHT-PRIMARY: {{ settings.color_primary_bright.rgb }};
+--RGB-BRIGHT-SECONDARY: {{ settings.color_secondary_bright.rgb }};
+
+--RGB-PRIMARY-CONTRAST: {{ primary_opposite.rgb }};
+--RGB-SECONDARY-CONTRAST: {{ secondary_opposite.rgb }};
+
+--RGB-DARK-PRIMARY-CONTRAST: {{ primary_dark_opposite.rgb }};
+--RGB-DARK-SECONDARY-CONTRAST: {{ secondary_dark_opposite.rgb }};
+
+--RGB-BRIGHT-PRIMARY-CONTRAST: {{ primary_bright_opposite.rgb }};
+--RGB-BRIGHT-SECONDARY-CONTRAST: {{ secondary_bright_opposite.rgb }};
+
+
+/* === Button Radius === */
+--BUTTON-RADIUS: {{ settings.button_radius | append: 'px' }};
+
+
+/* === Icon Stroke Width === */
+--ICON-STROKE-WIDTH: {{ settings.icon_stroke_width | append: 'px' }};
+
+
+/* ================ Typography ================ */
+
+--FONT-STACK-BODY: {{ body_font.family }}, {{ body_font.fallback_families }};
+--FONT-STYLE-BODY: {{ body_font.style }};
+--FONT-WEIGHT-BODY: {{ body_font.weight | default: 400 }};
+--FONT-WEIGHT-BODY-BOLD: {{ body_font_bold.weight | default: 700 }};
+--FONT-ADJUST-BODY: {{ settings.font_body_size | divided_by: 100.0 }};
+{% if settings.font_body_uppercase %}
+  --FONT-BODY-TRANSFORM: uppercase;
+  --FONT-BODY-LETTER-SPACING: {{ settings.font_uppercase_spacing | divided_by: 1000.0 | append: 'em' }};
+{%- else %}
+  --FONT-BODY-TRANSFORM: none;
+  --FONT-BODY-LETTER-SPACING: normal;
+{% endif %}
+
+--FONT-STACK-HEADING: {{ heading_font.family }}, {{ heading_font.fallback_families }};
+--FONT-STYLE-HEADING: {{ heading_font.style }};
+--FONT-WEIGHT-HEADING: {{ heading_font.weight | default: 400 }};
+--FONT-WEIGHT-HEADING-BOLD: {{ heading_font_bold.weight | default: 700 }};
+--FONT-ADJUST-HEADING: {{ settings.font_heading_size | divided_by: 100.0 }};
+{% if settings.font_heading_uppercase %}
+  --FONT-HEADING-TRANSFORM: uppercase;
+  --FONT-HEADING-LETTER-SPACING: {{ settings.font_uppercase_spacing | divided_by: 1000.0 | append: 'em' }};
+{%- else %}
+  --FONT-HEADING-TRANSFORM: none;
+  --FONT-HEADING-LETTER-SPACING: normal;
+{% endif %}
+
+--FONT-STACK-ACCENT: {{ accent_font.family }}, {{ heading_font.fallback_families }};
+--FONT-STYLE-ACCENT: {{ accent_font.style }};
+--FONT-WEIGHT-ACCENT: {{ accent_font.weight | default: 400 }};
+--FONT-WEIGHT-ACCENT-BOLD: {{ accent_font_bold.weight | default: 700 }};
+--FONT-ADJUST-ACCENT: {{ settings.font_accent_size | divided_by: 100.0 }};
+{% if settings.font_accent_uppercase %}
+  --FONT-ACCENT-TRANSFORM: uppercase;
+  --FONT-ACCENT-LETTER-SPACING: {{ settings.font_uppercase_spacing | divided_by: 1000.0 | append: 'em' }};
+{%- else %}
+  --FONT-ACCENT-TRANSFORM: none;
+  --FONT-ACCENT-LETTER-SPACING: normal;
+{% endif %}
+
+--TYPE-STACK-NAV: {{ nav_font_drop.family }}, {{ nav_font_drop.fallback_families }};
+--TYPE-STYLE-NAV: {{ nav_font_drop.style }};
+--TYPE-ADJUST-NAV: {{ type_nav_size | divided_by: 100.0 }};
+--TYPE-WEIGHT-NAV: {{ nav_font_drop.weight | default: 400 }};
+{% if settings.type_nav_uppercase %}
+  --FONT-NAV-TRANSFORM: uppercase;
+  --FONT-NAV-LETTER-SPACING: {{ settings.font_uppercase_spacing | divided_by: 1000.0 | append: 'em' }};
+{%- else %}
+  --FONT-NAV-TRANSFORM: none;
+  --FONT-NAV-LETTER-SPACING: normal;
+{% endif %}
+
+--TYPE-STACK-BUTTON: {{ button_font_drop.family }}, {{ button_font_drop.fallback_families }};
+--TYPE-STYLE-BUTTON: {{ button_font_drop.style }};
+--TYPE-ADJUST-BUTTON: {{ type_button_size | divided_by: 100.0 }};
+--TYPE-WEIGHT-BUTTON: {{ button_font_drop.weight | default: 400 }};
+{% if settings.type_button_uppercase %}
+  --FONT-BUTTON-TRANSFORM: uppercase;
+  --FONT-BUTTON-LETTER-SPACING: {{ settings.font_uppercase_spacing | divided_by: 1000.0 | append: 'em' }};
+{%- else %}
+  --FONT-BUTTON-TRANSFORM: none;
+  --FONT-BUTTON-LETTER-SPACING: normal;
+{% endif %}
+
+--TYPE-STACK-KICKER: {{ kicker_font_drop.family }}, {{ kicker_font_drop.fallback_families }};
+--TYPE-STYLE-KICKER: {{ kicker_font_drop.style }};
+--TYPE-ADJUST-KICKER: {{ type_kicker_size | divided_by: 100.0 }};
+--TYPE-WEIGHT-KICKER: {{ kicker_font_drop.weight | default: 400 }};
+{% if settings.type_kicker_uppercase %}
+  --FONT-KICKER-TRANSFORM: uppercase;
+  --FONT-KICKER-LETTER-SPACING: {{ settings.font_uppercase_spacing | divided_by: 1000.0 | append: 'em' }};
+{%- else %}
+  --FONT-KICKER-TRANSFORM: none;
+  --FONT-KICKER-LETTER-SPACING: normal;
+{% endif %}
+
+{% comment %} Theme check cant find this because the file is actually called ico-select.svg.liquid {% endcomment %}
+{% # theme-check-disable MissingAsset %}
+--ICO-SELECT: url('{{ "ico-select.svg" | asset_url }}');
+{% # theme-check-enable MissingAsset %}
+
+/* ================ Photo correction ================ */
+{%- assign photo_correction = 100 -%}
+{% if settings.product_background_grey %}
+  {%- assign photo_correction = 98 -%}
+{% endif %}
+--PHOTO-CORRECTION: {{ photo_correction }}%;
+
+{% if settings.high_contrast %}
+  {% render 'css-variables-contrast' %}
+{% endif %}
+
+}
+
+{% render 'font-size' %}
+
+{% endstyle %}

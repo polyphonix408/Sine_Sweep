@@ -1,0 +1,115 @@
+<!-- /snippets/media.liquid -->
+
+{% comment %}
+  * Returns a media object for a product slideshow, or quickview slideshoe
+
+  -  media {object} - The media object we will use
+  -  product {object} - The current product
+
+  {% render 'media', media: media, section: section %}
+{% endcomment %}
+{%- assign image_size = '1024x1024' -%}
+{% capture data_player %}data-player="{{ section.id }}-{{ media.id }}"{% endcapture %}
+{% if media.media_type == "image" %}
+  {%- assign data_player = '' -%}
+{% endif %}
+{% assign alt_text = media.alt | strip_html %}
+{% assign alt_text_parts = alt_text | split: '#' %}
+{% assign alt_text_option = '' %}
+{% assign alt_text_ruler = alt_text %}
+{% if alt_text contains '#' and alt_text contains '_' and alt_text_parts.size == 2 %}
+  {% assign alt_text_option = alt_text_parts | last | split: ' ' | first %}
+  {% assign alt_text_ruler = alt_text_parts | first %}
+{% endif %}
+{% assign has_ruler = false %}
+{% if media.alt != product.title and alt_text_ruler != '' and section.settings.alt_text_enable %}
+  {% assign has_ruler = true %}
+{% endif %}
+{% assign loading_animation = loading_animation | default: false %}
+
+<div class="product__media"
+  data-media-slide
+  data-media-id="{{ media.id }}"
+  data-type="{{ media.media_type }}"
+  {% if media.host %} data-host="{{ media.host }}"{% endif %}
+  aria-label="{{ alt_text_parts | first | escape }}"
+  data-image-filter="{{ alt_text_option }}"
+  data-aspect-ratio="{% if media.aspect_ratio %}{{ media.aspect_ratio }}{% else %}{{ media.preview_image.aspect_ratio }}{% endif %}"
+  {{ data_player }}>
+  {% case media.media_type %}
+    {% when 'image' %}
+      <div>
+        <div class="product-image-wrapper">
+          {% liquid
+            assign alt = alt_text_parts | first | escape
+            assign preload = false
+            assign fetchpriority = 'auto'
+            assign loading = 'lazy'
+
+            if media.position == 1
+              assign preload = true
+              assign fetchpriority = 'high'
+              assign loading = 'eager'
+            endif
+          %}
+
+          {%- capture sizes -%}
+            (min-width: 1100px) 70vw,
+            (min-width: 768px) 50vw,
+            calc(85vw - {{ section.settings.image_spacing | times: 2 }}px)
+          {%- endcapture -%}
+
+          {%- render 'image',
+            img_object: media.preview_image,
+            cover: true,
+            wh_ratio: section.settings.wh_ratio,
+            sizes: sizes,
+            loading: loading,
+            preload: preload,
+            fetchpriority: fetchpriority,
+            placeholder: false,
+            alt: alt,
+            loading_animation: loading_animation
+          -%}
+
+          {% if section.settings.zoom_enable or has_ruler %}
+            <div class="media__buttons__holder">
+              {% if section.settings.zoom_enable %}
+                <button class="media__button media__button--zoom" data-zoom-button>
+                  {% render 'icon-core-magnify' %}
+                  <span class="visually-hidden">{{ 'general.accessibility.zoom' | t }}</span>
+                </button>
+              {% endif %}
+
+              {% if has_ruler %}
+                <button class="media__button media__button--info" data-size-button>
+                  {% render 'icon-setting', filename: section.settings.alt_text_icon %}
+                  {% render 'icon-core-x' %}
+                  <span class="visually-hidden">{{ 'general.accessibility.size' | t }}</span>
+
+                  <span class="media__button__text">{{ alt_text_ruler | escape }}</span>
+                </button>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% when 'model' %}
+      <div class="media__contain" style="padding-top: 100%;">
+        {{ media | model_viewer_tag: image_size: image_size, reveal: 'interaction', toggleable: true, data-model-id: media.id, interaction-prompt-threshold: 500 }}
+      </div>
+    {% when 'video' %}
+      <div class="media__contain" style="padding-top: {{ 1 | divided_by: media.aspect_ratio | times: 100 }}%;">
+        {{ media | video_tag: class: 'media-video', image_size: image_size }}
+      </div>
+    {% when 'external_video' %}
+      <div data-video-id="{{ media.external_id }}"></div>
+      <div class="media__contain" style="padding-top: {{ 1 | divided_by: media.aspect_ratio | times: 100 }}%;">
+        {{ media | external_video_tag }}
+      </div>
+    {% else %}
+      <div style="padding-top: {{ 1 | divided_by: media.aspect_ratio | times: 100 }}%;">
+        {{ media | media_tag: class: "media__other" }}
+      </div>
+  {% endcase %}
+</div>

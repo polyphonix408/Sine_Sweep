@@ -1,0 +1,265 @@
+{%- liquid
+  comment
+    Get each resource's result count
+  endcomment
+  assign query_count = predictive_search.resources.queries.size
+  assign product_count = predictive_search.resources.products.size
+  assign collection_count = predictive_search.resources.collections.size
+  assign article_count = predictive_search.resources.articles.size
+  assign page_count = predictive_search.resources.pages.size
+  assign collection_counter = 0
+  assign total_results_counter = 0
+  assign terms = predictive_search.terms
+-%}
+
+{%- if collection_count > 0 -%}
+  {%- liquid
+    assign exclude_collections_strict = settings.exclude_collections_strict | split: ','
+    assign exclude_collections_contain = settings.exclude_collections_contain | split: ','
+    assign collections_markup = ''
+  -%}
+
+  {%- for collection in predictive_search.resources.collections -%}
+    {%- liquid
+      assign skip_current_collection = false
+      for exclude_collection_strict in exclude_collections_strict
+        assign exclude_collection_strict_stripped = exclude_collection_strict | strip
+
+        if exclude_collection_strict_stripped == collection.handle
+          assign skip_current_collection = true
+          break
+        endif
+      endfor
+
+      for exclude_collection_contain in exclude_collections_contain
+        assign exclude_collection_contain_stripped = exclude_collection_contain | strip
+
+        if collection.handle contains exclude_collection_contain_stripped
+          assign skip_current_collection = true
+          break
+        endif
+      endfor
+
+      if skip_current_collection
+        continue
+      endif
+
+      assign collection_counter = collection_counter | plus: 1
+      assign collection_counter_animate = collection_counter | plus: product_count | plus: query_count
+    -%}
+
+    {%- capture collections_markup -%}
+      {{ collections_markup }}
+
+      <div class="other__inline animates" style="animation-delay: {{ collection_counter_animate | times: 90 | plus: 10 }}ms;" id="predictive-search-option-collection-{{ collection_counter }}" role="option" aria-selected="false">
+        <p class="other__inline__title">
+          <a href="{{ collection.url }}">{{ collection.title }}</a>
+        </p>
+      </div>
+    {%- endcapture -%}
+  {%- endfor -%}
+{%- endif -%}
+
+{%- assign total_results = product_count | plus: query_count | plus: collection_counter | plus: page_count | plus: article_count -%}
+
+{%- if predictive_search.performed -%}
+  <div class="wrapper">
+    <span class="predictive-search-status visually-hidden" data-predictive-search-live-region-count-value role="status">
+      {%- liquid
+        if total_results == 0
+          echo 'general.search.no_results' | t: terms: terms
+        else
+          echo 'general.search.results_with_count' | t: count: total_results | replace: '**', '' | append: ': '
+
+          if query_count > 0
+            assign count = query_count | plus: collection_counter
+            echo 'general.search.results_suggestions_with_count' | t: count: count | append: ', '
+          endif
+
+          if page_count > 0
+            assign count = page_count | plus: article_count
+            echo 'general.search.results_pages_with_count' | t: count: count | append: ', '
+          endif
+
+          if product_count > 0
+            echo 'general.search.results_products_with_count' | t: count: product_count
+          endif
+        endif
+      -%}
+    </span>
+    <div class="search__results__wrapper" id="predictive-search-results" role="listbox" aria-label="{{ 'general.search.search_for' | t: terms: terms }}">
+      {%- if total_results > 0 -%}
+        <div class="search__results__outer">
+          <div class="search__results__other">
+            {%- if query_count > 0 -%}
+              <div class="search__results__other__list">
+                <div class="search__results__heading">
+                  <p class="search__results__title">{{ 'general.search.suggestions' | t }}</p>
+                  <span class="badge">{{ query_count }}</span>
+                </div>
+
+                <ul aria-label="{{ 'general.search.suggestions' | t }}" role="group">
+                  {%- for query in predictive_search.resources.queries -%}
+                    {%- assign total_results_counter = total_results_counter | plus: 1 -%}
+                    <li class="other__inline animates" id="predictive-search-option-query-{{ forloop.index }}" role="option" aria-selected="false" style="animation-delay: {{ total_results_counter | times: 90 | plus: 10 }}ms;">
+                      <p class="other__inline__title">
+                        <a href="{{ query.url }}">
+                          <span>{{ query.styled_text }}</span>
+                        </a>
+                      </p>
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              </div>
+            {%- endif -%}
+
+            {%- if product_count > 0 -%}
+              <div class="search__results__products">
+                <div class="search__results__products__title">
+                  <div id="search_product_results_heading" class="search__results__heading">
+                    <p class="search__results__title">{{ 'products.general.products' | t }}</p>
+                    <span class="badge">{{ product_count }}</span>
+                  </div>
+                </div>
+
+                <ul aria-label="{{ 'products.general.products' | t }}" class="search__results__products__list">
+                  {%- for product in predictive_search.resources.products -%}
+                    {%- liquid
+                      assign total_results_counter = total_results_counter | plus: 1
+                      assign on_sale = false
+                      if product.compare_at_price > product.price
+                        assign on_sale = true
+                      endif
+
+                      assign sold_out = true
+                      if product.available
+                        assign sold_out = false
+                      endif
+                    -%}
+
+                    <div class="product__inline animates" style="animation-delay: {{ total_results_counter | times: 90 | plus: 10 }}ms;" role="option" aria-selected="false">
+                      <a href="{{ product.url }}" class="product__inline__link">
+                        {%- if product.featured_image != blank -%}
+                          <div role="presentation" class="product__inline__image">
+                            {% assign alt = product.title | strip_html %}
+                            {{ product.featured_image | image_url: width: product.featured_image.width | image_tag: class: 'img-aspect-ratio', alt: alt }}
+                          </div>
+                        {%- endif -%}
+
+                        <div>
+                          <p class="product__inline__title">
+                            {{ product.title | strip_html }}
+                          </p>
+                          <p class="product__inline__price">
+                            <span class="price{% if on_sale %} on-sale{% endif %}{% if sold_out %} sold-out{% endif %}">
+                              {%- if settings.currency_code_enable -%}
+                                {{ product.price | money_with_currency }}
+                              {%- else -%}
+                                {{ product.price | money }}
+                              {%- endif -%}
+                            </span>
+
+                            {%- if sold_out -%}
+                              <br>
+                              <em>{{ 'products.product.sold_out' | t }}</em>
+                            {%- endif -%}
+
+                            {% if on_sale %}
+                              <span class="compare-at">
+                                {%- if settings.currency_code_enable -%}
+                                  {{ product.compare_at_price | money_with_currency }}
+                                {%- else -%}
+                                  {{ product.compare_at_price | money }}
+                                {%- endif -%}
+                              </span>
+                            {% endif %}
+                          </p>
+                        </div>
+                      </a>
+                    </div>
+                  {%- endfor -%}
+                </ul>
+              </div>
+            {%- endif -%}
+
+            {%- if collection_counter > 0 -%}
+              {%- assign total_results_counter = total_results_counter | plus: collection_counter -%}
+
+              <div class="search__results__other__list">
+                <div id="search_collection_results_heading" class="search__results__heading">
+                  <p class="search__results__title">{{ 'collections.sidebar.collections' | t }}</p>
+                  <span class="badge">{{ collection_counter }}</span>
+                </div>
+
+                <ul aria-label="{{ 'collections.sidebar.collections' | t }}" role="group" class="search__results__collections__list">
+                  {{ collections_markup }}
+                </ul>
+              </div>
+            {%- endif -%}
+
+            {%- if article_count > 0 -%}
+              <div class="search__results__other__list">
+                <div id="search_article_results_heading" class="search__results__heading">
+                  <p class="search__results__title">{{ 'blogs.article.articles' | t }}</p>
+                  <span class="badge">{{ article_count }}</span>
+                </div>
+
+                <ul aria-label="{{ 'blogs.article.articles' | t }}" role="group" class="search__results__articles__list">
+                  {%- for article in predictive_search.resources.articles -%}
+                    {%- assign total_results_counter = total_results_counter | plus: 1 -%}
+                    <li class="other__inline animates" style="animation-delay: {{ total_results_counter | times: 90 | plus: 10 }}ms;" id="predictive-search-option-article-{{ forloop.index }}" role="option" aria-selected="false">
+                      <p class="other__inline__title">
+                        <a href="{{ article.url }}">{{ article.title }}</a>
+                      </p>
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              </div>
+            {%- endif -%}
+
+            {%- if page_count > 0 -%}
+              <div class="search__results__other__list">
+                <div id="search_page_results_heading" class="search__results__heading">
+                  <p class="search__results__title">{{ 'general.page.pages' | t }}</p>
+                  <span class="badge">{{ page_count }}</span>
+                </div>
+
+                <ul aria-label="{{ 'general.page.pages' | t }}" role="group" class="search__results__articles__list">
+                  {%- for page in predictive_search.resources.pages -%}
+                    {%- assign total_results_counter = total_results_counter | plus: 1 -%}
+                    <li class="other__inline animates" style="animation-delay: {{ total_results_counter | times: 90 | plus: 10 }}ms;" id="predictive-search-option-page-{{ forloop.index }}" role="option" aria-selected="false">
+                      <p class="other__inline__title">
+                        <a href="{{ page.url }}">{{ page.title }}</a>
+                      </p>
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              </div>
+            {%- endif -%}
+          </div>
+        </div>
+      {%- else -%}
+        <div class="search__results__empty">
+          <div aria-live="polite">
+            <p>
+              {{ 'general.search.no_results_for' | t }}
+              <em>{{ terms }}</em>
+            </p>
+          </div>
+        </div>
+      {%- endif -%}
+
+      <div class="search__results__actions">
+        <button
+          class="btn btn--outline search__results__btn !flex items-center flex-nowrap gap-r2 whitespace-normal max-w-full"
+          tabindex="-1"
+          role="option"
+          aria-selected="false"
+        >
+          <span class="line-clamp-1 text-ellipsis" data-predictive-search-search-for-text>{{ 'general.search.search_for' | t: terms: terms }}</span>
+          <span class="accent-size-5 [&>svg]:inline-block rtl:-scale-x-100">{%- render 'icon-core-chevron-right' -%}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+{%- endif -%}

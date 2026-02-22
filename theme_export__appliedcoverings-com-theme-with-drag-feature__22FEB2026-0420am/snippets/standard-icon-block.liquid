@@ -1,0 +1,79 @@
+<!-- /snippets/standard-icon-block.liquid -->
+{% comment %}
+  This snippet renders a list of icons
+  It is abstracted because it's used by two block types with different settings options
+  {% render 'standard-icon-block', section: section, block: block, forloop: forloop, aos_anchor: animation_anchor %}
+{% endcomment %}
+
+{%- assign items_per_row = block.settings.items_per_row | times: 1.00 -%}
+
+<div class="standard__icons"
+  {{ block.shopify_attributes }}
+  data-aos="icons"
+  data-aos-anchor="{{ animation_anchor }}"
+  data-aos-order="{{ elements_counter }}"
+  style="
+    --ICON-STROKE-COLOR: {{ block.settings.icon_color }};
+    --ICON-SIZE: {{ block.settings.icon_size }}px;
+    --ICON-BLOCK-COLS: {{ 100 | divided_by: items_per_row }}%;
+  ">
+  {%- assign font_size_class = block.settings.kicker_size | prepend: 'accent-size-' -%}
+  {%- assign heading_size_class = block.settings.heading_size | prepend: 'heading-size-' -%}
+  {%- assign description_size_class = block.settings.text_size | prepend: 'body-size-' -%}
+
+  {%- for i in (1..6) -%}
+    {%- assign icon_name = 'icon_name_' | append: forloop.index -%}
+    {%- assign icon_name = block.settings[icon_name] -%}
+
+    {%- assign icon_image = 'icon_image_' | append: forloop.index -%}
+    {%- assign icon_image = block.settings[icon_image] -%}
+
+    {%- assign icon_kicker = 'icon_kicker_' | append: forloop.index -%}
+    {%- assign icon_kicker = block.settings[icon_kicker] -%}
+
+    {%- assign icon_heading = 'icon_heading_' | append: forloop.index -%}
+    {%- assign icon_heading = block.settings[icon_heading] -%}
+
+    {%- assign icon_text = 'icon_text_' | append: forloop.index -%}
+    {%- assign icon_text = block.settings[icon_text] -%}
+
+    {%- if icon_name != 'none' or icon_image != blank or icon_kicker != blank or icon_heading != blank or icon_text != blank -%}
+      <div class="standard__icon {{ section.settings.align_text }}"
+        data-aos-icon="{{ forloop.index }}">
+        {%- if icon_name != 'none' or icon_image != blank -%}
+          <div class="standard__icon__holder">
+            {%- if icon_image != blank -%}
+              {%- assign icon_width = block.settings.icon_size -%}
+              {%- assign icon_width_2x = icon_width | times: 2 -%}
+              {% capture srcset %}
+                {{ icon_image | image_url: width: icon_width_2x }} 2x,
+                {{ icon_image | image_url: width: icon_width }}
+              {% endcapture %}
+              {%- render 'image' img_object: icon_image, srcset: srcset, width: icon_width -%}
+            {%- elsif icon_name != 'none' -%}
+              {%- render 'icon-setting', filename: icon_name -%}
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+        {%- if icon_kicker != blank -%}
+          <div class="standard__kicker {{ font_size_class }}" >
+            <p>{{ icon_kicker }}</p>
+          </div>
+        {%- endif -%}
+
+        {%- if icon_heading != blank -%}
+          <div class="standard__heading {{ heading_size_class }}">
+            <p>{{ icon_heading }}</p>
+          </div>
+        {%- endif -%}
+
+        {%- if icon_text != blank -%}
+          <div class="standard__rte rte {{ description_size_class }}">
+            {{ icon_text }}
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  {%- endfor -%}
+</div>

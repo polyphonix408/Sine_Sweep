@@ -1,0 +1,172 @@
+{% liquid
+  assign image_scaling = block.settings.image_scaling | divided_by: 100.0
+  assign aspect_ratio = block.settings.aspect_ratio
+  assign image_max_height = 200
+  assign image_max_width = image_max_height | times: aspect_ratio
+%}
+
+{% capture image_class %}
+  !h-[--image-scaling] w-auto aspect-[--image-aspect-ratio]
+  transition-transform duration-1000 [--scale:120%] scale-[--scale]
+  group-data-[viewed]/section:delay-[--tw-stagger-transition-delay]
+  group-data-[viewed]/section:[--scale:100%]
+  group-hover/link:![--scale:120%]
+  group-hover/link:!delay-0
+  object-cover
+{% endcapture %}
+
+<span
+  class="
+    group/spotlight-image inline-block w-fit h-fit align-middle
+    [--stagger-delay:--tw-stagger-transition-delay]
+    {{ block.settings.shape }}
+  "
+  style="
+    --image-scaling: {{ image_scaling }}em;
+    --image-max-width: {{ image_max_width }}px;
+    --image-aspect-ratio: {{ aspect_ratio }};
+  "
+  {{ block.shopify_attributes }}
+  data-animate-stagger-item
+>
+  {%- if block.settings.href != blank -%}
+    <a
+      href="{{ block.settings.href }}"
+      class="group/link"
+      {% if block.settings.new_window %}
+        target="_blank"
+      {% endif %}
+    >
+  {%- endif -%}
+  {%- render 'image-tag',
+    img_object: block.settings.image,
+    width: image_max_width,
+    class: image_class,
+    style: image_style,
+    placeholder: 'image'
+  -%}
+  {%- if block.settings.href != blank -%}
+    </a>
+  {%- endif -%}
+</span>
+
+
+{% schema %}
+{
+	"name": "Image",
+	"tag": null,
+	"settings": [
+		{
+			"type": "image_picker",
+			"id": "image",
+			"label": "Image"
+		},
+		{
+			"type": "select",
+			"id": "shape",
+			"label": "Shape",
+			"default": "",
+			"options": [
+				{
+					"value": "",
+					"label": "None"
+				},
+				{
+					"value": "rounded-lg overflow-hidden",
+					"label": "Rounded"
+				},
+				{
+					"value": "radius-keyhole",
+					"label": "Keyhole"
+				},
+				{
+					"value": "rounded-full overflow-hidden",
+					"label": "Circle"
+				},
+				{
+					"value": "clip-sunburst",
+					"label": "Sunburst"
+				},
+				{
+					"value": "clip-hexagon",
+					"label": "Hexagon"
+				},
+				{
+					"value": "clip-octagon",
+					"label": "Octagon"
+				},
+				{
+					"value": "clip-parallelogram",
+					"label": "Parallelogram"
+				},
+				{
+					"value": "radius-blob-1",
+					"label": "Blob 1"
+				},
+				{
+					"value": "radius-blob-2",
+					"label": "Blob 2"
+				},
+				{
+					"value": "radius-blob-3",
+					"label": "Blob 3"
+				},
+				{
+					"value": "radius-blob-4",
+					"label": "Blob 4"
+				},
+				{
+					"value": "mask-stamp-sharp",
+					"label": "Stamp sharp"
+				},
+				{
+					"value": "mask-stamp-rounded",
+					"label": "Stamp rounded"
+				},
+				{
+					"value": "mask-ticket-stub",
+					"label": "Ticket"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "image_scaling",
+			"min": 50,
+			"max": 200,
+			"step": 10,
+			"label": "Height",
+			"default": 100,
+			"unit": "%",
+			"info": "Relative to the surrounding text"
+		},
+		{
+			"type": "range",
+			"id": "aspect_ratio",
+			"min": 0.5,
+			"max": 3,
+			"step": 0.1,
+			"unit": ":1",
+			"label": "Aspect Ratio",
+			"default": 1
+		},
+		{
+			"type": "url",
+			"id": "href",
+			"label": "Link"
+		},
+		{
+			"type": "checkbox",
+			"id": "new_window",
+			"label": "Open link in new window",
+			"default": false
+		},
+	],
+	"presets": [
+		{
+			"name": "Image",
+			"blocks": []
+		}
+	]
+}
+{% endschema %}

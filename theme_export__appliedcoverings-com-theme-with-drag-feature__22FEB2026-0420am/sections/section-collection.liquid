@@ -1,0 +1,189 @@
+<!-- /sections/section-collection.liquid -->
+
+{%- assign collection = collections[section.settings.collection] -%}
+{%- assign product_limit = section.settings.grid | times: section.settings.rows -%}
+
+<div class="section-collection {{ section.settings.bg }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="collection-row"
+  style="--PT: {{ section.settings.padding_top }}px; --PB: {{ section.settings.padding_bottom }}px;">
+  <div class="{{ section.settings.width }} section-padding">
+    {% if section.settings.title != blank %}
+      <h2 class="kicker-flourished mb-r11">{{ section.settings.title | escape }}</h2>
+    {% endif %}
+    <div class="js-grid" data-grid-large="{{ section.settings.grid }}" data-grid-small="{{ section.settings.grid_mobile }}">
+      {%- capture placeholder -%}
+        product-{%- cycle '1', '2', '3', '4', '5', '6' -%}
+      {%- endcapture -%}
+      <!-- /snippets/product-grid-item.liquid -->
+      {% for product in collection.products limit: product_limit %}
+        {% render 'product-grid-item',
+          product: product,
+          placeholder: placeholder,
+          columns_desktop: section.settings.grid,
+          columns_tablet: section.settings.grid,
+          columns_mobile: section.settings.grid_mobile
+        %}
+      {% else %}
+        {% render 'onboarding-product-grid-item', limit: product_limit %}
+      {% endfor %}
+    </div>
+    {% if section.settings.show_view_all %}
+      <div class="text-center mt-r8">
+        <a href="{{ collection.url }}" class="btn--outline">
+          {{ 'collections.general.view_all' | t }}
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% schema %}
+{
+	"name": "Product grid",
+	"settings": [
+		{
+			"type": "text",
+			"id": "title",
+			"label": "Title",
+			"default": "Featured Products"
+		},
+		{
+			"id": "collection",
+			"type": "collection",
+			"label": "Collection"
+		},
+		{
+			"type": "range",
+			"id": "grid",
+			"min": 1,
+			"max": 4,
+			"step": 1,
+			"label": "Products per row (desktop)",
+			"default": 3
+		},
+		{
+			"type": "range",
+			"id": "rows",
+			"min": 1,
+			"max": 8,
+			"step": 1,
+			"label": "Number of rows (desktop)",
+			"default": 1
+		},
+		{
+			"type": "select",
+			"id": "grid_mobile",
+			"label": "Mobile layout",
+			"options": [
+				{
+					"value": "1",
+					"label": "One product per row"
+				},
+				{
+					"value": "2",
+					"label": "Two products per row"
+				}
+			],
+			"default": "2"
+		},
+		{
+			"type": "select",
+			"id": "bg",
+			"label": "Background color",
+			"default": "palette--light bg--neutral",
+			"options": [
+				{
+					"value": "palette--light bg--neutral",
+					"label": "Default"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "checkbox",
+			"id": "show_view_all",
+			"label": "Show 'View all' button",
+			"default": false
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper",
+			"options": [
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				},
+				{
+					"value": "wrapper--narrow",
+					"label": "Page width narrow"
+				},
+				{
+					"value": "wrapper--tiny",
+					"label": "Page width extra narrow"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 36
+		}
+	],
+	"presets": [
+		{
+			"name": "Product grid"
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"aside"
+		]
+	}
+}
+{% endschema %}

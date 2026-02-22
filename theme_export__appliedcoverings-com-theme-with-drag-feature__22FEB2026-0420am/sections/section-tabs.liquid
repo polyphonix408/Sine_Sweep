@@ -1,0 +1,304 @@
+<!-- /sections/section-tabs.liquid -->
+{%- capture blocks -%}
+  {%- for block in section.blocks -%}
+    {%- assign title = block.settings.title -%}
+    {%- assign content = block.settings.text -%}
+    {%- assign raw_content = pages[block.settings.raw_content].content -%}
+    {%- assign tab_content = content | default: raw_content -%}
+
+    {%- if title != blank and title != '' and tab_content != blank and tab_content != '' -%}
+      {%- if first_tab == blank -%}
+        {%- assign first_tab = forloop.index0 -%}
+      {%- endif -%}
+      {%- capture tab_links -%}
+        {{ tab_links }}
+
+        <button
+          class="inline-flex !border-solid border-0 border-b-[3px] py-r5 transition select-none type-body me-r8 last:me-0"
+          type="button"
+          :class="
+            isSelected({{ forloop.index0 }}) ?
+              'text-content/100 border-content/20' :
+              'text-content/50 hover:text-content/100 border-transparent'
+          "
+          x-bind="bindTab({{ forloop.index0 }})"
+          role="tab"
+          tabindex="0"
+
+          {{ block.shopify_attributes }}
+          {%- if request.design_mode -%}
+            @shopify:block:select="select({{ forloop.index0 }})"
+          {%- endif -%}
+        >
+          {{ title }}
+        </button>
+      {%- endcapture -%}
+
+      {%- capture tab_contents -%}
+        {{ tab_contents }}
+
+        <div
+          x-bind="bindTabpanel({{ forloop.index0 }})"
+          tabindex="0"
+          role="tabpanel"
+          class="block rte body-size-4 transition duration-400"
+
+          x-transition:enter="block"
+          x-transition:enter-start="opacity-0"
+          x-transition:enter-end="opacity-100"
+          x-transition:leave="hidden"
+          x-transition:leave-start="opacity-100"
+          x-transition:leave-end="opacity-0"
+
+          {% unless forloop.first %}
+            x-cloak
+          {% endunless %}
+        >
+          {{ tab_content }}
+        </div>
+      {%- endcapture -%}
+    {%- endif -%}
+  {%- endfor -%}
+
+  {%- if tab_links != '' -%}
+    <div class="relative flex items-center mb-r8" x-data="overflow({ inset: { left: 10, right: 10 }})">
+      <button
+        x-cloak
+        x-show="isOverflowing.left"
+        class="body-size-5 flex items-center justify-start absolute w-r11 h-r11 -mt-r4 left-0 transform transition duration-150 hover:opacity-80 z-20"
+        @click="$refs.overflowContainer.scrollBy({ left: -30, behavior: 'smooth' })"
+        x-hold="$refs.overflowContainer.scrollBy({ left: -25 })"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        tabindex="-1"
+        aria-label="{{ 'general.accessibility.previous' | t }}"
+      >
+        {% render 'icon-core-chevron-left' %}
+      </button>
+      <div
+        x-bind="bindTablist"
+        role="tablist"
+        class="mb-0 flex items-stretch overflow-x-auto max-w-full scrollbar-hide"
+        x-init="checkOverflow()"
+        x-ref="overflowContainer"
+
+        {% comment %}
+          Use of .throttle + .debounce here fixes Alpine's lack of a .trailing modifier to catch the last
+          scroll / resize event: https://github.com/alpinejs/alpine/discussions/2905
+        {% endcomment %}
+        @scroll.throttle.debounce="checkOverflow()"
+        @resize.window.throttle="checkOverflow()"
+        :class="{
+          'gradient-mask-l-10': isOverflowing.left && !isOverflowing.right,
+          'gradient-mask-r-10': isOverflowing.right && !isOverflowing.left,
+          'gradient-mask-x-10': isOverflowing.left && isOverflowing.right
+        }"
+      >
+        {{ tab_links }}
+      </div>
+      <button
+        x-cloak
+        x-show="isOverflowing.right"
+        class="body-size-5 flex items-center justify-end absolute w-r11 h-r11 -mt-r4 right-0 transform transition duration-150 hover:opacity-80 z-20"
+        @click="$refs.overflowContainer.scrollBy({ left: 30, behavior: 'smooth' })"
+        x-hold="$refs.overflowContainer.scrollBy({ left: 25 })"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        tabindex="-1"
+        aria-label="{{ 'general.accessibility.next' | t }}"
+      >
+        {% render 'icon-core-chevron-right' %}
+      </button>
+    </div>
+
+    <div x-ref="tabpanels">
+      {{ tab_contents }}
+    </div>
+  {%- endif -%}
+{%- endcapture -%}
+
+<section
+  class="
+    {{ section.settings.color_bg }}
+    {{ section.settings.width }}
+  "
+  style="
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+  "
+  x-data="tabs({{ first_tab }})"
+  x-bind="bindTabs"
+  data-section-id="{{ section.id }}"
+  data-section-type="tabs"
+>
+  <div class="section-padding">
+    {%- assign tab_links = '' -%}
+    {%- assign tab_contents = '' -%}
+      {{ blocks }}
+  </div>
+</section>
+
+{% schema %}
+{
+	"name": "Tabs",
+	"settings": [
+		{
+			"type": "select",
+			"id": "color_bg",
+			"label": "Background color",
+			"default": "palette--light bg--neutral",
+			"options": [
+				{
+					"value": "palette--light bg--neutral",
+					"label": "Default"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper",
+			"options": [
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				},
+				{
+					"value": "wrapper--narrow",
+					"label": "Page width narrow"
+				},
+				{
+					"value": "wrapper--tiny",
+					"label": "Page width extra narrow"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 36
+		}
+	],
+	"blocks": [
+		{
+			"name": "Text",
+			"type": "text",
+			"settings": [
+				{
+					"type": "text",
+					"id": "title",
+					"label": "Title",
+					"default": "Tab heading"
+				},
+				{
+					"type": "richtext",
+					"id": "text",
+					"label": "Text",
+					"default": "<p>This content type will accept <strong>rich text</strong> to help with adding styles and links to additional pages or content. Use this to add supplementary information to help your buyers.</p>"
+				}
+			]
+		},
+		{
+			"name": "Page",
+			"type": "page",
+			"settings": [
+				{
+					"type": "text",
+					"id": "title",
+					"label": "Title",
+					"default": "Page tab",
+					"info": "Example: Size chart"
+				},
+				{
+					"type": "page",
+					"id": "raw_content",
+					"label": "Tab content"
+				}
+			]
+		}
+	],
+	"presets": [
+		{
+			"name": "Tabs",
+			"blocks": [
+				{
+					"type": "text",
+					"settings": {
+						"title": "Returns",
+						"text": "<p>Free returns within 30 days, no questions asked.  We believe in our products and we stand behind them.  We will return any of our items within 30 days just mail them back with your purchase receipt.</p>"
+					}
+				},
+				{
+					"type": "text",
+					"settings": {
+						"title": "Security",
+						"text": "<p>We accept all major credit cards.  All of our transactions are handled on a secure server using bank-grade encryption.  Payments can be handled through trusted third parties like Shopify Pay, Apple Pay, and PayPal.</p>"
+					}
+				},
+				{
+					"type": "text",
+					"settings": {
+						"title": "Support",
+						"text": "<p>Let us know what you think of your items.  If you are not satisfied your purchase can be replaced at any time or returned after 30 days. All of our products come with a 30 day free return and one year manufacturers guarantee against defects.</p>"
+					}
+				}
+			]
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"footer",
+			"aside"
+		]
+	}
+}
+{% endschema %}

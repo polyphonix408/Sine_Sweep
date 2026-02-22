@@ -1,0 +1,433 @@
+<!-- /sections/section-announcement.liquid -->
+{%- assign bar_markup = '' -%}
+{%- assign font_size_class = section.settings.text_size | prepend: 'accent-size-' -%}
+{%- assign line_height_ratio = 1 -%} {%- comment -%} --leading-none: 1 {%- endcomment -%}
+
+{%- comment -%} Build Bar HTML {%- endcomment -%}
+{%- for block in section.blocks -%}
+  {%- assign icon_markup = '' -%}
+  {%- assign classes = 'section-padding flex items-center px-[--items-spacing]' -%}
+
+  {%- capture block_settings -%}
+    x-ref="{{ block.id }}"
+    class="{{ classes }}"
+    {{ block.shopify_attributes }}
+  {%- endcapture -%}
+
+  {%- comment -%} Build icon block {%- endcomment -%}
+  {%- if block.type == 'icon_block' -%}
+    {% capture icon_markup %}
+      {%- if block.settings.icon_alt != blank -%}
+        {%- assign image_max_width = block.settings.icon_alt_width | append: 'px' -%}
+        {%- capture image_max_height -%}
+          calc((var(--font-{{ section.settings.text_size }}) * var(--FONT-ADJUST-ACCENT)) * {{ line_height_ratio }})
+        {%- endcapture -%}
+
+        {% assign image = block.settings.icon_alt %}
+        {% assign image_width = block.settings.icon_alt_width | at_most: image.width %}
+        {% assign image_width_2x = image_width | times: 2 | at_most: image.width %}
+        {% assign alt = image.alt | default: shop.name %}
+
+        {% capture srcset %}
+          {{ image | image_url: width: image_width_2x }} 2x,
+          {{ image | image_url: width: image_width }}
+        {% endcapture %}
+
+        {% capture style %}
+          --image-max-width: {{ image_max_width }};
+          --image-max-height: {{ image_max_height }};
+        {% endcapture %}
+
+        {% comment %} Note: cant lazy load these images as the images wont load in Safari when cloned {% endcomment %}
+        {%- render 'image',
+          img_object: image,
+          wh_ratio: image.aspect_ratio,
+          width: image_width,
+          srcset: srcset,
+          alt: alt,
+          cover: false,
+          wrapper_style: style,
+          wrapper_class: 'me-[0.5em] max-w-[--image-max-width] max-h-[--image-max-height]',
+          loading: 'eager'
+        -%}
+      {%- else -%}
+        <div class="me-[0.5em] {{ font_size_class }}" style="--ICON-STROKE-COLOR: {{ block.settings.icon_color }}">
+          {% render 'icon-setting', filename: block.settings.icon_name %}
+        </div>
+      {%- endif -%}
+
+      {% if block.settings.text != blank %}
+        <div class="rte {{ font_size_class }}">{{ block.settings.text | replace: '|', '&nbsp;<span class="ml-[0.33em] pr-[0.33em] w-0 border-l border-current"></span>&nbsp;' }}</div>
+      {% endif %}
+    {% endcapture %}
+  {%- endif -%}
+
+  {%- comment -%} Build Bar HTML {%- endcomment -%}
+  {%- capture bar_html -%}
+    {%- if block.settings.message != blank or block.settings.text != blank or icon_markup != blank -%}
+      <div {{ block_settings }}{% if block.type == 'message' %} data-cart-message-container{% endif %}>
+        {%- case block.type -%}
+          {%- when 'text' -%}
+            {%- if block.settings.text != blank -%}
+              {{ block.settings.text | replace: '|', '&nbsp;<span class="ml-[0.33em] pr-[0.33em] w-0 border-l border-current"></span>&nbsp;' }}
+            {%- endif -%}
+
+          {%- when 'message' -%}
+            {%- if block.settings.message -%}
+              {% render 'cart-shipping-message', message: block.settings.message, show_wheel: false, font_size_class: font_size_class %}
+            {%- endif -%}
+
+          {%- when 'custom' -%}
+            {%- if block.settings.text != blank -%}
+              {{ block.settings.text }}
+            {%- endif -%}
+
+          {% when 'icon_block' %}
+            {%- if icon_markup -%}
+              {{ icon_markup }}
+            {%- endif -%}
+        {%- endcase -%}
+      </div>
+    {%- endif -%}
+  {%- endcapture -%}
+
+  {%- assign bar_markup = bar_markup | append: bar_html -%}
+{%- endfor -%}
+
+<div
+  class="announcement bg-[--bg] text-[--text] relative z-[5500] overflow-hidden"
+  style="
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+    --bg: {{ section.settings.bg_color }};
+    --text: {{ section.settings.color }};
+    --underline: calc(var(--font-{{ section.settings.text_size }}) * var(--FONT-ADJUST-ACCENT));"
+  data-announcement-bar
+  data-section-id="{{ section.id }}"
+  data-section-type="announcement"
+  x-data="announcement()"
+>
+  <div style="--items-spacing: {{ section.settings.text_size | times: 4 }}px">
+    <div class="flex justify-between items-center text-center w-full">
+      <div
+        class="w-full px-[--outer] text-[0] overflow-hidden"
+        data-ticker-frame
+        x-data="announcementTicker({ stopClone: true })"
+        {%- if request.design_mode -%}
+          @shopify:block:select="onBlockSelect"
+          @shopify:block:deselect="onBlockDeselect"
+        {%- endif -%}
+      >
+        <div
+          class="inline-flex items-center transition-opacity duration-500 ease-linear ticker--unloaded"
+          data-ticker-scale
+        >
+          <div
+            class="rte--lock-font rte--lock-size flex flex-row items-center w-max {{ font_size_class }}"
+            data-ticker-text
+          >
+            {{ bar_markup }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+	"name": "Scrolling promotion",
+	"settings": [
+		{
+			"type": "color",
+			"id": "bg_color",
+			"label": "Background color",
+			"default": "#f7f7f7"
+		},
+		{
+			"type": "color",
+			"id": "color",
+			"label": "Text color",
+			"default": "#545454"
+		},
+		{
+			"type": "range",
+			"id": "text_size",
+			"label": "Text size",
+			"min": 1,
+			"max": 15,
+			"step": 1,
+			"default": 7
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 18
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 18
+		}
+	],
+	"blocks": [
+		{
+			"type": "text",
+			"name": "Text announcement",
+			"settings": [
+				{
+					"type": "richtext",
+					"id": "text",
+					"label": "Text",
+					"default": "<p><strong>Make an announcement</strong> | More info</p>"
+				}
+			]
+		},
+		{
+			"type": "message",
+			"name": "Free shipping message",
+			"limit": 1,
+			"settings": [
+				{
+					"type": "textarea",
+					"id": "message",
+					"label": "Message",
+					"info": "Use ||amount|| to display progress towards free shipping.",
+					"default": "Spend ||amount|| more for free shipping"
+				},
+				{
+					"type": "paragraph",
+					"content": "Navigate to Theme settings > Cart > Free shipping message to set the amount."
+				}
+			]
+		},
+		{
+			"type": "custom",
+			"name": "Custom HTML",
+			"settings": [
+				{
+					"type": "liquid",
+					"id": "text",
+					"label": "Text",
+					"default": "<p>Custom HTML</p>"
+				}
+			]
+		},
+		{
+			"type": "icon_block",
+			"name": "Icon column",
+			"settings": [
+				{
+					"type": "richtext",
+					"id": "text",
+					"label": "Text",
+					"default": "<p><strong>Our pledge</strong> | Learn more</p>"
+				},
+				{
+					"type": "select",
+					"id": "icon_name",
+					"label": "Icon",
+					"default": "icon-leaf",
+					"options": [
+						{
+							"value": "icon-animal",
+							"label": "Animal"
+						},
+						{
+							"value": "icon-animal-paw",
+							"label": "Animal paw"
+						},
+						{
+							"value": "icon-award",
+							"label": "Award"
+						},
+						{
+							"value": "icon-basket-like",
+							"label": "Basket like"
+						},
+						{
+							"value": "icon-basket-return",
+							"label": "Basket return"
+						},
+						{
+							"value": "icon-cart-check",
+							"label": "Cart check"
+						},
+						{
+							"value": "icon-cart-message",
+							"label": "Cart message"
+						},
+						{
+							"value": "icon-chat",
+							"label": "Chat"
+						},
+						{
+							"value": "icon-dollar",
+							"label": "Dollar"
+						},
+						{
+							"value": "icon-earth",
+							"label": "Earth"
+						},
+						{
+							"value": "icon-email",
+							"label": "Email"
+						},
+						{
+							"value": "icon-gluten-free",
+							"label": "Gluten free"
+						},
+						{
+							"value": "icon-iron",
+							"label": "Iron"
+						},
+						{
+							"value": "icon-leaf",
+							"label": "Leaf"
+						},
+						{
+							"value": "icon-legal",
+							"label": "Legal"
+						},
+						{
+							"value": "icon-lock-card",
+							"label": "Lock card"
+						},
+						{
+							"value": "icon-lock-shield",
+							"label": "Lock shield"
+						},
+						{
+							"value": "icon-lock-window",
+							"label": "Lock window"
+						},
+						{
+							"value": "icon-payment",
+							"label": "Payment"
+						},
+						{
+							"value": "icon-phone",
+							"label": "Phone"
+						},
+						{
+							"value": "icon-rating",
+							"label": "Rating"
+						},
+						{
+							"value": "icon-star-rating",
+							"label": "Rating star"
+						},
+						{
+							"value": "icon-recycled",
+							"label": "Recycled"
+						},
+						{
+							"value": "icon-ruler",
+							"label": "Ruler"
+						},
+						{
+							"value": "icon-send",
+							"label": "Send"
+						},
+						{
+							"value": "icon-sewing-machine",
+							"label": "Sewing machine"
+						},
+						{
+							"value": "icon-shipment-world",
+							"label": "Shipment world"
+						},
+						{
+							"value": "icon-shipment",
+							"label": "Shipment"
+						},
+						{
+							"value": "icon-shoes",
+							"label": "Shoes"
+						},
+						{
+							"value": "icon-store",
+							"label": "Store"
+						},
+						{
+							"value": "icon-support-headphones",
+							"label": "Support headphones"
+						},
+						{
+							"value": "icon-thread",
+							"label": "Thread"
+						},
+						{
+							"value": "icon-truck",
+							"label": "Truck"
+						},
+						{
+							"value": "icon-washer",
+							"label": "Washer"
+						},
+						{
+							"value": "icon-water",
+							"label": "Water"
+						}
+					]
+				},
+				{
+					"type": "color",
+					"id": "icon_color",
+					"label": "Icon color",
+					"default": "#AAAAAA"
+				},
+				{
+					"type": "image_picker",
+					"id": "icon_alt",
+					"label": "Alternative icon/image"
+				},
+				{
+					"type": "range",
+					"id": "icon_alt_width",
+					"min": 0,
+					"max": 300,
+					"step": 3,
+					"unit": "px",
+					"label": "Alternative image width",
+					"default": 33
+				}
+			]
+		}
+	],
+	"presets": [
+		{
+			"name": "Scrolling promotion",
+			"blocks": [
+				{
+					"type": "text"
+				},
+				{
+					"type": "icon_block"
+				}
+			]
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"footer",
+			"aside"
+		]
+	}
+}
+{% endschema %}

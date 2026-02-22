@@ -1,0 +1,55 @@
+{% liquid
+  assign flow = flow | default: _settings.flow
+  assign alignment = alignment | default: _settings.alignment
+  assign gap = gap | default: _settings.gap | default: 0
+%}
+
+<div
+  class="
+    flex w-full
+    text-{{ alignment }}
+    {% case flow %}
+      {% when 'row' %}
+        flex-row  flex-wrap
+        justify-{{ alignment }}
+      {% when 'column' %}
+        flex-col
+        items-{{ alignment }}
+    {% endcase %}
+
+    {% if gap %}
+  {%- case gap -%}
+    {%- when '0' -%}
+      [--gap:0px]
+    {%- when 'xs' -%}
+      [--gap:--grid-xs]
+    {%- when 'sm' -%}
+      [--gap:--grid-sm]
+    {%- when 'md' -%}
+      [--gap:--grid-md]
+    {%- when 'lg' -%}
+      [--gap:--grid-lg]
+    {%- when 'xl' -%}
+      [--gap:--grid-xl]
+  {%- endcase %}
+  gap-[--gap]
+{% endif %}
+
+    {%- case alignment -%}
+      {%- when 'start' -%}
+        [--content-alignment-default:flex-start]
+      {%- when 'center' -%}
+        [--content-alignment-default:center]
+      {%- when 'end' -%}
+        [--content-alignment-default:flex-end]
+    {%- endcase %}
+
+    {{ class }}
+  "
+
+  style="{{ style }}"
+
+  {{ attributes }}
+>
+  {{ content }}
+</div>

@@ -1,0 +1,35 @@
+{% comment %}
+  If the color is not in the product title, add the cutline to the cart as a property
+
+  Accepts:
+  - product {Object} Product to for title match
+  - attributes {String} Additional HTML attributes, specificall the form="unique_id" for product forms
+
+  Usage:
+  {%- render 'sibling-color-as-line-prop' product: product, attributes: form_attr -%}
+{% endcomment %}
+
+{%- liquid
+  assign sibs_string = product.metafields.theme.siblings.value
+  assign sibs_add_hidden_cutline_attr = false
+  if sibs_string
+    assign sibs_collection = collections[sibs_string]
+    assign cutline_value = product.metafields.theme.cutline.value
+    if sibs_collection.products_count > 1 and cutline_value
+      assign cutline_down = product.metafields.theme.cutline.value | downcase
+      assign title_down = product.title | downcase
+      unless title_down contains cutline_down
+        assign sibs_add_hidden_cutline_attr = true
+      endunless
+    endif
+  endif
+-%}
+
+{%- if sibs_add_hidden_cutline_attr -%}
+  <input
+    type="hidden"
+    name="properties[{{ 'general.siblings.label' | t | default: 'Color'}}]"
+    value="{{ cutline_value }}"
+    {{ attributes }}
+   >
+{%- endif -%}

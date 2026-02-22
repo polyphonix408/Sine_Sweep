@@ -1,0 +1,474 @@
+<!-- /sections/collection-split.liquid -->
+{%- liquid
+  assign collection_products = collections[section.settings.collection].products
+  assign product_list = section.settings.product_list
+  assign products = product_list | default: collection_products
+  assign animation_anchor = "[data-section-id='" | append: section.id | append: "']"
+-%}
+
+{%- capture sizes -%}
+  {%- render 'image-grid-sizes',
+    columns_desktop: 2,
+    columns_tablet: 2,
+    columns_mobile: 1.0,
+    section_width: section.settings.width
+  %}
+{%- endcapture -%}
+
+{%- capture srcset -%}
+  {%- render 'image-grid-srcset',
+    image: section.settings.image,
+    columns_desktop: 2,
+    columns_tablet: 2,
+    columns_mobile: 1.0,
+    section_width: section.settings.width
+  %}
+{%- endcapture -%}
+
+<div class="collection-split {{ section.settings.bg }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="collection-row"
+  style="--PT: {{ section.settings.padding_top }}px; --PB: {{ section.settings.padding_bottom }}px;">
+  <div class="{{ section.settings.width }} section-padding">
+    <div class="collection-split__grid">
+      <div class="collection-split__item{% if section.settings.swap %} collection-split__item--last{% endif %}">
+        <div class="collection-split__block{% if section.settings.sticky_image_enable %} collection-split__block--sticky{% endif %} {{ section.settings.text_color }}">
+          {%- if section.settings.link_text == blank and section.settings.link != blank -%}
+            <a href="{{ section.settings.link }}" class="link-over-image" aria-label="{{ section.settings.heading | default: section.settings.kicker }}">
+          {%- endif -%}
+
+          <div class="hero__content__wrapper align--middle-center">
+            <div>
+              {%- if section.settings.kicker != blank -%}
+                <p class="hero__kicker"
+                  data-aos="hero"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  data-aos-order="1">{{ section.settings.kicker }}</p>
+              {%- endif -%}
+
+              {%- if section.settings.heading != blank -%}
+                <h2 class="hero__title"
+                  data-aos="hero"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  data-aos-order="2">{{ section.settings.heading }}</h2>
+              {%- endif -%}
+
+              {%- if section.settings.link_text != blank and section.settings.link != blank -%}
+                <a class="hero__btn {{ section.settings.button_style }} {{ section.settings.button_color }}"
+                  href="{{ section.settings.link }}"
+                  data-aos="hero"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  data-aos-order="3">
+                  {{ section.settings.link_text | escape }}
+                </a>
+              {%- endif -%}
+            </div>
+          </div>
+
+          {%- if section.settings.link_text == blank and section.settings.link != blank -%}
+            </a>
+          {%- endif -%}
+
+          <div class="image-overlay" style="--bg: {{ section.settings.overlay_color }}; opacity: {{ section.settings.overlay_opacity | times: 0.01 }};"></div>
+
+          {%- if section.settings.video_bg != nil -%}
+            <div class="video-autoplay-wrapper">
+              {% assign image_size = '900x' | at_most: section.settings.video_bg.preview_image.width %}
+              {%- assign video_styles = section.settings.object_position | replace: '-', ' ' | prepend: 'object-position: ' -%}
+              {{ section.settings.video_bg | video_tag: autoplay: true, loop: true, muted: true, controls: false, playsinline: true, image_size: image_size, style: video_styles, data-video-autoplay: '' }}
+            </div>
+          {%- else -%}
+            {% assign alt = section.settings.image.alt | default: 'Collection Image' %}
+            {% render 'image-parallax', img_object: section.settings.image, img_object_mobile: section.settings.mobile_image, frame_height_class: 'none' %}
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="collection-split__products">
+        <div class="float-grid grid--{{ section.settings.grid_large }}"
+          data-grid
+          data-grid-flex
+          data-grid-large
+          data-grid-medium
+          data-grid-small
+          data-custom-scrollbar-items
+          style="
+            --grid-large-items: {{ section.settings.grid_large }};
+            --grid-medium-items: {{ section.settings.grid_large | at_most: 2 }};
+            --grid-small-items: {{ section.settings.grid_small }};">
+          {%- assign wrap_class = 'collection-split__product grid__item' -%}
+          {%- if products != blank -%}
+            {%- for _product in products limit: section.settings.limit -%}
+              <div class="{{ wrap_class }}" data-item>
+                {%- capture placeholder -%}
+                  product-{%- cycle '1', '2', '3', '4', '5', '6' -%}
+                {%- endcapture -%}
+                {% render 'product-grid-item', product: _product, placeholder: placeholder %}
+              </div>
+            {%- endfor -%}
+          {%- else -%}
+            {%- render 'onboarding-product-grid-item', limit: section.settings.limit, wrap: wrap_class -%}
+          {%- endif -%}
+        </div>
+
+        <div class="custom-scrollbar small-down--show" data-custom-scrollbar>
+          <div class="custom-scrollbar__track" data-custom-scrollbar-track></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+	"name": "Products with image",
+	"settings": [
+		{
+			"type": "header",
+			"content": "Products"
+		},
+		{
+			"type": "collection",
+			"id": "collection",
+			"label": "Collection"
+		},
+		{
+			"type": "product_list",
+			"id": "product_list",
+			"label": "Product list"
+		},
+		{
+			"type": "header",
+			"content": "Image"
+		},
+		{
+			"type": "image_picker",
+			"id": "image",
+			"label": "Image"
+		},
+		{
+			"type": "image_picker",
+			"id": "mobile_image",
+			"label": "Mobile image"
+		},
+		{
+			"type": "header",
+			"content": "Layout"
+		},
+		{
+			"type": "checkbox",
+			"id": "sticky_image_enable",
+			"label": "Enable sticky title",
+			"info": "Recommended for layouts with more than two rows of products. Will not affect mobile layout.",
+			"default": true
+		},
+		{
+			"type": "checkbox",
+			"id": "swap",
+			"label": "Move title to right",
+			"info": "Will not affect mobile layout.",
+			"default": false
+		},
+		{
+			"type": "range",
+			"id": "overlay_opacity",
+			"min": 0,
+			"max": 100,
+			"step": 5,
+			"label": "Image overlay opacity",
+			"info": "Increase contrast for legible text.",
+			"default": 15
+		},
+		{
+			"type": "color",
+			"id": "overlay_color",
+			"label": "Overlay color",
+			"default": "#000000"
+		},
+		{
+			"type": "header",
+			"content": "Text"
+		},
+		{
+			"type": "text",
+			"id": "kicker",
+			"label": "Kicker",
+			"default": "Introducing"
+		},
+		{
+			"type": "text",
+			"id": "heading",
+			"label": "Title",
+			"default": "Featured products"
+		},
+		{
+			"type": "select",
+			"id": "text_color",
+			"label": "Text color",
+			"default": "text--white",
+			"options": [
+				{
+					"value": "text--neutral",
+					"label": "Normal text"
+				},
+				{
+					"value": "text--white",
+					"label": "White"
+				},
+				{
+					"value": "text--primary",
+					"label": "Primary accent"
+				},
+				{
+					"value": "text--secondary",
+					"label": "Secondary accent"
+				},
+				{
+					"value": "text--black",
+					"label": "Black"
+				},
+				{
+					"value": "text--invert--primary",
+					"label": "Primary dark accent"
+				},
+				{
+					"value": "text--invert--secondary",
+					"label": "Secondary dark accent"
+				},
+				{
+					"value": "text--invert",
+					"label": "Inverted text color"
+				},
+				{
+					"value": "text--bright--primary",
+					"label": "Primary bright accent"
+				},
+				{
+					"value": "text--bright--secondary",
+					"label": "Secondary bright accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Button"
+		},
+		{
+			"type": "text",
+			"id": "link_text",
+			"label": "Text",
+			"default": "View products",
+			"info": "Leave blank to link entire image"
+		},
+		{
+			"type": "url",
+			"id": "link",
+			"label": "Link"
+		},
+		{
+			"type": "select",
+			"id": "button_color",
+			"label": "Color",
+			"default": "btn--white",
+			"options": [
+				{
+					"value": "btn--primary",
+					"label": "Bright accent"
+				},
+				{
+					"value": "btn--secondary",
+					"label": "Secondary accent"
+				},
+				{
+					"value": "btn--neutral",
+					"label": "Text color"
+				},
+				{
+					"value": "btn--black",
+					"label": "Black"
+				},
+				{
+					"value": "btn--white",
+					"label": "White"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "button_style",
+			"label": "Button style",
+			"default": "btn",
+			"options": [
+				{
+					"value": "btn",
+					"label": "Solid button"
+				},
+				{
+					"value": "btn--soft",
+					"label": "Soft button"
+				},
+				{
+					"value": "btn--outline",
+					"label": "Outlined button"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Products per row"
+		},
+		{
+			"type": "range",
+			"id": "grid_large",
+			"min": 1,
+			"max": 3,
+			"step": 1,
+			"label": "Desktop",
+			"default": 2
+		},
+		{
+			"type": "range",
+			"id": "grid_small",
+			"min": 1,
+			"max": 3,
+			"step": 0.1,
+			"label": "Mobile",
+			"default": 1.2
+		},
+		{
+			"type": "range",
+			"id": "limit",
+			"min": 1,
+			"max": 20,
+			"step": 1,
+			"label": "Product limit",
+			"default": 10
+		},
+		{
+			"type": "select",
+			"id": "bg",
+			"label": "Background color",
+			"default": "palette--light bg--neutral",
+			"options": [
+				{
+					"value": "palette--light bg--neutral",
+					"label": "Default"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Background video (optional)"
+		},
+		{
+			"type": "video",
+			"id": "video_bg",
+			"label": "Video background"
+		},
+		{
+			"type": "select",
+			"id": "object_position",
+			"label": "Background video position",
+			"default": "center-center",
+			"options": [
+				{
+					"label": "Top",
+					"value": "center-top"
+				},
+				{
+					"label": "Right",
+					"value": "right-center"
+				},
+				{
+					"label": "Center",
+					"value": "center-center"
+				},
+				{
+					"label": "Left",
+					"value": "left-center"
+				},
+				{
+					"label": "Bottom",
+					"value": "center-bottom"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Section width",
+			"default": "wrapper--none",
+			"options": [
+				{
+					"value": "wrapper--none",
+					"label": "Full width"
+				},
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 36
+		}
+	],
+	"presets": [
+		{
+			"name": "Products with image"
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"footer",
+			"aside"
+		]
+	}
+}
+{% endschema %}

@@ -1,0 +1,472 @@
+<!-- /snippets/product-grid-item-variant.liquid -->
+
+{% comment %}
+  A grid item for products used in collection grid view
+
+  * product {object} - The current prodcut
+
+  {% render 'product-grid-item', product: product %}
+{% endcomment %}
+
+{%- liquid
+
+assign on_sale = false
+if product.compare_at_price > product.price
+  assign on_sale = true
+endif
+
+assign sold_out = true
+if product.available
+  assign sold_out = false
+endif
+
+# Siblings are a collection metafield called theme.siblings
+assign sibs_collection = nil
+assign has_siblings = false
+if settings.show_siblings and product.metafields.theme.siblings.value != blank and product.metafields.theme.siblings.type == 'single_line_text_field'
+  assign sibs_collection = collections[product.metafields.theme.siblings.value]
+  # Ensure the collection was set up to contain this product
+  for sib_product in sibs_collection.products
+    if sib_product == product
+      assign has_siblings = true
+    endif
+  endfor
+endif
+
+assign swatch_option = nil
+assign has_swatches = false
+assign swatch_limit = settings.card_swatch_limit
+
+if settings.swatches_enable and settings.swatches_collection_enable
+  # Detect new swatch system
+  for option in product.options_with_values
+    if option.values.first.swatch != null
+      assign has_swatches = true
+      assign swatch_option = option
+      break
+    endif
+  endfor
+
+  if has_swatches == false
+    # Detect old swatch system
+    assign swatch_translation = 'general.swatches.color' | t
+    assign swatch_labels = swatch_translation | append: ',' | split: ','
+    for label in swatch_labels
+      assign sanitized_label = label | lstrip | rstrip
+      if product.options_by_name[sanitized_label].values.size > 0
+        assign has_swatches = true
+        assign swatch_option = product.options_by_name[sanitized_label]
+        break
+      endif
+    endfor
+  endif
+endif
+
+# A button that will add to cart immediately: product with only one default variant or a product with color swatches and no other variants
+assign instant_add_button = nil
+
+if settings.instant_add_enable
+  if product.variants.size == 1
+    assign instant_add_button = true
+  elsif has_swatches and product.options.size == 1
+    assign instant_add_button = true
+  endif
+endif
+
+# A quick add button that will show short variants like 'size' inside the button.
+assign inline_variant_buttons = nil
+
+# Get the non color option
+# swatch_option.position -> 1 is off by one, it means product.options[0]
+# In case of siblings, the inline option buttons always use the first option
+if settings.instant_add_enable
+  if product.options.size == 1
+    assign inline_variant_buttons = product.options_with_values[0]
+  elsif has_swatches and product.options.size == 2
+    if swatch_option.position == 1
+      assign inline_variant_buttons = product.options_with_values[1]
+    else
+      assign inline_variant_buttons = product.options_with_values[0]
+    endif
+  endif
+endif
+
+
+# Capture the swatch link markup so we only have filter product.variants by color one time
+assign swatch_link_markup = ''
+
+# Pass pre-filtered color variants into content, because the logic needs to know about
+# swatch option positions and swatches need to use the where filter to get the list
+assign inline_variants = nil
+
+# Placeholder to be displayed when no product image
+assign placeholder = placeholder | default: false
+-%}
+
+<product-grid-item
+  aria-label="{{ product.title | strip_html | escape }}"
+  class="product-grid-item group/product-grid-item"
+  data-item-id="{{ product.id }}"
+  {{ attributes }}
+>
+  {% if has_siblings and sibs_collection.products.size > 0 %}
+    {%- liquid
+      # Initialize an empty array to hold visible siblings (i.e. ones under swatch limit)
+      assign visible_siblings = "" | split: ","
+
+      # Initial visible sibling count is 1 to account for the current product
+      assign visible_sibling_count = 1
+
+      # Loop through siblings collection and add the current product, plus other siblings until we hit the swatch_limit
+      for sibling in sibs_collection.products
+        if sibling.id == product.id or visible_sibling_count < swatch_limit
+          # Create a new array with the current value, then concat it into the main array
+          assign new_array = sibling | sort
+          assign visible_siblings = visible_siblings | concat: new_array
+
+          unless sibling.id == product.id
+            assign visible_sibling_count = visible_sibling_count | plus: 1
+          endunless
+        endif
+      endfor
+    -%}
+
+    {%- for sib_product in visible_siblings -%}
+      {% liquid
+        assign visible = false
+        assign first_sibling_variant = sib_product.variants[0]
+        if sib_product.id == product.id
+          assign visible = true
+        endif
+
+        if visible and preload
+          assign preload_variant = true
+        endif
+        if visible and eagerload
+          assign eagerload_variant = true
+        endif
+
+        assign inline_variant_buttons = nil
+        if settings.instant_add_enable and sib_product.options.size == 1
+          assign inline_variant_buttons = sib_product.options_with_values[0]
+        endif
+
+        if inline_variant_buttons
+          assign inline_variants = sib_product.variants
+        endif
+      -%}
+
+      {% render 'product-grid-item-variant',
+        product: sib_product,
+        variant: first_sibling_variant,
+        badge_string: badge_string,
+        visible: visible,
+        instant_add_button: instant_add_button,
+        inline_variant_buttons: inline_variant_buttons,
+        inline_variants: inline_variants,
+        section_width: section_width,
+        eagerload: eagerload_variant,
+        preload: preload_variant,
+        placeholder: placeholder,
+        columns_desktop: columns_desktop,
+        columns_tablet: columns_tablet,
+        columns_mobile: columns_mobile
+      %}
+    {% endfor %}
+  {% elsif has_swatches %}
+    {%- liquid
+      assign swatch_position_key = 'option' | append: swatch_option.position
+      assign selected_swatch_value = swatch_option.selected_value
+
+      # Initialize an empty array to hold visible siblings (i.e. ones under swatch limit)
+      assign visible_swatches = "" | split: ","
+
+      # If there is a selected swatch, start the visible swatch count at 1 to account for it
+      if selected_swatch_value != blank
+        assign visible_swatch_count = 1
+      else
+        assign visible_swatch_count = 0
+      endif
+
+      # Loop through siblings collection and add the current product, plus other swatches until we hit the swatch limit
+      for swatch_value in swatch_option.values
+        if swatch_value == selected_swatch_value or visible_swatch_count < swatch_limit
+          # Create a new array with the current value, then concat it into the main array
+          assign new_array = swatch_value | sort
+          assign visible_swatches = visible_swatches | concat: new_array
+
+          unless swatch_value == selected_swatch_value
+            assign visible_swatch_count = visible_swatch_count | plus: 1
+          endunless
+        endif
+      endfor
+    -%}
+
+    {%- for swatch_value in visible_swatches -%}
+      {% liquid
+        assign this_color_variants = product.variants | where: swatch_position_key, swatch_value
+        assign in_stock_options = this_color_variants | where: 'available'
+        assign visible = false
+
+        # By default, show the first color variant
+        assign current_variant = this_color_variants | first
+
+        # Try to find a variant that has a featured media
+        for color_variant in this_color_variants
+          if color_variant.featured_media
+            assign current_variant = color_variant
+            break
+          endif
+        endfor
+
+        if inline_variant_buttons
+          assign inline_variants = this_color_variants
+        endif
+
+        # If there is a variant selected from filters, show that variant first
+        if product.selected_variant
+          assign selected_color_variant = this_color_variants | where: 'id', product.selected_variant.id | first
+
+          if selected_color_variant
+            assign visible = true
+          endif
+        elsif forloop.first
+          assign visible = true
+        endif
+
+        if visible and preload
+          assign preload_variant = true
+        endif
+        if visible and eagerload
+          assign eagerload_variant = true
+        endif
+      -%}
+
+      {% render 'product-grid-item-variant',
+        product: product,
+        variant: current_variant,
+        badge_string: badge_string,
+        visible: visible,
+        instant_add_button: instant_add_button,
+        inline_variant_buttons: inline_variant_buttons,
+        inline_variants: inline_variants,
+        section_width: section_width,
+        swatch_option: swatch_option,
+        eagerload: eagerload_variant,
+        preload: preload_variant,
+        placeholder: placeholder,
+        columns_desktop: columns_desktop,
+        columns_tablet: columns_tablet,
+        columns_mobile: columns_mobile
+      %}
+
+      {% capture swatch_link_markup %}
+        {{ swatch_link_markup }}
+        <radio-swatch title="{{ swatch_value.name }}" class="swatch__button{% if in_stock_options.size == 0 %} sold-out{% endif %}{% if settings.swatches_squares %} swatch__button--square{% endif %}">
+          <a
+            href="{{ current_variant.url }}"
+            class="swatch__label"
+            {% if swatch_value.swatch != null %}
+              data-swatch
+              style="--swatch: {{ swatch_value.swatch.color }}"
+            {% else %}
+              data-swatch="{{ swatch_value | escape_once }}"
+            {% endif %}
+
+            data-grid-item-variant="{{ current_variant.id }}"
+            data-swatch-index="{{ forloop.index0 }}"
+
+            {% if visible %}aria-current="true"{%- endif -%}
+            {% if current_variant.featured_media %}
+              data-swatch-image="{{ current_variant.featured_media.preview_image.src }}"
+            {% endif %}
+
+            {% if current_variant.featured_media %}
+              data-swatch-image-id="{{ current_variant.featured_media.id }}"
+            {% endif %}
+          >
+            {% if swatch_value.swatch.image %}
+              {% render 'image', img_object: swatch_value.swatch.image, width: 34, wh_ratio: 1 %}
+            {% endif %}
+            <span class="visually-hidden">{{ swatch_value }}</span>
+          </a>
+        </radio-swatch>
+      {% endcapture %}
+    {% endfor %}
+  {% else %}
+    {%- if inline_variant_buttons -%}
+      {%- assign inline_variants = product.variants -%}
+    {%- endif -%}
+
+    {%- liquid
+      assign selected_variant = product.selected_variant | default: product.variants[0]
+
+      if preload
+        assign preload_variant = true
+      endif
+      if eagerload
+        assign eagerload_variant = true
+      endif
+    -%}
+
+    {% render 'product-grid-item-variant',
+      product: product,
+      variant: selected_variant,
+      badge_string: badge_string,
+      visible: true,
+      instant_add_button: instant_add_button,
+      inline_variant_buttons: inline_variant_buttons,
+      inline_variants: inline_variants,
+      section_width: section_width,
+      preload: preload_variant,
+      eagerload: eagerload_variant,
+      placeholder: placeholder,
+      columns_desktop: columns_desktop,
+      columns_tablet: columns_tablet,
+      columns_mobile: columns_mobile
+    %}
+  {% endif %}
+
+  <div class="product__grid__info {{ text_align | default: settings.collection_text_alignment | default: 'text-center' }}">
+    <a
+      href="{{ product.url }}" data-grid-link aria-label="{{ product.title | strip_html | escape }}"
+      {% comment %} The link wrapping the product variant image is already focusable, so this does not need to be {% endcomment %}
+      tabindex="-1"
+    >
+      <p class="visually-hidden">{{ product.title | strip_html | escape }}</p>
+
+      <div class="product__grid__title__wrapper">
+        <p id="product-{{ product.id }}-title" class="product__grid__title">
+          {{ product.title | strip_html | escape }}
+        </p>
+        {%- if settings.product_grid_show_rating and product.metafields.reviews.rating.value != blank -%}
+          <div class="rating__wrapper__grid">
+            {% render 'product-rating', product: product, show_rating_count: settings.product_grid_show_rating_count %}
+          </div>
+        {%- endif -%}
+      </div>
+
+      <div class="product__grid__price {% if settings.show_cutline %} product__grid__price--nowrap{% endif %}">
+        {%- if settings.show_cutline -%}
+          <span class="product__grid__cutline">{{ product.metafields.theme.cutline.value }}</span>
+        {%- endif -%}
+        <span class="price{% if on_sale %} on-sale{% endif %}">
+          {% if product.price_varies %}{{ 'products.general.from' | t }} {% endif %}
+          {%- if settings.currency_code_enable -%}
+            {{ product.price | money_with_currency }}
+          {%- else -%}
+            {{ product.price | money }}
+          {%- endif -%}
+        </span>
+        {% if on_sale %}
+          <span class="compare-at">
+            {%- if settings.currency_code_enable -%}
+              {{ product.compare_at_price | money_with_currency }}
+            {%- else -%}
+              {{ product.compare_at_price | money }}
+            {%- endif -%}
+          </span>
+        {% endif %}
+      </div>
+      {% if product.selected_or_first_available_variant.unit_price %}
+        {% capture unit_price_separator %}
+          <span aria-hidden="true">/</span><span class="visually-hidden">{{ 'general.accessibility.unit_price_separator' | t }}&nbsp;</span>
+        {% endcapture %}
+        {% capture unit_price_base_unit %}
+          {% if product.selected_or_first_available_variant.unit_price_measurement.reference_value != 1 %}
+            {{ product.selected_or_first_available_variant.unit_price_measurement.reference_value }}
+          {% endif %}
+          {{ product.selected_or_first_available_variant.unit_price_measurement.reference_unit }}
+        {% endcapture %}
+        <p class="product__grid__price__unit">
+          <span class="visually-hidden">{{ 'products.product.unit_price_label' | t }}</span>
+          <span class="price-per-unit">
+            {%- if settings.currency_code_enable -%}
+              {{ product.selected_or_first_available_variant.unit_price | money_with_currency }}
+            {%- else -%}
+              {{ product.selected_or_first_available_variant.unit_price | money }}
+            {%- endif -%}
+            {{ unit_price_separator }}{{ unit_price_base_unit }}
+          </span>
+        </p>
+      {% endif %}
+      {% if sold_out %}
+        <p class="product__grid__price__sold">
+          <em>{{ 'products.product.sold_out' | t }}</em>
+        </p>
+      {% endif %}
+    </a>
+
+    {%- if has_siblings -%}
+      {%- assign sibs_collection = collections[product.metafields.theme.siblings.value] -%}
+      {% if sibs_collection != blank %}
+        {%- assign excess_swatches = sibs_collection.products_count | minus: swatch_limit -%}
+        <div class="product__grid__sibs">
+          <div class="grid__swatch__container">
+            <p class="grid__swatch__placeholder">{{ 'collections.general.swatches_with_count' | t: count: sibs_collection.products_count }}</p>
+            <div class="grid__swatch__hover">
+              <div class="sibs__slider">
+                <div class="sibs__inner">
+                  {%- for sib_product in visible_siblings -%}
+                    {%- assign title_safe = sib_product.title | strip_html | escape -%}
+                    {%- assign color_name = sib_product.metafields.theme.cutline.value | default: title_safe -%}
+                    <div class="siblings__link__holder {% if sib_product.available == false %} sold-out{% endif %}">
+                      <a
+                        href="{{ sib_product.url }}"
+                        class="siblings__link"
+                        data-sibling-swatch-link
+                        data-grid-item-variant="{{ sib_product.variants[0].id }}"
+                        data-grid-item-swatch-image="0"
+                        title="{{ color_name }}"
+                        {% if sib_product.handle == product.handle %}aria-current="true"{%- endif -%}
+                      >
+                        <div class="siblings__swatch">
+                          <div class="sibling__image{% if settings.swatches_squares %} sibling__image--square{% endif %}">
+                            {% assign image = sib_product.featured_media.preview_image %}
+                            {% assign image_width = 26 %}
+                            {% assign image_width_2x = image_width | times: 2 | at_most: image.width %}
+                            {% assign alt = image.alt | default: color_name %}
+
+                            {% capture srcset %}
+                              {{ image | image_url: width: image_width_2x }} 2x,
+                              {{ image | image_url: width: image_width }}
+                            {% endcapture %}
+
+                            {%- render 'image',
+                              img_object: image,
+                              wh_ratio: 1.0,
+                              srcset: srcset,
+                              fetchpriority: 'low',
+                              width: image_width,
+                              placeholder: placeholder,
+                              alt: alt
+                            -%}
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+                  {%- endfor -%}
+                  {% if excess_swatches > 0 %} <a class="siblings__more-link" href="{{product.url}}">+{{ excess_swatches }}</a>{% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {%- elsif has_swatches and swatch_link_markup != '' -%}
+      {%- assign excess_swatches = swatch_option.values.size | minus: swatch_limit -%}
+
+      <div class="grid__swatch__container">
+        <p class="grid__swatch__placeholder">
+          {{ 'collections.general.swatches_with_count' | t: count: swatch_option.values.size }}
+        </p>
+        <div class="grid__swatch__hover" aria-label="Options">
+          {{ swatch_link_markup }} {% if excess_swatches > 0 %}
+            <a class="grid__swatch__more-link" href="{{product.url}}">+{{ excess_swatches }}</a>
+          {% endif %}
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+</product-grid-item>
+

@@ -1,0 +1,32 @@
+<!-- /snippets/products-recently-viewed.liquid -->
+{% comment %}
+    Renders list of recently viewed products in grid layout
+{% endcomment %}
+
+{%- assign limit = limit | default: 4 -%}
+
+<div class="recent__wrapper" id="RecentlyViewed-{{ section.id }}" data-recent-wrapper data-limit="{{ limit | at_least: product_recently_minimum }}" data-minimum="{{ product_recently_minimum }}">
+    <flickity-carousel>
+    <div
+      class="recent__content product-grid flickity-grid flickity-disabled-mobile"
+      id="recently-viewed-products-{{ section.id }}"
+      data-carousel
+      data-grid
+      data-grid-large
+      data-grid-medium
+      data-grid-small
+      data-custom-scrollbar-items
+      style="
+        display: none;
+        --grid-large-items: {{ desktop_number_slides }};
+        --grid-medium-items: {{ tablet_number_slides }};
+        --grid-small-items: {{ mobile_number_slides }};"
+      data-recently-viewed-products
+      data-options='{"watchCSS": true}'>
+    </div>
+
+    <div class="custom-scrollbar small-down--show" data-custom-scrollbar>
+      <div class="custom-scrollbar__track" data-custom-scrollbar-track></div>
+    </div>
+  </flickity-carousel>
+</div>

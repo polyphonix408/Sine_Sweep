@@ -1,0 +1,87 @@
+<div {{ block.shopify_attributes }}>
+  {%- render 'countdown-timer',
+    end_date: block.settings.end_date,
+    end_time: block.settings.end_time,
+    period: block.settings.period,
+    digit_size: block.settings.digit_size,
+    digit_size_mobile: block.settings.digit_size_mobile,
+    end_message: block.settings.end_message,
+    hide_on_complete: block.settings.hide_on_complete
+  -%}
+</div>
+
+{% schema %}
+{
+	"name": "Countdown",
+	"tag": null,
+	"settings": [
+		{
+			"type": "text",
+			"id": "end_date",
+			"label": "End date",
+			"placeholder": "2025-12-31 23:59",
+			"default": "2025-12-31",
+			"info": "Use format \"YYYY-MM-DD\". Expiration date is based on the [store primary timezone](/admin/settings/general)."
+		},
+		{
+			"type": "text",
+			"id": "end_time",
+			"label": "End time",
+			"default": "11:59",
+			"placeholder": "11:59",
+			"info": "Use 12-hour time convention in format \"HH:MM\""
+		},
+		{
+			"type": "radio",
+			"id": "period",
+			"label": "AM/PM",
+			"default": "am",
+			"options": [
+				{
+					"value": "am",
+					"label": "AM"
+				},
+				{
+					"value": "pm",
+					"label": "PM"
+				}
+			]
+		},
+		{
+			"type": "inline_richtext",
+			"id": "end_message",
+			"label": "End of timer message",
+			"default": "Offer has expired"
+		},
+		{
+			"type": "checkbox",
+			"id": "hide_on_complete",
+			"label": "Hide section after end of timer",
+			"default": false
+		},
+		{
+			"type": "range",
+			"id": "digit_size",
+			"label": "Text size",
+			"min": 1,
+			"max": 15,
+			"step": 1,
+			"default": 8
+		},
+		{
+			"type": "range",
+			"id": "digit_size_mobile",
+			"label": "Mobile text size",
+			"min": 1,
+			"max": 10,
+			"step": 1,
+			"default": 6
+		}
+	],
+	"presets": [
+		{
+			"name": "Countdown"
+		}
+	]
+}
+{% endschema %}

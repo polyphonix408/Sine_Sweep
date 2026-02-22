@@ -1,0 +1,109 @@
+{% capture text_size %}
+  {%- case block.settings.size -%}
+    {%- when 'sm' -%}
+      text-r1
+    {%- when 'md' -%}
+      text-r2
+    {%- when 'lg' -%}
+      text-r3
+  {%- endcase -%}
+{% endcapture %}
+
+<div {{ block.shopify_attributes }}>
+  <span
+    class="
+      inline-rte {{ text_size }} type-{{ block.settings.font_family }} font-bold
+      border border-[--badge-border] rounded-full px-[10px] pt-[2px] pb-[1px] bg-[--badge-bg]
+      inline-block text-[--badge-text]
+    "
+    style="
+      {%- if block.settings.enable_custom_color -%}
+        --badge-text: {{ block.settings.custom_color }};
+        --badge-border: {{ block.settings.custom_color | color_modify: 'alpha', 0.35 }};
+        --badge-bg: {{ block.settings.custom_color | color_modify: 'alpha', 0.10 }};
+      {% else %}
+        --badge-text: var(--text);
+        --badge-border: var(--border);
+        --badge-bg: var(--hairline-hover);
+      {%- endif -%}
+    "
+
+  >
+    {{ block.settings.text }}
+  </span>
+</div>
+
+{% schema %}
+{
+	"name": "Badge",
+	"tag": null,
+	"settings": [
+		{
+			"type": "inline_richtext",
+			"id": "text",
+			"label": "Text",
+			"default": "New"
+		},
+		{
+			"type": "select",
+			"id": "font_family",
+			"label": "Font",
+			"default": "accent",
+			"options": [
+				{
+					"value": "heading",
+					"label": "Title"
+				},
+				{
+					"value": "body",
+					"label": "Body"
+				},
+				{
+					"value": "accent",
+					"label": "Accent"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "size",
+			"label": "Size",
+			"default": "md",
+			"options": [
+				{
+					"value": "sm",
+					"label": "S"
+				},
+				{
+					"value": "md",
+					"label": "M"
+				},
+				{
+					"value": "lg",
+					"label": "L"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Custom color"
+		},
+		{
+			"type": "checkbox",
+			"id": "enable_custom_color",
+			"label": "Enable"
+		},
+		{
+			"type": "color",
+			"id": "custom_color",
+			"label": "Custom color",
+			"default": "#f4a482"
+		},
+	],
+	"presets": [
+		{
+			"name": "Badge"
+		}
+	]
+}
+{% endschema %}

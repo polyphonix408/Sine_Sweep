@@ -1,0 +1,105 @@
+{% liquid
+  assign color_group = color_group | default: _settings.color_group
+  assign color_text = color_text | default: _settings.color_text
+  assign color_background = color_background | default: _settings.color_background
+  assign border_color = border_color | default: _settings.border_color | default: 'transparent'
+  assign border_width = border_width | default: _settings.border_width | default: 0
+  assign inset = inset | default: _settings.inset | default: 0
+  assign background = background | default: _settings.background
+  assign padding = padding | default: _settings.padding
+  assign width_limit = width_limit | default: _settings.width_limit
+%}
+
+<div
+  style="
+  {%- if width_limit < 2000 -%}
+    max-width: {{ width_limit }}px;
+  {%- endif -%}
+  "
+  class="
+    {{ color_group }}
+
+    {% if color_background %}
+      {%- case color_background -%}
+        {%- when 'accent' -%}
+          ![--bg:var(--bg-accent)]
+        {%- when 'transparent' -%}
+          ![--bg:transparent]
+        {%- when 'blur' -%}
+          ![--bg:transparent] backdrop-blur-md
+      {%- endcase %}
+    {% endif %}
+
+    {% if color_text %}
+      {%- case color_text -%}
+        {%- when 'white' -%}
+          ![--text:#fff]
+          ![--text-light:#fff]
+          ![--text-dark:#fff]
+        {%- when 'black' -%}
+          ![--text-dark:#000]
+          ![--text:#000]
+          ![--text-light:#000]
+        {%- when 'primary' -%}
+          ![--text-dark:var(--primary)]
+          ![--text:var(--primary)]
+          ![--text-light:var(--primary)]
+        {%- when 'secondary' -%}
+          ![--text-dark:var(--secondary)]
+          ![--text:var(--secondary)]
+          ![--text-light:var(--secondary)]
+      {%- endcase %}
+    {% endif %}
+
+    {% if inset %}
+      {%- case inset -%}
+        {%- when '0' -%}
+          [--inset:0px]
+        {%- when 'xs' -%}
+          [--inset:--grid-xs]
+        {%- when 'sm' -%}
+          [--inset:--grid-sm]
+        {%- when 'md' -%}
+          [--inset:--grid-md]
+        {%- when 'lg' -%}
+          [--inset:--grid-lg]
+        {%- when 'xl' -%}
+          [--inset:--grid-xl]
+      {%- endcase %}
+      p-[--inset]
+    {% endif %}
+  "
+>
+  <div
+    class="
+      border flex w-full flex-col gap-[--gap]
+      {% if padding %}
+        {%- case padding -%}
+          {%- when '0' -%}
+            [--padding:0px]
+          {%- when 'xs' -%}
+            [--padding:--grid-xs]
+          {%- when 'sm' -%}
+            [--padding:--grid-sm]
+          {%- when 'md' -%}
+            [--padding:--grid-md]
+          {%- when 'lg' -%}
+            [--padding:--grid-lg]
+          {%- when 'xl' -%}
+            [--padding:--grid-xl]
+        {%- endcase %}
+        p-[--padding]
+      {% endif %}
+      {{ class }}
+    "
+    style="
+      border-width: {{ border_width }}px;
+      border-color: {{ border_color }};
+      align-items: var(--content-alignment-default);
+      {{ style }}
+    "
+    {{ attributes }}
+  >
+    {{ content }}
+  </div>
+</div>

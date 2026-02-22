@@ -1,0 +1,280 @@
+<!-- /snippets/collection-filters-sidebar.liquid -->
+{% comment %}
+  The collection sidebar containing tag filering and link-based navigation
+
+  * collection {object} - The current collection
+  * section {object} - The current section
+
+  {% render 'collection-filters-sidebar', section: section, collection: collection %}
+{% endcomment %}
+
+{%- liquid
+  assign excluded_collections_strict = settings.exclude_collections_strict | split: ','
+  assign excluded_collections = settings.exclude_collections_contain | split: ','
+-%}
+
+{%- for block in section.blocks -%}
+
+  {%- liquid
+    assign accordion_initial_state = 'accordion-is-open'
+    assign accordion_open_boolean = true
+    if section.settings.collapse_filters
+      # no class means the accordion is closed
+      assign accordion_initial_state = ''
+      # accordion_open_boolean is used to set aria-expanded and
+      # match js logic for 'display: none' on accordion body elements
+      # which are non-adjacent siblings that cannot easily be styled with CSS
+      assign accordion_open_boolean = false
+    endif
+  -%}
+
+  {%- case block.type -%}
+
+  {%- when 'filters' -%}
+    <form data-sidebar-filter-form>
+      {% if collection.current_type %}
+      	<input type="hidden" name="q" value="{{ collection.current_type }}">
+      {% endif %}
+      {% if collection.current_vendor %}
+      	<input type="hidden" name="q" value="{{ collection.current_vendor }}">
+      {% endif %}
+
+      {%- for filter in collection.filters -%}
+        {% render 'filters',
+          section: section,
+          block: block,
+          filter: filter,
+          forloop: forloop,
+          accordion_open_boolean: accordion_open_boolean,
+          accordion_initial_state: accordion_initial_state
+        %}
+      {%- endfor -%}
+
+      <input type="submit" value="{{ 'collections.sidebar.filter' | t }}" class="btn btn--full no-js">
+    </form>
+
+  {%- when 'nav_links' -%}
+    {% unless block.settings.collection_linklist == blank or block.settings.collection_linklist.empty? %}
+      {% assign custom_nav_list = block.settings.collection_linklist | handleize %}
+
+      {%- capture links_html -%}
+        {% for link in linklists[custom_nav_list].links %}
+          {% if link.links == blank %}
+            <div class="sidebar__item{% if link.active %} sidebar__item--active{% endif %} stateful-filter-icons{% if forloop.index > 10 %} is-hidden{% endif %}">
+              <a href="{{ link.url }}">{{ link.title }}</a>
+              {% render 'icon-stateful-box' %}
+            </div>
+
+            {%- if link.active -%}
+              {%- assign accordion_initial_state = 'accordion-is-open' -%}
+              {%- assign accordion_open_boolean = true -%}
+            {%- endif -%}
+          {% endif %}
+        {% endfor %}
+      {%- endcapture -%}
+
+      <div class="sidebar__filter__group" {{ block.shopify_attributes }}>
+        <button class="sidebar__heading js {{ accordion_initial_state }}"
+          data-accordion-trigger="accordion-{{ block.id }}"
+          aria-controls="accordion-{{ block.id }}"
+          aria-haspopup="true"
+          aria-expanded="{{ accordion_open_boolean }}">
+
+          <span>{{ linklists[custom_nav_list].title }}</span>
+
+          <span class="sidebar__heading-chevron">
+            {% render 'icon-core-chevron-right' %}
+            <span class="a11y__show visually-hidden">{{ 'general.accessibility.expand_menu' | t }}</span>
+            <span class="a11y__hide visually-hidden">{{ 'general.accessibility.hide_menu' | t }}</span>
+          </span>
+        </button>
+
+        <input type="checkbox"
+          name="accordion-{{ block.id }}"
+          id="accordion-{{ block.id }}-checkbox"
+          class="no-js no-js-checkbox" checked>
+
+        <label for="accordion-{{ block.id }}-checkbox" class="sidebar__heading no-js">
+          <span>{{ linklists[custom_nav_list].title }}</span>
+
+          <span class="sidebar__heading-chevron">
+            {% render 'icon-core-chevron-right' %}
+            <span class="a11y__show visually-hidden">{{ 'general.accessibility.expand_menu' | t }}</span>
+            <span class="a11y__hide visually-hidden">{{ 'general.accessibility.hide_menu' | t }}</span>
+          </span>
+        </label>
+
+        <div data-accordion-body
+          class="sidebar__navigation__list no-js-accordion"
+          id="accordion-{{ block.id }}"
+          {% if accordion_open_boolean == false %} style="display: none;" {% endif %}>
+          {{ links_html }}
+        </div>
+
+        {% if linklists[custom_nav_list].links.size > 10 %}
+          <button type="button" data-show-more>{{ 'collections.sidebar.show_more' | t }}</button>
+        {% endif %}
+      </div>
+
+      {% for link in linklists[custom_nav_list].links %}
+        {%- liquid
+          # Reset logic for inner loop
+          assign accordion_initial_state = 'accordion-is-open'
+          assign accordion_open_boolean = true
+          if section.settings.collapse_filters
+            assign accordion_initial_state = ''
+            assign accordion_open_boolean = false
+          endif
+        -%}
+        {%- assign accordion_unique = link.title | handle | append: '-' | append: block.id | append: '-' | append: forloop.index -%}
+
+        {% if link.links != blank %}
+          {%- capture links_html -%}
+            {% for childlink in link.links %}
+              <div class="sidebar__item{% if childlink.active %} sidebar__item--active{% endif %} stateful-filter-icons{% if forloop.index > 10 %} is-hidden{% endif %}">
+                <a href="{{ childlink.url }}">{{ childlink.title | escape }}</a>
+                {% render 'icon-stateful-box' %}
+              </div>
+
+              {%- if childlink.active -%}
+                {%- assign accordion_initial_state = 'accordion-is-open' -%}
+                {%- assign accordion_open_boolean = true -%}
+              {%- endif -%}
+            {% endfor %}
+          {%- endcapture -%}
+
+          <div class="sidebar__filter__group">
+            <button class="sidebar__heading js {{ accordion_initial_state }}"
+              data-accordion-trigger="accordion-{{ accordion_unique }}"
+              aria-controls="accordion-{{ accordion_unique }}"
+              aria-haspopup="true"
+              aria-expanded="{{ accordion_open_boolean }}"
+              >
+              <span>{{ link.title }}</span>
+
+              <span class="sidebar__heading-chevron">
+                {% render 'icon-core-chevron-right' %}
+                <span class="a11y__show visually-hidden">{{ 'general.accessibility.expand_menu' | t }}</span>
+                <span class="a11y__hide visually-hidden">{{ 'general.accessibility.hide_menu' | t }}</span>
+              </span>
+            </button>
+
+            {% if linklists[custom_nav_list].levels == 1 %}
+              <input type="checkbox"
+                class="no-js-checkbox"
+                name="accordion-{{ accordion_unique }}"
+                id="accordion-{{ accordion_unique }}-checkbox"
+                class="no-js no-js-checkbox" checked>
+
+              <label for="accordion-{{ accordion_unique }}-checkbox">
+                <span>{{ link.title }}</span>
+
+                <span class="sidebar__heading-chevron">
+                  {% render 'icon-core-chevron-right' %}
+                  <span class="a11y__show visually-hidden">{{ 'general.accessibility.expand_menu' | t }}</span>
+                  <span class="a11y__hide visually-hidden">{{ 'general.accessibility.hide_menu' | t }}</span>
+                </span>
+              </label>
+            {% endif %}
+
+            <div data-accordion-body
+              class="sidebar__navigation__list no-js-accordion"
+              id="accordion-{{ accordion_unique }}"
+              {% if accordion_open_boolean == false %} style="display: none;" {% endif %}>
+              {{ links_html }}
+            </div>
+
+            {% if link.links.size > 10 %}
+              <button type="button" data-show-more>{{ 'collections.sidebar.show_more' | t }}</button>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% endunless %}
+
+  {%- when 'collections' -%}
+    {% if collections.size > 1 %}
+      {%- capture links_html -%}
+        {% for collection_link in collections %}
+          {%- assign skip_collection = false -%}
+
+          {%- for exclude in excluded_collections_strict -%}
+            {%- assign exclude_handle = exclude | handle -%}
+
+            {%- if exclude_handle == collection_link.handle -%}
+              {%- assign skip_collection = true -%}
+            {%- endif -%}
+          {%- endfor -%}
+
+          {%- for exclude in excluded_collections -%}
+            {%- assign exclude_handle = exclude | handle -%}
+
+            {%- if collection_link.handle contains exclude_handle -%}
+              {%- assign skip_collection = true -%}
+            {%- endif -%}
+          {%- endfor -%}
+
+          {% unless skip_collection %}
+            <div class="sidebar__item{% if collection.handle == collection_link.handle %} sidebar__item--active{% endif %} stateful-filter-icons{% if forloop.index > 10 %} is-hidden{% endif %}">
+              <a href="{{ routes.collections_url }}/{{ collection_link.handle }}">{{ collection_link.title }}</a>
+              {% render 'icon-stateful-box' %}
+            </div>
+          {% endunless %}
+
+          {%- if collection.handle == collection_link.handle -%}
+            {%- assign accordion_initial_state = 'accordion-is-open' -%}
+            {%- assign accordion_open_boolean = true -%}
+          {%- endif -%}
+        {% endfor %}
+      {%- endcapture -%}
+
+      <div class="sidebar__filter__group" {{ block.shopify_attributes }}>
+        <button class="sidebar__heading js {{ accordion_initial_state }}"
+          data-accordion-trigger="accordion-{{ block.id }}"
+          aria-controls="accordion-{{ block.id }}"
+          aria-haspopup="true"
+          aria-expanded="{{ accordion_open_boolean }}">
+
+          <span>{{ block.settings.title }}</span>
+
+          <span class="sidebar__heading-chevron">
+            {% render 'icon-core-chevron-right' %}
+            <span class="a11y__show visually-hidden">{{ 'general.accessibility.expand_menu' | t }}</span>
+            <span class="a11y__hide visually-hidden">{{ 'general.accessibility.hide_menu' | t }}</span>
+          </span>
+        </button>
+
+        <input type="checkbox"
+          name="accordion-{{ block.id }}"
+          id="accordion-{{ block.id }}-checkbox"
+          class="no-js no-js-checkbox" checked>
+
+        <label for="accordion-{{ block.id }}-checkbox" class="sidebar__heading no-js">
+          <span>{{ block.settings.title }}</span>
+
+          <span class="sidebar__heading-chevron">
+            {% render 'icon-core-chevron-right' %}
+            <span class="a11y__show visually-hidden">{{ 'general.accessibility.expand_menu' | t }}</span>
+            <span class="a11y__hide visually-hidden">{{ 'general.accessibility.hide_menu' | t }}</span>
+          </span>
+        </label>
+
+        <div data-accordion-body
+          class="sidebar__navigation__list no-js-accordion"
+          id="accordion-{{ block.id }}"
+          {% if accordion_open_boolean == false %} style="display: none;" {% endif %}>
+          {{ links_html }}
+        </div>
+
+        {% if collections.size > 10 %}
+          <button type="button" data-show-more>{{ 'collections.sidebar.show_more' | t }}</button>
+        {% endif %}
+      </div>
+    {% endif %}
+  {%- endcase -%}
+{%- endfor -%}
+
+
+
+
+

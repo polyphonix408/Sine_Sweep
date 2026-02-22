@@ -1,0 +1,248 @@
+<!-- /sections/section-gallery-text.liquid-->
+
+<div class="frame {{ section.settings.bg }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="gallery"
+  style="--PT: {{ section.settings.padding_top }}px; --PB: {{ section.settings.padding_bottom }}px;">
+  <div class="{{ section.settings.width }} section-padding slides-mobile-outer">
+    <div
+      data-grid
+      data-grid-large
+      data-grid-medium
+      data-grid-small
+      data-custom-scrollbar-items
+      style="
+        --grid-large-items: {{ section.settings.grid_large }};
+        --grid-medium-items: {{ section.settings.grid_medium }};
+        --grid-small-items: {{ section.settings.grid_mobile }};"
+      class="gallery slides-mobile-inner">
+      {% for block in section.blocks %}
+        <div class="gallery__item" data-item {{ block.shopify_attributes }}>
+          <div class="gallery__text border--line {{ block.settings.text_align }} {{ block.settings.border_position }}">
+            {% if block.settings.title != '' %}
+              {% assign title_size_class = block.settings.title_size | prepend: 'accent-size-' %}
+              <h2 class="custom__title {{ title_size_class }}">
+                {{ block.settings.title }}
+              </h2>
+            {% endif %}
+            {% if block.settings.text != blank %}
+              {% assign body_size_class = block.settings.body_size | prepend: 'body-size-' %}
+              <div class="custom__text rte {{ body_size_class }}">
+                {{ block.settings.text }}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if section.blocks.size > 0 %}
+      <div class="custom-scrollbar small-down--show" data-custom-scrollbar>
+        <div class="custom-scrollbar__track" data-custom-scrollbar-track></div>
+      </div>
+    {% endif %}
+
+    {% if section.blocks.size == 0 %}
+      <div class="text-center">{{ 'home_page.onboarding.no_content' | t }}</div>
+    {% endif %}
+  </div>
+</div>
+
+
+{% schema %}
+{
+	"name": "Gallery text",
+	"settings": [
+		{
+			"type": "select",
+			"id": "bg",
+			"label": "Background color",
+			"default": "palette--light bg--neutral",
+			"options": [
+				{
+					"value": "palette--light bg--neutral",
+					"label": "Default"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Items per row"
+		},
+		{
+			"type": "range",
+			"id": "grid_large",
+			"min": 1,
+			"max": 6,
+			"step": 1,
+			"label": "Desktop",
+			"default": 1
+		},
+		{
+			"type": "range",
+			"id": "grid_medium",
+			"min": 1,
+			"max": 4,
+			"step": 1,
+			"label": "Tablet",
+			"default": 1
+		},
+		{
+			"type": "range",
+			"id": "grid_mobile",
+			"min": 1,
+			"max": 3,
+			"step": 0.1,
+			"label": "Mobile",
+			"default": 1
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper",
+			"options": [
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				},
+				{
+					"value": "wrapper--narrow",
+					"label": "Page width narrow"
+				},
+				{
+					"value": "wrapper--tiny",
+					"label": "Page width extra narrow"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 36
+		}
+	],
+	"blocks": [
+		{
+			"type": "text",
+			"name": "Text block",
+			"settings": [
+				{
+					"type": "text",
+					"id": "title",
+					"label": "Title",
+					"default": "Custom Text"
+				},
+				{
+					"type": "range",
+					"id": "title_size",
+					"label": "Heading size",
+					"min": 1,
+					"max": 12,
+					"step": 1,
+					"default": 3
+				},
+				{
+					"id": "text",
+					"type": "richtext",
+					"label": "Text",
+					"default": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p>"
+				},
+				{
+					"type": "range",
+					"id": "body_size",
+					"label": "Text size",
+					"min": 1,
+					"max": 12,
+					"step": 1,
+					"default": 4
+				},
+				{
+					"type": "header",
+					"content": "Layout"
+				},
+				{
+					"type": "select",
+					"id": "text_align",
+					"label": "Alignment",
+					"default": "text-left",
+					"options": [
+						{
+							"value": "text-left",
+							"label": "Left"
+						},
+						{
+							"value": "text-center",
+							"label": "Center"
+						},
+						{
+							"value": "text-right",
+							"label": "Right"
+						}
+					]
+				}
+			]
+		}
+	],
+	"presets": [
+		{
+			"name": "Gallery text",
+			"blocks": [
+				{
+					"type": "text"
+				}
+			]
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"footer",
+			"aside"
+		]
+	}
+}
+{% endschema %}

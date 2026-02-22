@@ -1,0 +1,345 @@
+<!-- /sections/search.liquid -->
+
+
+{%- liquid
+  assign has_filters = false
+  if search.filters != empty and section.settings.show_filters
+    assign has_filters = true
+  endif
+
+  assign types = search.types | join: ',' | url_encode
+  assign types = 'type=' | append: types
+
+  assign accordion_initial_state = 'accordion-is-open'
+  assign accordion_open_boolean = true
+  if section.settings.collapse_filters
+    # no class means the accordion is closed
+    assign accordion_initial_state = ''
+    # accordion_open_boolean is used to set aria-expanded and
+    # match js logic for 'display: none' on accordion body elements
+    # which are non-adjacent siblings that cannot easily be styled with CSS
+    assign accordion_open_boolean = false
+  endif
+-%}
+
+<section class="page-search {{ section.settings.width }} section-padding"
+  data-section-type="search-page"
+  data-section-id="{{ section.id }}"
+  style="--PT: {{ section.settings.padding_top }}px; --PB: {{ section.settings.padding_bottom }}px;">
+  <div class="search__page__heading">
+    {% render 'search-bar' %}
+
+    {%- if search.terms.size > 0 -%}
+      <div class="search__page__query note">
+        <p>
+          {%- if search.results_count > 0 -%}
+            {{ 'general.search.results_for' | t }} <span class="strong">{{ search.terms | escape }}</span>
+          {%- else -%}
+            {{ 'general.search.no_results_for' | t }} <span class="strong">{{ search.terms | escape }}</span>
+          {%- endif -%}
+        </p>
+      </div>
+    {%- endif -%}
+  </div>
+
+  {% if search.performed %}
+    {%- if has_filters -%}
+      {%- assign filter_count = 0 -%}
+      {%- capture filter_clears -%}
+        {%- for filter in search.filters -%}
+          {%- if filter.type == "price_range" -%}
+            {%- if filter.min_value.value != nil or filter.max_value.value != nil -%}
+              {%- assign filter_count = filter_count | plus: 1 -%}
+              <a class="active__filters__remove" href="{{ filter.url_to_remove }}" data-filter-update-url>
+                {%- assign min_value = filter.min_value.value | default: 0 -%}
+                {%- assign max_value = filter.max_value.value | default: filter.range_max -%}
+                {{ min_value | money_without_trailing_zeros }} - {{ max_value | money_without_trailing_zeros }} X
+              </a>
+            {%- endif -%}
+          {%- else -%}
+            {%- for filter_value in filter.active_values -%}
+              {%- assign filter_count = filter_count | plus: 1 -%}
+              <a class="active__filters__remove" href="{{ filter_value.url_to_remove }}" data-filter-update-url>
+                {{ filter_value.label }} <span class="filter__x">X</span>
+              </a>
+            {%- endfor -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endcapture -%}
+
+      <nav class="collection__nav" data-collection-tools>
+        <div class="collection__nav__buttons">
+          {% if filter_count > 0 %}
+            {% capture current_filters_count %}
+              <div class="badge">{{ filter_count }}</div>
+            {% endcapture %}
+          {% endif %}
+
+          <button class="collection__filters__toggle filters--default-visible drawer--visible" data-filters-toggle="filters">
+            <span class="hide-filters">{{ 'collections.sidebar.hide_filters' | t }}</span>
+            <span class="show-filters">{{ 'collections.sidebar.filter' | t }}</span>
+            <span data-active-filters-count>{{ current_filters_count }}</span>
+            {% render 'icon-core-filter' %}
+          </button>
+        </div>
+      </nav>
+    {%- endif -%}
+
+    <div class="collection__active__filters__wrapper{% unless filter_count > 0 %} is-hidden{% endunless %}">
+      <div class="collection__active__filters" data-active-filters>
+        {%- if filter_count > 1 -%}
+        <a href="{{ routes.search_url }}?{{ types }}&q={{ search.terms | url_encode }}" class="active__filters__clear" data-filter-update-url>{{ 'collections.sidebar.all_tags' | t }}</a>
+        {%- endif -%}
+        {{- filter_clears -}}
+      </div>
+
+      {%- if section.settings.show_products_count -%}
+        <div class="collection__count" data-products-count>
+          {%- if search.results_count -%}
+            {{ 'general.search.results_with_count' | t: count: search.results_count | replace_first: '**', '<strong>' | replace_first: '**', '</strong>' | replace_first: '**', '<strong>' | replace_first: '**', '</strong>' }}
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+
+    <div class="collection__content">
+
+      {%- if has_filters -%}
+        <div class="collection__filters__wrapper filters--default-visible" data-collection-sidebar data-filters="filters" data-default-hide="false">
+          <div class="collection__filters__outer">
+            <div class="drawer__top">
+              <div class="drawer__top__left">
+                <p class="cart__drawer__title">{{ 'collections.sidebar.filter' | t }}</p>
+              </div>
+
+              <button class="drawer__button drawer__close"
+                data-first-focus
+                data-filters-toggle="filters"
+                aria-label="{{ 'general.accessibility.close' | t }}">
+                {% render 'icon-core-x' %}
+              </button>
+            </div>
+
+            <div class="collection__filters__inner">
+              <form data-sidebar-filter-form>
+                <input type="hidden" name="q" value="{{ search.terms }}">
+
+                {%- for filter in search.filters -%}
+                  {% render 'filters',
+                    filter: filter,
+                    forloop: forloop,
+                    accordion_open_boolean: accordion_open_boolean,
+                    accordion_initial_state: accordion_initial_state %}
+                {%- endfor -%}
+              </form>
+            </div>
+          </div>
+
+          <span class="drawer__underlay" data-filters-underlay>
+            <span class="drawer__underlay__fill"></span>
+            <span class="drawer__underlay__blur"></span>
+          </span>
+        </div>
+
+      {%- endif -%}
+
+      <div class="collection__products" data-products-grid>
+        {% paginate search.results by section.settings.pagination_count %}
+            {% for item in search.results %}
+              <div class="search__item__generic">
+                {% if item.image or item.featured_media.preview_image %}
+
+                  <div class="search__item__generic__image">
+                    <a href="{{ item.url }}" title="{{ item.title | escape }}">
+                      {% assign image = item.featured_media.preview_image | default: item.image %}
+                      {% assign image_width = 70 | at_most: image.width %}
+                      {% assign image_width_2x = image_width | times: 2 | at_most: image.width %}
+                      {% assign alt = image.alt %}
+
+                      {% capture srcset %}
+                        {{ image | image_url: width: image_width_2x }} 2x,
+                        {{ image | image_url: width: image_width }}
+                      {% endcapture %}
+
+                      {%- render 'image',
+                        img_object: image,
+                        wh_ratio: image.aspect_ratio,
+                        width: image_width,
+                        srcset: srcset,
+                        alt: alt
+                      -%}
+                    </a>
+                  </div>
+
+                {% endif %}
+
+                <div class="search__item__generic__text">
+                  <p class="product__inline__title">
+                    {{ item.title | link_to: item.url }}
+                  </p>
+
+                  {% if item.object_type == 'product' %}
+                    <p class="product__inline__price">
+                      {%- assign product = item -%}
+                      {%- assign on_sale = false -%}
+                      {%- assign sold_out = true -%}
+                      {%- assign current_variant = product.first_available_variant -%}
+
+                      {%- if product.compare_at_price > item.price -%}
+                        {%- assign on_sale = true -%}
+                      {%- endif -%}
+
+                      {%- if product.available -%}
+                        {%- assign sold_out = false -%}
+                      {%- endif -%}
+
+                      <span class="price{% if on_sale %} on-sale{% endif %}">
+                        {% if product.price_varies %}{{ 'products.general.from' | t }} {% endif %}
+                        {% if settings.currency_code_enable %}
+                          {{ product.price | money_with_currency }}
+                        {% else %}
+                          {{ product.price | money }}
+                        {% endif %}
+                      </span>
+
+                      {% if on_sale %}
+                        <span class="compare-at">
+                          {% if settings.currency_code_enable %}
+                            {{ product.compare_at_price | money_with_currency }}
+                          {% else %}
+                            {{ product.compare_at_price | money }}
+                          {% endif %}
+                        </span>
+                      {% endif %}
+
+                      {% if current_variant.unit_price %}
+                        {% capture unit_price_separator %}
+                          <span aria-hidden="true">/</span><span class="visually-hidden">{{ 'general.accessibility.unit_price_separator' | t }}&nbsp;</span>
+                        {% endcapture %}
+
+                        {% capture unit_price_base_unit %}
+                          {% if current_variant.unit_price_measurement.reference_value != 1 %}
+                            {{ current_variant.unit_price_measurement.reference_value }}
+                          {% endif %}
+                          {{ current_variant.unit_price_measurement.reference_unit }}
+                        {% endcapture %}
+
+                          <br />
+                          <span class="visually-hidden">{{ 'products.product.unit_price_label' | t }}</span>
+                          <span class="price-per-unit">{{ current_variant.unit_price | money }}{{ unit_price_separator }}{{ unit_price_base_unit }}</span>
+                      {% endif %}
+
+                      {% if sold_out %}
+                        <br /><em>{{ 'products.product.sold_out' | t }}</em>
+                      {% endif %}
+                    </p>
+                    {%- if settings.product_grid_show_rating and product.metafields.reviews.rating.value != blank -%}
+                      <div class="rating__wrapper__search">
+                        {% render 'product-rating', product: product, show_rating_count: settings.product_grid_show_rating_count %}
+                      </div>
+                    {%- endif -%}
+                  {% endif %}
+                  </div>
+                </div>
+              {% unless forloop.last %}<hr>{% endunless %}
+            {% endfor %}
+
+            {% if paginate.pages > 1 %}
+              <div class="text-center pt-r11">
+                {% render 'pagination-custom', paginate: paginate %}
+              </div>
+            {% endif %}
+        {% endpaginate %}
+      </div>
+    </div>
+  {% endif %}
+</section>
+
+{% schema %}
+{
+	"name": "Search",
+	"settings": [
+		{
+			"type": "header",
+			"content": "Search"
+		},
+		{
+			"type": "checkbox",
+			"id": "show_filters",
+			"default": true,
+			"label": "Show product filters"
+		},
+		{
+			"type": "checkbox",
+			"id": "collapse_filters",
+			"label": "Collapse filter accordions",
+			"info": "Active filters will remain open",
+			"default": false
+		},
+		{
+			"type": "checkbox",
+			"id": "show_products_count",
+			"label": "Show products count",
+			"info": "Product count will be shown when filters are active",
+			"default": true
+		},
+		{
+			"type": "range",
+			"id": "pagination_count",
+			"min": 3,
+			"max": 50,
+			"step": 1,
+			"label": "Results per page",
+			"default": 24
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper",
+			"options": [
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				},
+				{
+					"value": "wrapper--narrow",
+					"label": "Page width narrow"
+				},
+				{
+					"value": "wrapper--tiny",
+					"label": "Page width extra narrow"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 36
+		}
+	]
+}
+{% endschema %}

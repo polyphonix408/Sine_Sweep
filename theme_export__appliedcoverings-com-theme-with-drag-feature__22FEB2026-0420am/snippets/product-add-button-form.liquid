@@ -1,0 +1,46 @@
+<!-- /snippets/product-add-button-form.liquid -->
+
+{% comment %}
+  * A form wrapper for a button that adds a product to the cart
+
+  {% render 'product-add-button-form', variant: variant, selling_plan: selling_plan, button: '<button data-add-to-cart type='submit'>Add to Cart</button>' %}
+{% endcomment %}
+
+{%- liquid
+  assign product = variant.product
+-%}
+
+<div x-data="productAddButtonForm()" class="{{ class }}">
+  {%- form 'product', product -%}
+
+    {% comment %} This input determines which variant is added {% endcomment %}
+    <input type="hidden" name="id" value="{{ variant.id }}">
+
+    {%- if selling_plan -%}
+      {% comment %} Add the selling plan if  passed in {% endcomment %}
+      <input type="hidden" name="selling_plan" value="{{ selling_plan.id }}">
+    {%- endif -%}
+
+    {% comment %} This will add a line item property with 'Sale type: Pre-order' to preorder products  {% endcomment %}
+    {%- if product.metafields.theme.preorder.value == true -%}
+      <input type="hidden" data-product-preorder name="properties[{{ 'products.product.sale_type' | t }}]" value="{{ 'products.product.pre_order' | t }}">
+    {% endif %}
+
+    {% comment %} This will add a line item property with 'Color: {{ Cutline }}' to sibling products without a color in the title {% endcomment %}
+    {%- assign cutline = product.metafields.theme.cutline.value -%}
+    {%- if cutline and settings.show_siblings -%}
+      {%- if product.metafields.theme.siblings.value != blank and product.metafields.theme.siblings.type == 'single_line_text_field' -%}
+        {%- liquid
+          assign title_down = product.title | downcase
+          assign cutline_down = cutline | downcase
+          assign siblings_label = 'general.siblings.label' | t | default: 'Color'
+        -%}
+        {%- unless title_down contains cutline_down -%}
+          <input type="hidden" name="properties[{{ siblings_label }}]" value="{{ cutline }}">
+        {%- endunless -%}
+      {%- endif -%}
+    {%- endif -%}
+
+    {{ button }}
+  {%- endform -%}
+</div>

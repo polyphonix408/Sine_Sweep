@@ -1,0 +1,154 @@
+{% capture blocks %}
+  {% content_for "blocks" %}
+{% endcapture %}
+
+{% capture class %}
+  !z-40 relative h-full
+{% endcapture %}
+
+{% render 'core-placement',
+  content: blocks,
+  _settings: block.settings,
+  attributes: block.shopify_attributes,
+  class: class
+%}
+
+{% schema %}
+{
+	"name": "Content",
+	"tag": null,
+	"settings": [
+		{
+			"type": "select",
+			"id": "vertical_placement",
+			"label": "Vertical placement",
+			"default": "center",
+			"options": [
+				{
+					"value": "start",
+					"label": "⤒"
+				},
+				{
+					"value": "center",
+					"label": "—"
+				},
+				{
+					"value": "end",
+					"label": "⤓"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "horizontal_placement",
+			"label": "Horizontal placement",
+			"default": "start",
+			"options": [
+				{
+					"value": "start",
+					"label": "⇤"
+				},
+				{
+					"value": "center",
+					"label": "|"
+				},
+				{
+					"value": "end",
+					"label": "⇥"
+				}
+			]
+		},
+		{
+			"type": "select",
+			"id": "gap",
+			"label": "Gap",
+			"default": "sm",
+			"options": [
+				{
+					"value": "0",
+					"label": "0"
+				},
+				{
+					"value": "sm",
+					"label": "S"
+				},
+				{
+					"value": "md",
+					"label": "M"
+				},
+				{
+					"value": "lg",
+					"label": "L"
+				},
+				{
+					"value": "xl",
+					"label": "XL"
+				}
+			]
+		},
+	],
+	"blocks": [
+		{
+			"type": "@theme"
+		},
+		{
+			"type": "@app"
+		}
+	],
+	"presets": [
+		{
+			"name": "Content",
+			"settings": {
+				"vertical_placement": "center",
+				"horizontal_placement": "start",
+				"gap": "sm"
+			},
+			"blocks": [
+				{
+					"type": "theme-kicker",
+					"settings": {
+						"kicker": "Kicker"
+					}
+				},
+				{
+					"type": "theme-heading",
+					"settings": {
+						"title": "Heading"
+					}
+				},
+				{
+					"type": "theme-text",
+					"settings": {
+						"text": "Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store."
+					}
+				},
+				{
+					"type": "theme-group",
+					"settings": {
+						"flow": "row",
+						"gap": "sm"
+					},
+					"blocks": [
+						{
+							"type": "theme-button",
+							"settings": {
+								"style": "btn",
+								"sizing": "btn--large",
+								"color": "btn--primary"
+							}
+						},
+						{
+							"type": "theme-button",
+							"settings": {
+								"style": "btn-text-thick-line",
+								"sizing": "btn--large",
+								"color": "btn--neutral"
+							}
+						},
+					]
+				}
+			]
+		}
+	]
+}
+{% endschema %}

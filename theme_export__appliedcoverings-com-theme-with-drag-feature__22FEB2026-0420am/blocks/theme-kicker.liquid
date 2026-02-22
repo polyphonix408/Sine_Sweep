@@ -1,0 +1,36 @@
+{% render 'core-kicker', _settings: block.settings, attributes: block.shopify_attributes %}
+
+{% schema %}
+{
+	"name": "Kicker",
+	"tag": null,
+	"settings": [
+		{
+			"type": "text",
+			"id": "kicker",
+			"label": "Kicker",
+			"default": "Introducing"
+		},
+		{
+			"type": "checkbox",
+			"id": "enable_line",
+			"label": "Enable kicker line",
+			"default": true
+		},
+		{
+			"type": "range",
+			"id": "text_size",
+			"label": "Text size",
+			"min": 1,
+			"max": 15,
+			"step": 1,
+			"default": 4
+		},
+	],
+	"presets": [
+		{
+			"name": "Kicker"
+		}
+	]
+}
+{% endschema %}

@@ -1,0 +1,71 @@
+{% liquid
+  assign break_newline = block.settings.break_newline
+  assign text = block.settings.text
+
+  # Split the text into seperate words wrapped in span tags
+  capture split_text
+    render 'split-text', text: text, attributes: 'data-animate-stagger-item', class: 'inline'
+  endcapture
+%}
+
+{% if break_newline %}<br>{% endif %}
+<span class="inline" {{ block.shopify_attributes }}>
+  {% render 'core-text-autohighlight', text: split_text, _settings: block.settings %}
+</span>
+
+{% schema %}
+{
+	"name": "Text",
+	"tag": null,
+	"settings": [
+		{
+			"type": "inline_richtext",
+			"id": "text",
+			"label": "Text",
+			"default": "<em><strong>Grab</strong></em> your customer's <em><strong>attention</strong></em> with <em><strong>spotlight text</strong></em>",
+		},
+		{
+			"type": "checkbox",
+			"id": "break_newline",
+			"label": "Break to new line",
+			"default": false
+		},
+		{
+			"type": "header",
+			"content": "Highlight",
+			"info": "Use italic and bold together to create a highlight"
+		},
+		{
+			"type": "color",
+			"id": "highlight_color",
+			"label": "Color",
+			"default": "#eee"
+		},
+		{
+			"type": "select",
+			"id": "highlight_appearance",
+			"label": "Style",
+			"default": "full",
+			"options": [
+				{
+					"value": "full",
+					"label": "Full"
+				},
+				{
+					"value": "partial",
+					"label": "Partial Background"
+				},
+				{
+					"value": "underline",
+					"label": "Underline"
+				}
+			]
+		}
+	],
+	"presets": [
+		{
+			"name": "Text"
+		}
+	]
+}
+{% endschema %}

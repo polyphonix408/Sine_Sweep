@@ -1,0 +1,277 @@
+<!-- /sections/section-logos.liquid -->
+
+{% assign logo_markup = '' %}
+
+{% assign has_block_with_image = false %}
+{% assign is_product_or_collection = false %}
+{% if product or collection %}
+  {% assign is_product_or_collection = true %}
+{% endif %}
+
+{% capture logo_markup %}
+  {% for block in section.blocks %}
+    <div class="logo-bar__item{% if is_product_or_collection and block.settings.image == blank %} hide{% endif %}"
+      style="--gutter: {{ block.settings.spacing }}px; --width: {{ block.settings.width }}px;"
+      data-slide="{{ block.id }}"
+      data-slide-index="{{ forloop.index0 }}"
+      {{ block.shopify_attributes }}>
+        {% if block.settings.link != blank %}
+          <a
+            href="{{ block.settings.link }}"
+            class="logo-bar__link"
+            {% if block.settings.new_tab %}target="_blank" rel="noopener"{% endif %}
+            title="{{ block.settings.link }}"
+          >
+        {% endif %}
+
+        {% if block.settings.image != blank %}
+          {% assign has_block_with_image = true %}
+          {%- assign image_width = block.settings.image.width | at_most: block.settings.width %}
+          {%- assign image_width_2x = image_width | times: 2 %}
+
+          {% capture srcset %}
+            {{ block.settings.image | image_url: width: image_width_2x }} 2x,
+            {{ block.settings.image | image_url: width: image_width }}
+          {% endcapture %}
+
+          {% render 'image', cover: false, img_object: block.settings.image, srcset: srcset, width: image_width, class: 'max-h-[--width]' %}
+        {% else %}
+          {{ 'logo' | placeholder_svg_tag: 'placeholder-svg' }}
+        {% endif %}
+
+        {% if block.settings.link != blank %}
+          </a>
+        {% endif %}
+    </div>
+  {% endfor %}
+{% endcapture %}
+
+<div class="section-logos {{ section.settings.bg }}{% if section.settings.title != blank %} section-logos--tall{% endif %}{% if is_product_or_collection and has_block_with_image == false and request.design_mode == false %} hide{% endif %}"
+  style="--PT: {{ section.settings.padding_top }}px; --PB: {{ section.settings.padding_bottom }}px; "
+  data-section-id="{{ section.id }}"
+  data-section-type="logos">
+  <div class="{{ section.settings.width }} section-padding">
+    {% if section.settings.title != blank %}
+      <h2 class="kicker-flourished mb-r11">{{ section.settings.title | escape }}</h2>
+    {% endif %}
+
+    {% if section.blocks.size > 0 %}
+      {% if section.settings.enable_marquee %}
+        <div class="logo-bar__wrapper">
+          <div class="logo-bar__outer" style="--bg: var(--COLOR-ANNOUNCEMENT-BG); --text: var(--COLOR-ANNOUNCEMENT-TEXT);">
+            <div class="logo-bar__holder">
+              <div class="logo-bar{% if section.settings.enable_marquee %} logo-bar--marquee{% endif %}">
+                <div data-ticker-frame class="logo-bar__message">
+                  <div data-ticker-scale class="ticker--unloaded logo-bar__scale" style="--animation-duration: {{ section.settings.marquee_speed }}s;">
+                    <div data-ticker-text class="logo-bar__text">
+                      {{ logo_markup }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div class="logo-bar ticker--unloaded">
+          {{ logo_markup }}
+        </div>
+      {% endif %}
+    {% endif %}
+
+    {% if section.blocks.size == 0 %}
+      <div class="text-center">{{ 'home_page.onboarding.no_content' | t }}</div>
+    {% elsif is_product_or_collection and has_block_with_image == false and request.design_mode %}
+      <div class="text-center">{{ 'home_page.onboarding.no_content' | t }}</div>
+    {% endif %}
+
+  </div>
+</div>
+
+{% schema %}
+{
+	"name": "Logo list",
+	"settings": [
+		{
+			"type": "text",
+			"id": "title",
+			"label": "Title",
+			"default": "Logo list"
+		},
+		{
+			"type": "select",
+			"id": "bg",
+			"label": "Background color",
+			"default": "palette--light bg--neutral",
+			"options": [
+				{
+					"value": "palette--light bg--neutral",
+					"label": "Default"
+				},
+				{
+					"value": "palette--light bg--accent",
+					"label": "Light"
+				},
+				{
+					"value": "palette--dark bg--invert",
+					"label": "Dark"
+				},
+				{
+					"value": "palette--dark bg--invert--accent",
+					"label": "Dark accent"
+				},
+				{
+					"value": "palette--bright bg--bright",
+					"label": "Bright"
+				},
+				{
+					"value": "palette--bright bg--bright--accent",
+					"label": "Bright accent"
+				}
+			]
+		},
+		{
+			"type": "header",
+			"content": "Marquee"
+		},
+		{
+			"type": "checkbox",
+			"id": "enable_marquee",
+			"label": "Enable animated marquee",
+			"default": true
+		},
+		{
+			"type": "range",
+			"id": "marquee_speed",
+			"label": "Marquee animation speed",
+			"unit": "s",
+			"min": 2,
+			"max": 60,
+			"step": 1,
+			"default": 30
+		},
+		{
+			"type": "header",
+			"content": "Section spacing"
+		},
+		{
+			"type": "select",
+			"id": "width",
+			"label": "Width",
+			"default": "wrapper--none",
+			"options": [
+				{
+					"value": "wrapper--none",
+					"label": "Full width"
+				},
+				{
+					"value": "wrapper--full",
+					"label": "Full width padded"
+				},
+				{
+					"value": "wrapper",
+					"label": "Page width"
+				},
+				{
+					"value": "wrapper--narrow",
+					"label": "Page width narrow"
+				}
+			]
+		},
+		{
+			"type": "range",
+			"id": "padding_top",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding top",
+			"default": 36
+		},
+		{
+			"type": "range",
+			"id": "padding_bottom",
+			"min": 0,
+			"max": 180,
+			"step": 2,
+			"unit": "px",
+			"label": "Padding bottom",
+			"default": 36
+		}
+	],
+	"blocks": [
+		{
+			"type": "logo_image",
+			"name": "Logo",
+			"settings": [
+				{
+					"type": "image_picker",
+					"id": "image",
+					"label": "Image",
+					"info": "640 x 640px .png recommended"
+				},
+				{
+					"type": "url",
+					"id": "link",
+					"label": "Link",
+					"info": "Optional"
+				},
+				{
+					"type": "checkbox",
+					"id": "new_tab",
+					"label": "Open in new window",
+					"default": true
+				},
+				{
+					"type": "range",
+					"id": "width",
+					"label": "Width",
+					"unit": "px",
+					"min": 50,
+					"max": 300,
+					"step": 5,
+					"default": 140
+				},
+				{
+					"type": "range",
+					"id": "spacing",
+					"label": "Spacing",
+					"unit": "px",
+					"min": 0,
+					"max": 100,
+					"step": 5,
+					"default": 50
+				}
+			]
+		}
+	],
+	"presets": [
+		{
+			"name": "Logo list",
+			"blocks": [
+				{
+					"type": "logo_image"
+				},
+				{
+					"type": "logo_image"
+				},
+				{
+					"type": "logo_image"
+				},
+				{
+					"type": "logo_image"
+				},
+				{
+					"type": "logo_image"
+				}
+			]
+		}
+	],
+	"disabled_on": {
+		"groups": [
+			"header",
+			"aside"
+		]
+	}
+}
+{% endschema %}
