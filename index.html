@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sine Wave Sweep</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #111;
+      color: #eee;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 40px;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      letter-spacing: 0.2em;
+      color: #aaa;
+      text-transform: uppercase;
+    }
+
+    #display {
+      font-size: 4rem;
+      font-weight: bold;
+      color: #00e5ff;
+      letter-spacing: 0.05em;
+      min-width: 260px;
+      text-align: center;
+    }
+
+    #display span {
+      font-size: 1.6rem;
+      color: #555;
+    }
+
+    #slider-wrap {
+      width: 80vw;
+      max-width: 700px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #555;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      background: #333;
+      border-radius: 3px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #00e5ff;
+      cursor: pointer;
+      box-shadow: 0 0 12px #00e5ff88;
+    }
+
+    input[type=range]::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #00e5ff;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 0 12px #00e5ff88;
+    }
+
+    #controls {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    button {
+      padding: 14px 40px;
+      font-size: 1rem;
+      font-family: inherit;
+      letter-spacing: 0.1em;
+      border: 2px solid #00e5ff;
+      background: transparent;
+      color: #00e5ff;
+      border-radius: 4px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    button:hover { background: #00e5ff22; }
+    button.active { background: #00e5ff; color: #111; }
+
+    #level-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: #555;
+      letter-spacing: 0.1em;
+    }
+
+    #level-wrap input[type=range] {
+      width: 160px;
+      height: 4px;
+    }
+
+    #level-display {
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Sine Wave Sweep</h1>
+
+  <div id="display"><span id="freq-val">1000</span> <span>Hz</span></div>
+
+  <div id="slider-wrap">
+    <div class="range-labels">
+      <span>20 Hz</span>
+      <span>1 kHz</span>
+      <span>20 kHz</span>
+    </div>
+    <input type="range" id="freq-slider" min="0" max="1000" value="483" step="1">
+  </div>
+
+  <div id="controls">
+    <button id="play-btn">Play</button>
+  </div>
+
+  <div id="level-wrap">
+    <div>LEVEL: <span id="level-display">0 dB</span></div>
+    <input type="range" id="level-slider" min="-60" max="0" value="0" step="1">
+  </div>
+
+  <script>
+    // Frequency mapping: logarithmic scale 20Hz–20kHz
+    const MIN_FREQ = 20;
+    const MAX_FREQ = 20000;
+
+    function sliderToFreq(val) {
+      // val: 0–1000 → log scale 20–20000
+      return MIN_FREQ * Math.pow(MAX_FREQ / MIN_FREQ, val / 1000);
+    }
+
+    function formatFreq(f) {
+      if (f >= 1000) return (f / 1000).toFixed(f >= 10000 ? 1 : 2) + ' kHz';
+      return Math.round(f) + ' Hz';
+    }
+
+    const freqSlider = document.getElementById('freq-slider');
+    const freqVal    = document.getElementById('freq-val');
+    const playBtn    = document.getElementById('play-btn');
+    const levelSlider = document.getElementById('level-slider');
+    const levelDisplay = document.getElementById('level-display');
+
+    let ctx = null, osc = null, gainNode = null, playing = false;
+
+    function getFreq() { return sliderToFreq(parseFloat(freqSlider.value)); }
+    function getGain() {
+      const db = parseFloat(levelSlider.value);
+      return db <= -60 ? 0 : Math.pow(10, db / 20);
+    }
+
+    function updateDisplay() {
+      freqVal.textContent = formatFreq(getFreq());
+    }
+
+    function updateLevel() {
+      const db = parseFloat(levelSlider.value);
+      levelDisplay.textContent = db <= -60 ? '-∞ dB' : db + ' dB';
+      if (gainNode) gainNode.gain.setTargetAtTime(getGain(), ctx.currentTime, 0.01);
+    }
+
+    function startAudio() {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      gainNode = ctx.createGain();
+      gainNode.gain.value = getGain();
+      gainNode.connect(ctx.destination);
+
+      osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = getFreq();
+      osc.connect(gainNode);
+      osc.start();
+    }
+
+    function stopAudio() {
+      if (osc) { osc.stop(); osc.disconnect(); osc = null; }
+      if (gainNode) { gainNode.disconnect(); gainNode = null; }
+      if (ctx) { ctx.close(); ctx = null; }
+    }
+
+    playBtn.addEventListener('click', () => {
+      if (!playing) {
+        startAudio();
+        playing = true;
+        playBtn.textContent = 'Stop';
+        playBtn.classList.add('active');
+      } else {
+        stopAudio();
+        playing = false;
+        playBtn.textContent = 'Play';
+        playBtn.classList.remove('active');
+      }
+    });
+
+    freqSlider.addEventListener('input', () => {
+      updateDisplay();
+      if (osc) osc.frequency.setTargetAtTime(getFreq(), ctx.currentTime, 0.01);
+    });
+
+    levelSlider.addEventListener('input', updateLevel);
+
+    updateDisplay();
+    updateLevel();
+  </script>
+</body>
+</html>
