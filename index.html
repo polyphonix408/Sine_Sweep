@@ -228,6 +228,14 @@
 
     function startAudio() {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+      // iOS won't activate the loudspeaker audio session until a real buffer is played
+      const silentBuf = ctx.createBuffer(1, 1, ctx.sampleRate);
+      const silent = ctx.createBufferSource();
+      silent.buffer = silentBuf;
+      silent.connect(ctx.destination);
+      silent.start(0);
+
       analyser = ctx.createAnalyser();
       analyser.fftSize = 256;
 
