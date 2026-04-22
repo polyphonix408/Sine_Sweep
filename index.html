@@ -158,6 +158,8 @@
 
   <div id="status">AUDIO: IDLE</div>
 
+  <canvas id="meter" width="300" height="24" style="background:#222;border-radius:4px;display:block;"></canvas>
+
   <div id="level-wrap">
     <div>LEVEL: <span id="level-display">0 dB</span></div>
     <input type="range" id="level-slider" min="-60" max="0" value="0" step="1">
@@ -182,6 +184,24 @@
     const levelSlider = document.getElementById('level-slider');
     const levelDisplay = document.getElementById('level-display');
     const statusEl   = document.getElementById('status');
+    const meterCanvas = document.getElementById('meter');
+    const meterCtx = meterCanvas.getContext('2d');
+    let analyser = null, meterRaf = null;
+
+    function drawMeter() {
+      meterRaf = requestAnimationFrame(drawMeter);
+      const data = new Uint8Array(analyser.frequencyBinCount);
+      analyser.getByteTimeDomainData(data);
+      let max = 0;
+      for (let i = 0; i < data.length; i++) max = Math.max(max, Math.abs(data[i] - 128));
+      const w = meterCanvas.width, h = meterCanvas.height;
+      meterCtx.clearRect(0, 0, w, h);
+      const fill = max / 128;
+      meterCtx.fillStyle = fill > 0.01 ? '#00e5ff' : '#333';
+      meterCtx.fillRect(0, 0, w * fill, h);
+      meterCtx.fillStyle = '#222';
+      meterCtx.fillRect(w * fill, 0, w * (1 - fill), h);
+    }
 
     function setStatus(msg, active) {
       statusEl.textContent = 'AUDIO: ' + msg.toUpperCase();
@@ -208,8 +228,12 @@
 
     function startAudio() {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = ctx.createAnalyser();
+      analyser.fftSize = 256;
+
       gainNode = ctx.createGain();
       gainNode.gain.value = getGain();
+      gainNode.connect(analyser);
       gainNode.connect(ctx.destination);
 
       osc = ctx.createOscillator();
@@ -218,17 +242,20 @@
       osc.connect(gainNode);
       osc.start();
 
-      // Must call synchronously within the tap — iOS drops the gesture context inside .then()
       ctx.resume();
 
       setStatus(ctx.state, ctx.state === 'running');
       ctx.onstatechange = () => setStatus(ctx.state, ctx.state === 'running');
+      drawMeter();
     }
 
     function stopAudio() {
+      if (meterRaf) { cancelAnimationFrame(meterRaf); meterRaf = null; }
       if (osc) { osc.stop(); osc.disconnect(); osc = null; }
       if (gainNode) { gainNode.disconnect(); gainNode = null; }
+      if (analyser) { analyser.disconnect(); analyser = null; }
       if (ctx) { ctx.close(); ctx = null; }
+      meterCtx.clearRect(0, 0, meterCanvas.width, meterCanvas.height);
       setStatus('idle', false);
     }
 
