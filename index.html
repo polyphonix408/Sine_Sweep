@@ -154,12 +154,10 @@
   </div>
 
   <script>
-    // Frequency mapping: logarithmic scale 20Hz–20kHz
     const MIN_FREQ = 20;
     const MAX_FREQ = 20000;
 
     function sliderToFreq(val) {
-      // val: 0–1000 → log scale 20–20000
       return MIN_FREQ * Math.pow(MAX_FREQ / MIN_FREQ, val / 1000);
     }
 
@@ -194,18 +192,18 @@
 
     function startAudio() {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
-      // iOS Safari starts AudioContext suspended even inside a tap handler
-      ctx.resume().then(() => {
-        gainNode = ctx.createGain();
-        gainNode.gain.value = getGain();
-        gainNode.connect(ctx.destination);
+      gainNode = ctx.createGain();
+      gainNode.gain.value = getGain();
+      gainNode.connect(ctx.destination);
 
-        osc = ctx.createOscillator();
-        osc.type = 'sine';
-        osc.frequency.value = getFreq();
-        osc.connect(gainNode);
-        osc.start();
-      });
+      osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = getFreq();
+      osc.connect(gainNode);
+      osc.start();
+
+      // Must call synchronously within the tap — iOS drops the gesture context inside .then()
+      ctx.resume();
     }
 
     function stopAudio() {
