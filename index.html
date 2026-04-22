@@ -103,6 +103,7 @@
       cursor: pointer;
       text-transform: uppercase;
       transition: background 0.15s, color 0.15s;
+      touch-action: manipulation;
     }
 
     button:hover { background: #00e5ff22; }
@@ -127,6 +128,13 @@
       color: #aaa;
       font-size: 0.9rem;
     }
+
+    #status {
+      font-size: 0.75rem;
+      color: #444;
+      letter-spacing: 0.1em;
+    }
+    #status.running { color: #00e5ff; }
   </style>
 </head>
 <body>
@@ -147,6 +155,8 @@
   <div id="controls">
     <button id="play-btn">Play</button>
   </div>
+
+  <div id="status">AUDIO: IDLE</div>
 
   <div id="level-wrap">
     <div>LEVEL: <span id="level-display">0 dB</span></div>
@@ -171,6 +181,12 @@
     const playBtn    = document.getElementById('play-btn');
     const levelSlider = document.getElementById('level-slider');
     const levelDisplay = document.getElementById('level-display');
+    const statusEl   = document.getElementById('status');
+
+    function setStatus(msg, active) {
+      statusEl.textContent = 'AUDIO: ' + msg.toUpperCase();
+      statusEl.className = active ? 'running' : '';
+    }
 
     let ctx = null, osc = null, gainNode = null, playing = false;
 
@@ -204,12 +220,16 @@
 
       // Must call synchronously within the tap — iOS drops the gesture context inside .then()
       ctx.resume();
+
+      setStatus(ctx.state, ctx.state === 'running');
+      ctx.onstatechange = () => setStatus(ctx.state, ctx.state === 'running');
     }
 
     function stopAudio() {
       if (osc) { osc.stop(); osc.disconnect(); osc = null; }
       if (gainNode) { gainNode.disconnect(); gainNode = null; }
       if (ctx) { ctx.close(); ctx = null; }
+      setStatus('idle', false);
     }
 
     playBtn.addEventListener('click', () => {
