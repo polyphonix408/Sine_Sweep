@@ -194,15 +194,18 @@
 
     function startAudio() {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
-      gainNode = ctx.createGain();
-      gainNode.gain.value = getGain();
-      gainNode.connect(ctx.destination);
+      // iOS Safari starts AudioContext suspended even inside a tap handler
+      ctx.resume().then(() => {
+        gainNode = ctx.createGain();
+        gainNode.gain.value = getGain();
+        gainNode.connect(ctx.destination);
 
-      osc = ctx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.value = getFreq();
-      osc.connect(gainNode);
-      osc.start();
+        osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = getFreq();
+        osc.connect(gainNode);
+        osc.start();
+      });
     }
 
     function stopAudio() {
@@ -227,7 +230,7 @@
 
     freqSlider.addEventListener('input', () => {
       updateDisplay();
-      if (osc) osc.frequency.setTargetAtTime(getFreq(), ctx.currentTime, 0.01);
+      if (osc && ctx) osc.frequency.setTargetAtTime(getFreq(), ctx.currentTime, 0.01);
     });
 
     levelSlider.addEventListener('input', updateLevel);
